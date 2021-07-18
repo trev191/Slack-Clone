@@ -14,7 +14,7 @@ import React from 'react';
 /**
  * @return {object} JSX Table
  */
-function Home() {
+function NavPage() {
   const user = JSON.parse(localStorage.getItem('user'));
   const [name, setName] = React.useState(user ? user.name : '');
 
@@ -34,4 +34,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default NavPage;

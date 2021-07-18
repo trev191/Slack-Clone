@@ -47,8 +47,10 @@ function Login() {
       .then((json) => {
         // if we got a valid sign in, save the returned object in localStorage
         localStorage.setItem('user', JSON.stringify(json));
-        // go back to main screen
+        // go back to main screen (history.push throws error, so
+        // use location.replace instead)
         // history.push('/');
+        window.location.replace('/');
       })
       .catch((err) => {
         console.log(err);
