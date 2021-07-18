@@ -6,14 +6,10 @@
 /**
  * NOTE: This whole file is merely a modified copy of Login.js from
  * the Authenticated Books Example
- * 
- * Sources Used:
- *  To reroute the browser to another page:
- *    https://www.w3schools.com/howto/howto_js_redirect_webpage.asp
  */
 
 import React from 'react';
-// import {useHistory} from 'react-router-dom';
+import {useHistory} from 'react-router-dom';
 
 /**
  * contain input fields for user to login and authenticate
@@ -21,7 +17,7 @@ import React from 'react';
  */
 function Login() {
   const [user, setUser] = React.useState({email: '', password: ''});
-  // const history = useHistory();
+  const history = useHistory();
 
   // update user object state when input field changes
   const handleInputChange = (event) => {
@@ -51,10 +47,8 @@ function Login() {
       .then((json) => {
         // if we got a valid sign in, save the returned object in localStorage
         localStorage.setItem('user', JSON.stringify(json));
-        // go back to main screen (history.push throws error, so
-        // use location.replace instead)
-        // history.push('/');
-        window.location.replace('/');
+        // go back to main screen
+        history.push('/');
       })
       .catch((err) => {
         console.log(err);
