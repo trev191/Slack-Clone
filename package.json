@@ -13,5 +13,8 @@
     "frontend": "cd frontend && npm start",
     "start": "(npm run backend) & (npm run frontend)",
     "zip": "bestzip Assignment8.Submission.zip frontend/src/* backend/sql/* backend/src/* backend/api/*"
+  },
+  "dependencies": {
+    "react-router-dom": "^5.2.0"
   }
 }
