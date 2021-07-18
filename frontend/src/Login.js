@@ -1,4 +1,3 @@
-import React from 'react';
 
 /**
  * Login.js - contains input fields for logging in with email and password

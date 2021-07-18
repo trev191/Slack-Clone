@@ -1,0 +1,9 @@
+1. Go to both the backend and frontend folders, and npm install both of them
+
+2. Install npm install @material-ui/core and npm install react-router-dom into the frontend folder
+
+3. To start frontend and backend servers, run npm start for both
+
+API Tester is at: http://localhost:3010/v0/api-docs/
+
+UI is at: http://localhost:3000
