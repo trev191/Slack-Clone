@@ -6,6 +6,10 @@
 /**
  * NOTE: This whole file is merely a modified copy of Login.js from
  * the Authenticated Books Example
+ * 
+ * Sources Used:
+ *  To reroute the browser to another page:
+ *    https://www.w3schools.com/howto/howto_js_redirect_webpage.asp
  */
 
 import React from 'react';
