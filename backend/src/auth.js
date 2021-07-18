@@ -1,7 +1,10 @@
 const jwt = require('jsonwebtoken');
 var bcrypt = require('bcrypt');
 
-const secrets = require('./tempSecret');
+// const secrets = require('./tempSecret');
+const secrets = require('./db_secretToken');
+const key = secrets.getSecretKey();
+console.log('key =', key);
 var users = require('./tempUsers');
 
 // handle signing in/validating user email and password combo
@@ -20,7 +23,7 @@ exports.authenticate = async (req, res) => {
   if (user) {
     const accessToken = jwt.sign(
       {email: user.email, role: user.role}, 
-      secrets.accessToken, {
+      key, {
         // set expiration time that works for both frontend and backend
         expiresIn: '30m',
         algorithm: 'HS256'
@@ -37,7 +40,7 @@ exports.check = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (authHeader) {
     const token = authHeader.split(' ')[1];
-    jwt.verify(token, secrets.accessToken, (err, user) => {
+    jwt.verify(token, key, (err, user) => {
       if (err) {
         return res.sendStatus(403);
       }
