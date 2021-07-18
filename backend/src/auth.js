@@ -12,7 +12,6 @@ exports.authenticate = async (req, res) => {
   // see if there's a user email and password that matches
   // in the database, and save result (T/F)
   const user = users.find((user) => { 
-    console.log('email+pw', email, password);
     return user.email === email && 
     bcrypt.compareSync(password, user.password);
   });
@@ -29,7 +28,6 @@ exports.authenticate = async (req, res) => {
       });
     res.status(200).json({name: user.name, accessToken: accessToken});
   } else {
-    console.log('email+pw', email, password);
     res.status(401).send('Username or password incorrect');
   }
 };
