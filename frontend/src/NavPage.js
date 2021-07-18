@@ -1,6 +1,7 @@
 /**
- * Home.js - creates the home page with React components, consisting of
- * navigation tabs at the bottom
+ * NavPage.js - creates the main page with React components, consisting of
+ * navigation tabs at the bottom to switch to different pages (ie. Home, DMs,
+ * Mentions, Search, User, etc.)
  */
 
 import React from 'react';
@@ -9,15 +10,6 @@ import React from 'react';
  * NOTE: This whole file is merely a modified copy of Home.js from
  * the Authenticated Books Example
  */
-
-// const fetchUserName = (setName, setError) => {
-//   // see if authentication exists in local storage first
-//   const item = localStorage.getItem('user');
-//   if (!item) {
-//     return;
-//   }
-//   const user = JSON.parse(item);
-// }
 
 /**
  * @return {object} JSX Table

@@ -7,7 +7,6 @@ var users = require('./tempUsers');
 // handle signing in/validating user email and password combo
 exports.authenticate = async (req, res) => {
   const { email, password } = req.body;
-  console.log('email+pw', email, password);
 
   // see if there's a user email and password that matches
   // in the database, and save result (T/F)
