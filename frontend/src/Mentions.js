@@ -3,12 +3,12 @@ import React from 'react';
  * Simple component with no state.
  * @return {object} JSX
  */
-function Home() {
+function Mentions() {
   return (
     <div>
-      Home
+      Mentions
     </div>
   );
 }
 
-export default Home;
+export default Mentions;
