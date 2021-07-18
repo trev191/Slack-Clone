@@ -1,3 +1,5 @@
+// testing comment
+
 import React from 'react';
 
 import Emoji from './Emoji';
