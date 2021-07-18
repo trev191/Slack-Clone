@@ -7,7 +7,7 @@
   "repository": "none",
   "proxy": "http://localhost:3010",
   "dependencies": {
-    "@material-ui/core": "^4.11.4",
+    "@material-ui/core": "^4.12.1",
     "@material-ui/icons": "^4.11.2",
     "emoji-picker-react": "^3.4.8",
     "prop-types": "^15.7.2",
