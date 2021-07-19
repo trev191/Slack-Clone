@@ -20,25 +20,25 @@ function App() {
     <CssBaseline />
     <BrowserRouter>
       <Switch>
-        <Route path="/login" exact id="route">
+        <Route exact path="/login" exact id="route">
           <Login/>
         </Route>
-        <Route path="/" exact id="route">
+        <Route exact path="/" exact id="route">
           <Home/>
         </Route>
-        <Route path="/dms" exact id="route">
+        <Route exact path="/dms" exact id="route">
           <NavPage/>
           <DMs/>
         </Route>
-        <Route path="/mentions" exact id="route">
+        <Route exact path="/mentions" exact id="route">
           <NavPage/>
           <Mentions/>
         </Route>
-        <Route path="/search" exact id="route">
+        <Route exact path="/search" exact id="route">
           <NavPage/>
           <Search/>
         </Route>
-        <Route path="/user" exact id="route">
+        <Route exact path="/user" exact id="route">
           <NavPage/>
           <UserProfile/>
         </Route>
