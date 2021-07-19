@@ -1,23 +1,34 @@
-/**
- * NavPage.js - creates the main page with React components, consisting of
- * navigation tabs at the bottom to switch to different pages (ie. Home, DMs,
- * Mentions, Search, User, etc.)
- */
-
 import React from 'react';
+import {Link} from 'react-router-dom';
+
+import {makeStyles} from '@material-ui/core/styles';
+
+import BottomNavigation from '@material-ui/core/BottomNavigation';
+import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
+
+import HomeIcon from '@material-ui/icons/Home';
+import ForumIcon from '@material-ui/icons/Forum';
+import AlternateEmailIcon from '@material-ui/icons/AlternateEmail';
+import SearchIcon from '@material-ui/icons/Search';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+
+const useStyles = makeStyles((theme) => ({
+  displayBottomBar: { // Hides bottom bar
+    [theme.breakpoints.up('sm')]: {
+      display: 'none',
+    },
+  },
+}));
 
 /**
- * NOTE: This whole file is merely a modified copy of Home.js from
- * the Authenticated Books Example
+ * Simple component with no state.
+ * @return {object} JSX
  */
+function BottomBar() {
+  const classes = useStyles();
 
-/**
- * @return {object} JSX Table
- */
-function NavPage() {
   const user = JSON.parse(localStorage.getItem('user'));
   const [username, setUsername] = React.useState(user ? user.userName : '');
-
   const logout = () => {
     localStorage.removeItem('user');
     setUsername('');
@@ -25,13 +36,39 @@ function NavPage() {
 
   return (
     <div>
-      <h2 id='welcome'>Slack Clone</h2>
-      <a href='/Login'>Login</a>
-      <br />
-      <button disabled={!username} onClick={logout}> Logout</button>
-      <label>{username ? username : ''}</label>
+      <BottomNavigation
+        className={classes.displayBottomBar}
+        style={{position: 'fixed', bottom: '0', width: '100%'}}
+      >
+        <BottomNavigationAction
+          component={Link}
+          to="/"
+          icon={<HomeIcon />} />
+        <BottomNavigationAction
+          component={Link}
+          to="/dms"
+          icon={<ForumIcon />} />
+        <BottomNavigationAction
+          component={Link}
+          to="/mentions"
+          icon={<AlternateEmailIcon />} />
+        <BottomNavigationAction
+          component={Link}
+          to="/search"
+          icon={<SearchIcon />} />
+        <BottomNavigationAction
+          component={Link}
+          to="/user"
+          icon={<AccountCircleIcon />} />
+        <div>
+          <a href='/Login'>Login</a>
+          <br />
+          <button disabled={!username} onClick={logout}> Logout</button>
+          <label>{username ? username : ''}</label>
+        </div>
+      </BottomNavigation>
     </div>
   );
 }
 
-export default NavPage;
+export default BottomBar;
