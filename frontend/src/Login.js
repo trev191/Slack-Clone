@@ -17,7 +17,7 @@ import {useHistory} from 'react-router-dom';
  * @return {component} input fields for user email and password to login
  */
 function Login() {
-  const [user, setUser] = React.useState({email: '', password: ''});
+  const [user, setUser] = React.useState({username: '', password: ''});
   const history = useHistory();
 
   // update user object state when input field changes
@@ -48,6 +48,7 @@ function Login() {
       .then((json) => {
         // if we got a valid sign in, save the returned object in localStorage
         localStorage.setItem('user', JSON.stringify(json));
+        console.log('local storage', JSON.stringify(json));
         // go back to main screen
         history.push('/');
       })
@@ -61,9 +62,9 @@ function Login() {
     <form onSubmit={onSubmit}>
       <h2 id='welcome'>Login</h2>
       <input
-        type="email"
-        name="email"
-        placeholder="EMail"
+        type="string"
+        name="username"
+        placeholder="Username"
         onChange={handleInputChange}
         required
       />

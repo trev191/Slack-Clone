@@ -16,11 +16,11 @@ import React from 'react';
  */
 function NavPage() {
   const user = JSON.parse(localStorage.getItem('user'));
-  const [name, setName] = React.useState(user ? user.name : '');
+  const [username, setUsername] = React.useState(user ? user.userName : '');
 
   const logout = () => {
     localStorage.removeItem('user');
-    setName('');
+    setUsername('');
   };
 
   return (
@@ -28,8 +28,8 @@ function NavPage() {
       <h2 id='welcome'>Slack Clone</h2>
       <a href='/Login'>Login</a>
       <br />
-      <button disabled={!name} onClick={logout}> Logout</button>
-      <label>{name ? name : ''}</label>
+      <button disabled={!username} onClick={logout}> Logout</button>
+      <label>{username ? username : ''}</label>
     </div>
   );
 }
