@@ -24,7 +24,6 @@ function App() {
           <Login/>
         </Route>
         <Route path="/" exact id="route">
-          <NavPage/>
           <Home/>
         </Route>
         <Route path="/dms" exact id="route">

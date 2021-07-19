@@ -1,6 +1,7 @@
 import React from 'react';
-
 import {Link} from 'react-router-dom';
+
+import {makeStyles} from '@material-ui/core/styles';
 
 import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
@@ -10,14 +11,27 @@ import ForumIcon from '@material-ui/icons/Forum';
 import AlternateEmailIcon from '@material-ui/icons/AlternateEmail';
 import SearchIcon from '@material-ui/icons/Search';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+
+const useStyles = makeStyles((theme) => ({
+  displayBottomBar: { // Hides bottom bar
+    [theme.breakpoints.up('sm')]: {
+      display: 'none',
+    },
+  },
+}));
+
 /**
  * Simple component with no state.
  * @return {object} JSX
  */
 function BottomBar() {
+  const classes = useStyles();
   return (
     <div>
-      <BottomNavigation style={{position: 'fixed', bottom: '0', width: '100%'}}>
+      <BottomNavigation
+        className={classes.displayBottomBar}
+        style={{position: 'fixed', bottom: '0', width: '100%'}}
+      >
         <BottomNavigationAction
           component={Link}
           to="/"
