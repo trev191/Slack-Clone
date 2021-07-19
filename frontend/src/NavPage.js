@@ -34,7 +34,7 @@ function BottomBar() {
       >
         <BottomNavigationAction
           component={Link}
-          to="/"
+          to="/home"
           icon={<HomeIcon />} />
         <BottomNavigationAction
           component={Link}

@@ -47,9 +47,8 @@ function Login() {
       .then((json) => {
         // if we got a valid sign in, save the returned object in localStorage
         localStorage.setItem('user', JSON.stringify(json));
-        console.log('local storage', JSON.stringify(json));
         // go back to main screen
-        history.push('/');
+        history.push('/home');
       })
       .catch((err) => {
         console.log(err);

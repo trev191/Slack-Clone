@@ -26,8 +26,13 @@ import NavPage from './NavPage';
 import InputBase from '@material-ui/core/InputBase';
 import SearchIcon from '@material-ui/icons/Search';
 import TextField from '@material-ui/core/TextField';
+import SendIcon from '@material-ui/icons/Send';
+import InputAdornment from '@material-ui/core/InputAdornment';
 
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import ArrowDropDownCircleIcon from '@material-ui/icons/ArrowDropDownCircle';
+import {createTheme, ThemeProvider} from '@material-ui/core/styles';
+import {purple, orange} from '@material-ui/core/colors';
 
 /** Base: https://codesandbox.io/s/6khtm?file=/demo.js */
 /** Table: https://material-ui.com/components/tables/#table */
@@ -35,6 +40,18 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 const drawerWidth = 300;
 const threadWidth = `calc((100% - ${drawerWidth}px) * 0.5)`;
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: purple[900],
+    },
+    secondary: {
+      main: orange[500],
+    },
+  },
+});
+
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
@@ -59,9 +76,13 @@ const useStyles = makeStyles((theme) => ({
       zIndex: theme.zIndex.drawer + 1,
     },
   },
-  menuButton: { // Three Lines
-    marginRight: theme.spacing(2),
+  mdDownVisible: { // Appear on mdUp
     [theme.breakpoints.up('md')]: {
+      display: 'none',
+    },
+  },
+  mdUpVisible: { // Appear on mdDown
+    [theme.breakpoints.down('sm')]: {
       display: 'none',
     },
   },
@@ -73,9 +94,14 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   threadSize: { // Size and margin of the threadSize
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
+    [theme.breakpoints.up('xs')]: {
+      width: `50%`,
+    },
+    [theme.breakpoints.up('md')]: {
       width: threadWidth,
+    },
+    [theme.breakpoints.down('xs')]: {
+      width: `100%`,
     },
   },
   content: { // ?
@@ -89,13 +115,11 @@ const useStyles = makeStyles((theme) => ({
     position: 'relative',
     borderRadius: theme.shape.borderRadius,
     backgroundColor: alpha(theme.palette.common.white, 0.15),
-    marginRight: theme.spacing(2),
-    marginLeft: 0,
-    width: '100%',
+    width: '50%',
     display: 'none',
+    marginLeft: 'auto',
+    marginRight: 'auto',
     [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing(3),
-      width: 'auto',
       display: 'block',
     },
   },
@@ -108,19 +132,41 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  typeBar: {
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    marginRight: theme.spacing(2),
-    marginLeft: 0,
-    width: '100%',
+  mainTextField: {
+    position: 'fixed',
+    [theme.breakpoints.up('xs')]: {
+      bottom: '10px',
+      width: `98%`,
+    },
+    [theme.breakpoints.down('xs')]: {
+      bottom: '70px',
+      width: `97%`,
+    },
+    [theme.breakpoints.up('md')]: {
+      bottom: '10px',
+      width: `calc(99% - ${drawerWidth}px)`,
+    },
+  },
+  threadTextField: {
+    position: 'fixed',
+    [theme.breakpoints.up('xs')]: {
+      bottom: '10px',
+      width: `50%`,
+    },
+    [theme.breakpoints.up('md')]: {
+      bottom: '10px',
+      width: threadWidth,
+    },
+    [theme.breakpoints.down('xs')]: {
+      bottom: '70px',
+      width: `100%`,
+    },
   },
   inputRoot: {
     color: 'inherit',
   },
   inputInput: {
     padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
     transition: theme.transitions.create('width'),
     width: '100%',
@@ -163,9 +209,9 @@ function ResponsiveDrawer() {
     setMobileWorkspacesOpen(!mobileWorkspacesOpen);
   };
 
-/**
- * @param {id} id
- */
+  /**
+   * @param {id} id
+   */
   function threadHandler() {
     openThread(true);
   }
@@ -192,9 +238,9 @@ function ResponsiveDrawer() {
     <div>
       <AppBar position="absolute" className={classes.appBar}>
         <Toolbar variant="dense">
-          <IconButton color="inherit" aria-label="open drawer"
+          <IconButton color="inherit"
             edge="start" onClick={openWorkspacesMenu}
-            className={classes.menuButton}>
+            className={classes.mdDownVisible}>
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
@@ -221,7 +267,7 @@ function ResponsiveDrawer() {
 
   const mainMessages = (
     <TableContainer component={Paper}>
-      <Table aria-label="simple table">
+      <Table>
         <TableBody>
           <TableRow key={'xxx'}
             onClick={() => threadHandler()}>
@@ -237,14 +283,25 @@ function ResponsiveDrawer() {
   const topWorkspaceBar = (
     <AppBar position="fixed" className={classes.appBar}>
       <Toolbar variant="dense">
-        <IconButton color="inherit" aria-label="open drawer"
-          edge="start" onClick={openChannelsMenu}
-          className={classes.menuButton}>
+        <IconButton
+          color="inherit"
+          edge="start"
+          onClick={openChannelsMenu}
+          className={classes.mdDownVisible}>
           <MenuIcon />
         </IconButton>
         <Typography variant="h6" noWrap>
           [Channel Name]
         </Typography>
+        <IconButton
+          color="inherit"
+          edge="start"
+          onClick={openChannelsMenu}
+          className={classes.mdUpVisible}
+          edge="end"
+        >
+          <ArrowDropDownCircleIcon />
+        </IconButton>
         <div className={classes.search}>
           <div className={classes.searchIcon}>
             <SearchIcon />
@@ -261,7 +318,6 @@ function ResponsiveDrawer() {
         <IconButton
           color="inherit"
           edge="end"
-          aria-label="open drawer"
           onClick={toggleThread(false)}>
           <AccountCircleIcon />
         </IconButton>
@@ -271,74 +327,83 @@ function ResponsiveDrawer() {
 
   return (
     <div className={classes.root}>
-      <CssBaseline />
-      {topWorkspaceBar}
-      <NavPage/>
-      {/* LeftPanels */}
-      <nav className={classes.drawerSpace} aria-label="mailbox folders">
-        {/* Mobile Channel Panel */}
-        <Hidden smDown implementation="css">
-          <Drawer
-            classes={{paper: classes.drawerSize}}
-            variant="temporary"
-            open={mobileChannelsOpen}
-            onClose={openChannelsMenu}
-            onClick={openChannelsMenu}
-            BackdropProps={{invisible: true}}
-            ModalProps={{keepMounted: true}}
-          >
-            {channels}
-          </Drawer>
-        </Hidden>
-        {/* Mobile Workspace Panel */}
-        <Hidden smDown implementation="css">
-          <Drawer
-            classes={{paper: classes.drawerSize}}
-            variant="temporary"
-            open={mobileWorkspacesOpen}
-            onClose={openWorkspacesMenu}
-            onClick={openWorkspacesMenu}
-            BackdropProps={{invisible: true}}
-            ModalProps={{keepMounted: true}}
-          >
-            {workspaces}
-          </Drawer>
-        </Hidden>
-        {/* Website LeftPanel */}
-        <Hidden smDown implementation="css">
-          <Drawer
-            classes={{paper: classes.drawerSize}}
-            variant="permanent"
-            open
-          >
-            {channels}
-          </Drawer>
-        </Hidden>
-      </nav>
-      {/* Main Content */}
-      <main className={classes.content}>
-        <div className={classes.toolbar} />
-        {mainMessages}
-        <TextField
-          id="outlined-basic"
-          label="Send a message to [Channel Name]"
-          size="small"
-          variant="outlined"
-          multiline
-          fullWidth
-          style={{position: 'fixed', bottom: '0', width: '100%'}}
-        />
-      </main>
-      {/* ThreadPanel */}
-      <nav
-        className={
-          threadOpened ?
-          classes.threadSpaceOpened :
-          classes.threadSpaceClosed}
-        aria-label="mailbox folders"
-      >
-        <Hidden smDown implementation="css">
-          <Drawer
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        {topWorkspaceBar}
+        <NavPage/>
+        {/* LeftPanels */}
+        <nav className={classes.drawerSpace}>
+          {/* Mobile Channel Panel */}
+          <Hidden smDown implementation="css">
+            <Drawer
+              classes={{paper: classes.drawerSize}}
+              variant="temporary"
+              open={mobileChannelsOpen}
+              onClose={openChannelsMenu}
+              onClick={openChannelsMenu}
+              BackdropProps={{invisible: true}}
+              ModalProps={{keepMounted: true}}
+            >
+              {channels}
+            </Drawer>
+          </Hidden>
+          {/* Mobile Workspace Panel */}
+          <Hidden smDown implementation="css">
+            <Drawer
+              classes={{paper: classes.drawerSize}}
+              variant="temporary"
+              open={mobileWorkspacesOpen}
+              onClose={openWorkspacesMenu}
+              onClick={openWorkspacesMenu}
+              BackdropProps={{invisible: true}}
+              ModalProps={{keepMounted: true}}
+            >
+              {workspaces}
+            </Drawer>
+          </Hidden>
+          {/* Website LeftPanel */}
+          <Hidden smDown implementation="css">
+            <Drawer
+              classes={{paper: classes.drawerSize}}
+              variant="permanent"
+              open
+            >
+              {channels}
+            </Drawer>
+          </Hidden>
+        </nav>
+        {/* Main Content */}
+        <main className={classes.content}>
+          <div className={classes.toolbar} />
+          {mainMessages}
+          <TextField
+            label="Send a message to [Channel Name]"
+            size="small"
+            variant="outlined"
+            multiline
+            className={classes.mainTextField}
+            InputProps={{
+              endAdornment:
+              <InputAdornment position="end">
+                <IconButton
+                  color={theme.palette.primary.dark}
+                  edge="end"
+                  onClick={toggleThread(false)}>
+                  <SendIcon />
+                </IconButton>
+              </InputAdornment>,
+            }}
+          />
+        </main>
+        {/* ThreadPanel */}
+        <nav
+          className={
+            threadOpened ?
+              classes.threadSpaceOpened :
+              classes.threadSpaceClosed}
+        >
+          <Hidden smDown implementation="css">
+            <Drawer
               classes={{paper: classes.threadSize}}
               variant='temporary'
               onClose={toggleThread(false)}
@@ -347,29 +412,47 @@ function ResponsiveDrawer() {
               ModalProps={{keepMounted: true}}
               anchor="right"
               transitionDuration={0}
-          >
-            <AppBar position="absolute">
-              <Toolbar variant="dense">
-                <Typography variant="h6" noWrap className={classes.title}>
-                  Thread [current channel]
-                </Typography>
-                <IconButton
-                  color="inherit"
-                  edge="end"
-                  aria-label="open drawer"
-                  onClick={toggleThread(false)}>
-                <Close />
-                </IconButton>
-              </Toolbar>
-            </AppBar>
-            <div className={classes.toolbar} />
-            <Typography variant="h6">
+            >
+              <AppBar position="absolute">
+                <Toolbar variant="dense">
+                  <Typography variant="h6" noWrap className={classes.title}>
+                    Thread [current channel]
+                  </Typography>
+                  <IconButton
+                    color="inherit"
+                    edge="end"
+                    onClick={toggleThread(false)}>
+                    <Close />
+                  </IconButton>
+                </Toolbar>
+              </AppBar>
               <div className={classes.toolbar} />
-              {mainMessages}
-            </Typography>
-          </Drawer>
-        </Hidden>
-      </nav>
+              <Typography variant="h6">
+                {mainMessages}
+              </Typography>
+              <TextField
+                label="Add a reply..."
+                size="small"
+                variant="outlined"
+                multiline
+                className={classes.threadTextField}
+                InputProps={{
+                  endAdornment:
+                <InputAdornment position="end">
+                  <IconButton
+                    color="inherit"
+                    edge="end"
+                    onClick={toggleThread(false)}>
+                    <SendIcon />
+                  </IconButton>
+                </InputAdornment>,
+                }}
+              >
+              </TextField>
+            </Drawer>
+          </Hidden>
+        </nav>
+      </ThemeProvider>
     </div>
   );
 }
