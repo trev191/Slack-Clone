@@ -3,12 +3,11 @@ var bcrypt = require('bcrypt');
 
 // const secrets = require('./tempSecret');
 const secrets = require('./db_secretToken');
-const key = secrets.getSecretKey();
-console.log('key =', key);
 var users = require('./tempUsers');
 
 // handle signing in/validating user email and password combo
 exports.authenticate = async (req, res) => {
+  const key = await secrets.getSecretKey();
   const { email, password } = req.body;
 
   // see if there's a user email and password that matches

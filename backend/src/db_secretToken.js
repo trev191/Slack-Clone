@@ -1,3 +1,12 @@
+/**
+ * Sources Used:
+ *  Creating a callback with pool.query:
+ *    https://stackoverflow.com/questions/28928736/returning-the-results-of-an-mysql-query-ends-up-returning-undefined
+ *
+ *  Returning the value of an async function (query):
+ *    https://stackoverflow.com/questions/58254717/returning-the-result-of-a-node-postgres-query
+ */
+
 const {Pool} = require('pg');
 
 const pool = new Pool({
@@ -10,11 +19,10 @@ const pool = new Pool({
 
 // return the secret access token key
 exports.getSecretKey = async () => {
-  const select = 'SELECT * FROM token';
+  const select = 'SELECT secret_key FROM token';
   const query = {
     text: select,
   };
-  const {row} = await pool.query(query);
-  console.log (row);
-  return row;
+  const result = await pool.query(query);
+  return result.rows[0].secret_key;
 };
