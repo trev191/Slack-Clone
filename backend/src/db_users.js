@@ -12,7 +12,7 @@ const pool = new Pool({
 // search up a match of a username and password (non-hashed) and
 // return the JSON object if the user if it exists
 exports.checkLogin = async (name, password) => {
-  const select = `SELECT userName, userData FROM users WHERE
+  const select = `SELECT * FROM users WHERE
     userName = $1 AND userData->>'password' = $2`;
   const query = {
     text: select,
@@ -25,6 +25,7 @@ exports.checkLogin = async (name, password) => {
     console.log('result.rows', result.rows);
     const userJSON = {};
     userJSON.userName = result.rows[0].username;
+    userJSON.id = result.rows[0].id;
     return userJSON;
   }
 };

@@ -26,14 +26,6 @@ const useStyles = makeStyles((theme) => ({
  */
 function BottomBar() {
   const classes = useStyles();
-
-  const user = JSON.parse(localStorage.getItem('user'));
-  const [username, setUsername] = React.useState(user ? user.userName : '');
-  const logout = () => {
-    localStorage.removeItem('user');
-    setUsername('');
-  };
-
   return (
     <div>
       <BottomNavigation
@@ -60,12 +52,6 @@ function BottomBar() {
           component={Link}
           to="/user"
           icon={<AccountCircleIcon />} />
-        <div>
-          <a href='/Login'>Login</a>
-          <br />
-          <button disabled={!username} onClick={logout}> Logout</button>
-          <label>{username ? username : ''}</label>
-        </div>
       </BottomNavigation>
     </div>
   );

@@ -3,7 +3,7 @@ INSERT INTO dummy (created) VALUES (current_timestamp);
 
 -- Populate Your Tables Here --
 INSERT INTO users(userName, userData) VALUES ('Trevor','{"password":"pw","loggedOn":"false","status":"EMPTY_STATUS"}');
-INSERT INTO users(userName, userData) VALUES ('Trevor','{"password":"pw","loggedOn":"false","status":"EMPTY_STATUS"}');
+INSERT INTO users(userName, userData) VALUES ('Carrum','{"password":"pw","loggedOn":"false","status":"EMPTY_STATUS"}');
 INSERT INTO users(userName, userData) VALUES ('molly@member.com','{"password":"mollymember","loggedOn":"false","status":"EMPTY_STATUS"}');
 INSERT INTO users(userName, userData) VALUES ('anna@books.com','{"password":"annaadmin","loggedOn":"false","status":"EMPTY_STATUS"}');
 

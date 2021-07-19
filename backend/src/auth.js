@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-
 const secrets = require('./db_secretToken');
 var users = require('./db_users');
 
@@ -22,7 +21,7 @@ exports.authenticate = async (req, res) => {
         expiresIn: '30m',
         algorithm: 'HS256'
       });
-    res.status(200).json({userName: user.userName, accessToken: accessToken});
+    res.status(200).json({userName: user.userName, accessToken: accessToken, id: user.id});
   } else {
     res.status(401).send('Username or password incorrect');
   }
@@ -34,7 +33,7 @@ exports.check = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (authHeader) {
     const token = authHeader.split(' ')[1];
-    jwt.verify(token, key, (err, user) => {
+    jwt.verify(token, secrets.accessToken, (err, user) => {
       if (err) {
         return res.sendStatus(403);
       }
@@ -45,4 +44,5 @@ exports.check = (req, res, next) => {
     res.sendStatus(401);
   }
 };
+
 
