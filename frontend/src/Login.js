@@ -77,10 +77,11 @@ function Login() {
       },
     })
       .then((res) => {
-        // if we got a bad result, throw it and return the result in JSON
+        // if we got a bad result, throw it
         if (!res.ok) {
           throw res;
         }
+        // else return the valid result in JSON
         return res.json();
       })
       .then((json) => {

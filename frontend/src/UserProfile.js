@@ -123,7 +123,7 @@ function UserProfile() {
 
       {/* Container (button) for Toggling Status */}
       <Container>
-        <Typography variant="h7" onClick={toggleStatus}
+        <Typography onClick={toggleStatus}
           className={classes.button}>
           Set Yourself as {isActive? 'AWAY' : 'ACTIVE'}
         </Typography>
@@ -132,7 +132,7 @@ function UserProfile() {
 
       {/* Container (button) for Signing Out */}
       <Container>
-        <Typography variant="h7" onClick={logout}
+        <Typography onClick={logout}
           className={classes.button}>
           Sign Out
         </Typography>
