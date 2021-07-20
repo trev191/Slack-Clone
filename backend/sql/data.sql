@@ -6,18 +6,21 @@ INSERT INTO dummy (created) VALUES (current_timestamp);
 -- Populate Your Tables Here --
 
 -- Users Table --
+-- The password for Trevor and Carrum are 'pw' and molly and anna use
+-- mollymember and annaadmin, respectively
 DELETE FROM users;
 INSERT INTO users(id, userName, userData) VALUES (
   '9a9986ec-6703-40d1-a873-3125fd065242',
   'Trevor',
-  '{"password":"pw",
+  '{"password":"$2b$10$NWRUkWNTCvaW8fBMe59.6ev47FOAJ9GATcaOWugGn.knKqHXLfp8W",
     "loggedOn":"false",
     "status":"EMPTY_STATUS",
     "dmstream":["754dd19b-9348-4d06-99e7-55274bc2bd27", "64ed3198-c45b-4e48-8e23-e95e72d7b120"]}'
   );
 INSERT INTO users(id, userName, userData) VALUES (
   '0c187a60-8793-4a84-99c9-a1f8a4e3ea77',
-  'Carrum','{"password":"pw",
+  'Carrum',
+  '{"password":"$2b$10$NWRUkWNTCvaW8fBMe59.6ev47FOAJ9GATcaOWugGn.knKqHXLfp8W",
     "loggedOn":"false",
     "status":"EMPTY_STATUS",
     "dmstream":["754dd19b-9348-4d06-99e7-55274bc2bd27"]}'
@@ -25,7 +28,7 @@ INSERT INTO users(id, userName, userData) VALUES (
 INSERT INTO users(id, userName, userData) VALUES (
   '943b1b36-ae1b-417c-8254-46eec5bd41fa',
   'molly@books.com',
-  '{"password":"mollymember",
+  '{"password":"$2b$10$NWRUkWNTCvaW8fBMe59.6eEMGgk37kLXmJlngvHcYlNnP88MbrEl6",
     "loggedOn":"false",
     "status":"EMPTY_STATUS",
     "dmstream":["64ed3198-c45b-4e48-8e23-e95e72d7b120"]}'
@@ -33,7 +36,7 @@ INSERT INTO users(id, userName, userData) VALUES (
 INSERT INTO users(id, userName, userData) VALUES (
   'e4332099-25c9-4bff-b986-009c631e60ee',
   'anna@books.com',
-  '{"password":"annaadmin",
+  '{"password":"$2b$10$NWRUkWNTCvaW8fBMe59.6e2ktsXcRV2gS7Mk7rzwWFtRCKqMBvBm6",
     "loggedOn":"false",
     "status":"EMPTY_STATUS",
     "dmstream":[]}'

@@ -1,6 +1,33 @@
+/**
+ * Sources Used
+ *  Function to hash a password asynchronously with bcrypt:
+ *    https://coderrocketfuel.com/article/using-bcrypt-to-hash-and-check-passwords-in-node-js#hash-a-password
+ *    https://stackoverflow.com/questions/48799894/trying-to-hash-a-password-using-bcrypt-inside-an-async-function
+ *
+ *  Using fixed salt value to prevent hash function from generating
+ *  different hashes when database restarts:
+ *    https://stackoverflow.com/questions/53588419/hashing-pattern-changes-every-time-the-server-restarts
+ */
+
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const secrets = require('./db_secretToken');
 var users = require('./db_users');
+
+// helper function to hash a password and return the hashed string
+exports.hashPassword = async (password) => {
+  const salt = '$2b$10$NWRUkWNTCvaW8fBMe59.6ev47FOAJ9GATcaOWugGn.knKqHXLfp8W';
+  const hashedPassword = await new Promise((resolve, reject) => {
+    bcrypt.hash(password, salt, (err, hash) => {
+      if (err) {
+        reject(err);
+      } 
+      resolve(hash);
+    });
+  })
+
+  return hashedPassword;
+}
 
 // handle signing in/validating username and password combo
 exports.authenticate = async (req, res) => {
@@ -36,14 +63,12 @@ exports.check = async (req, res, next) => {
     const token = authHeader.split(' ')[1];
     jwt.verify(token, key, (err, user) => {
       if (err) {
-        console.log('invalid check');
         return res.sendStatus(403);
       }
       req.user = user;
       next();
     });
   } else {
-    console.log('valid check');
     res.sendStatus(401);
   }
 };
