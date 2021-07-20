@@ -14,6 +14,7 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 const useStyles = makeStyles((theme) => ({
   displayBottomBar: { // Hides bottom bar
+    zIndex: '1301',
     [theme.breakpoints.up('sm')]: {
       display: 'none',
     },

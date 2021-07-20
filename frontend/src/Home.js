@@ -218,7 +218,7 @@ function ResponsiveDrawer() {
   const [mobileWorkspacesOpen, setMobileWorkspacesOpen] =
     React.useState(false);
   const [mobileChannelsOpen, setMobileChannelsOpen] =
-    React.useState(false);
+    React.useState(true);
 
   const [webWorkspacesOpen, setWebWorkspacesOpen] =
     React.useState(false);
@@ -271,10 +271,10 @@ function ResponsiveDrawer() {
   };
 
 /**
- * @param {id} id
+ * @param {bool} bool
  */
-  function threadHandler() {
-    openThread(true);
+  function threadHandler(bool) {
+    openThread(bool);
   }
 
   const workspaces = (
@@ -441,7 +441,9 @@ function ResponsiveDrawer() {
 
   const message = (
     <TableRow key={'xxx'}>
-      <TableCell align="left" onClick={() => threadHandler()}>
+      <TableCell align="left" onClick={() => threadHandler(true)}>
+        {/* Thread handler should also change state
+        of the side thread panel */}
         <ListItem button key={'ID'}>
           <ListItemAvatar>
             <Badge variant="dot" color="secondary" invisible={false}>
