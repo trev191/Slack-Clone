@@ -77,7 +77,7 @@ function UserProfile() {
   const logout = () => {
     localStorage.removeItem('user');
     // go back to login screen
-    history.push('/Login');
+    history.push('/');
   };
 
   // flip the user status from away to active, or vice versa
@@ -87,8 +87,8 @@ function UserProfile() {
 
   const active = (
     <div>
-    <FiberManualRecordIcon className={classes.activeStatus}/>
-    <Typography variant="caption">ACTIVE</Typography>
+      <FiberManualRecordIcon className={classes.activeStatus}/>
+      <Typography variant="caption">ACTIVE</Typography>
     </div>
   );
 
@@ -123,7 +123,7 @@ function UserProfile() {
 
       {/* Container (button) for Toggling Status */}
       <Container>
-        <Typography variant="h7" onClick={toggleStatus}
+        <Typography onClick={toggleStatus}
           className={classes.button}>
           Set Yourself as {isActive? 'AWAY' : 'ACTIVE'}
         </Typography>
@@ -132,7 +132,7 @@ function UserProfile() {
 
       {/* Container (button) for Signing Out */}
       <Container>
-        <Typography variant="h7" onClick={logout}
+        <Typography onClick={logout}
           className={classes.button}>
           Sign Out
         </Typography>

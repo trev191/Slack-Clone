@@ -209,9 +209,9 @@ function ResponsiveDrawer() {
     setMobileWorkspacesOpen(!mobileWorkspacesOpen);
   };
 
-/**
- * @param {id} id
- */
+  /**
+   * @param {id} id
+   */
   function threadHandler() {
     openThread(true);
   }
@@ -328,82 +328,82 @@ function ResponsiveDrawer() {
   return (
     <div className={classes.root}>
       <ThemeProvider theme={theme}>
-      <CssBaseline />
-      {topWorkspaceBar}
-      <NavPage/>
-      {/* LeftPanels */}
-      <nav className={classes.drawerSpace}>
-        {/* Mobile Channel Panel */}
-        <Hidden smDown implementation="css">
-          <Drawer
-            classes={{paper: classes.drawerSize}}
-            variant="temporary"
-            open={mobileChannelsOpen}
-            onClose={openChannelsMenu}
-            onClick={openChannelsMenu}
-            BackdropProps={{invisible: true}}
-            ModalProps={{keepMounted: true}}
-          >
-            {channels}
-          </Drawer>
-        </Hidden>
-        {/* Mobile Workspace Panel */}
-        <Hidden smDown implementation="css">
-          <Drawer
-            classes={{paper: classes.drawerSize}}
-            variant="temporary"
-            open={mobileWorkspacesOpen}
-            onClose={openWorkspacesMenu}
-            onClick={openWorkspacesMenu}
-            BackdropProps={{invisible: true}}
-            ModalProps={{keepMounted: true}}
-          >
-            {workspaces}
-          </Drawer>
-        </Hidden>
-        {/* Website LeftPanel */}
-        <Hidden smDown implementation="css">
-          <Drawer
-            classes={{paper: classes.drawerSize}}
-            variant="permanent"
-            open
-          >
-            {channels}
-          </Drawer>
-        </Hidden>
-      </nav>
-      {/* Main Content */}
-      <main className={classes.content}>
-        <div className={classes.toolbar} />
-        {mainMessages}
-        <TextField
-          label="Send a message to [Channel Name]"
-          size="small"
-          variant="outlined"
-          multiline
-          className={classes.mainTextField}
-          InputProps={{
-            endAdornment:
-            <InputAdornment position="end">
+        <CssBaseline />
+        {topWorkspaceBar}
+        <NavPage/>
+        {/* LeftPanels */}
+        <nav className={classes.drawerSpace}>
+          {/* Mobile Channel Panel */}
+          <Hidden smDown implementation="css">
+            <Drawer
+              classes={{paper: classes.drawerSize}}
+              variant="temporary"
+              open={mobileChannelsOpen}
+              onClose={openChannelsMenu}
+              onClick={openChannelsMenu}
+              BackdropProps={{invisible: true}}
+              ModalProps={{keepMounted: true}}
+            >
+              {channels}
+            </Drawer>
+          </Hidden>
+          {/* Mobile Workspace Panel */}
+          <Hidden smDown implementation="css">
+            <Drawer
+              classes={{paper: classes.drawerSize}}
+              variant="temporary"
+              open={mobileWorkspacesOpen}
+              onClose={openWorkspacesMenu}
+              onClick={openWorkspacesMenu}
+              BackdropProps={{invisible: true}}
+              ModalProps={{keepMounted: true}}
+            >
+              {workspaces}
+            </Drawer>
+          </Hidden>
+          {/* Website LeftPanel */}
+          <Hidden smDown implementation="css">
+            <Drawer
+              classes={{paper: classes.drawerSize}}
+              variant="permanent"
+              open
+            >
+              {channels}
+            </Drawer>
+          </Hidden>
+        </nav>
+        {/* Main Content */}
+        <main className={classes.content}>
+          <div className={classes.toolbar} />
+          {mainMessages}
+          <TextField
+            label="Send a message to [Channel Name]"
+            size="small"
+            variant="outlined"
+            multiline
+            className={classes.mainTextField}
+            InputProps={{
+              endAdornment:
+              <InputAdornment position="end">
                 <IconButton
                   color={theme.palette.primary.dark}
                   edge="end"
                   onClick={toggleThread(false)}>
                   <SendIcon />
                 </IconButton>
-            </InputAdornment>,
-          }}
-        />
-      </main>
-      {/* ThreadPanel */}
-      <nav
-        className={
-          threadOpened ?
-          classes.threadSpaceOpened :
-          classes.threadSpaceClosed}
-      >
-        <Hidden smDown implementation="css">
-          <Drawer
+              </InputAdornment>,
+            }}
+          />
+        </main>
+        {/* ThreadPanel */}
+        <nav
+          className={
+            threadOpened ?
+              classes.threadSpaceOpened :
+              classes.threadSpaceClosed}
+        >
+          <Hidden smDown implementation="css">
+            <Drawer
               classes={{paper: classes.threadSize}}
               variant='temporary'
               onClose={toggleThread(false)}
@@ -412,46 +412,46 @@ function ResponsiveDrawer() {
               ModalProps={{keepMounted: true}}
               anchor="right"
               transitionDuration={0}
-          >
-            <AppBar position="absolute">
-              <Toolbar variant="dense">
-                <Typography variant="h6" noWrap className={classes.title}>
-                  Thread [current channel]
-                </Typography>
-                <IconButton
-                  color="inherit"
-                  edge="end"
-                  onClick={toggleThread(false)}>
-                  <Close />
-                </IconButton>
-              </Toolbar>
-            </AppBar>
-            <div className={classes.toolbar} />
-            <Typography variant="h6">
-              {mainMessages}
-            </Typography>
-            <TextField
-              label="Add a reply..."
-              size="small"
-              variant="outlined"
-              multiline
-              className={classes.threadTextField}
-              InputProps={{
-                endAdornment:
-                <InputAdornment position="end">
-                    <IconButton
-                      color="inherit"
-                      edge="end"
-                      onClick={toggleThread(false)}>
-                      <SendIcon />
-                    </IconButton>
-                </InputAdornment>,
-              }}
             >
-            </TextField>
-          </Drawer>
-        </Hidden>
-      </nav>
+              <AppBar position="absolute">
+                <Toolbar variant="dense">
+                  <Typography variant="h6" noWrap className={classes.title}>
+                    Thread [current channel]
+                  </Typography>
+                  <IconButton
+                    color="inherit"
+                    edge="end"
+                    onClick={toggleThread(false)}>
+                    <Close />
+                  </IconButton>
+                </Toolbar>
+              </AppBar>
+              <div className={classes.toolbar} />
+              <Typography variant="h6">
+                {mainMessages}
+              </Typography>
+              <TextField
+                label="Add a reply..."
+                size="small"
+                variant="outlined"
+                multiline
+                className={classes.threadTextField}
+                InputProps={{
+                  endAdornment:
+                <InputAdornment position="end">
+                  <IconButton
+                    color="inherit"
+                    edge="end"
+                    onClick={toggleThread(false)}>
+                    <SendIcon />
+                  </IconButton>
+                </InputAdornment>,
+                }}
+              >
+              </TextField>
+            </Drawer>
+          </Hidden>
+        </nav>
       </ThemeProvider>
     </div>
   );
