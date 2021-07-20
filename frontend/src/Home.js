@@ -1,4 +1,5 @@
 import React from 'react';
+import {useHistory} from 'react-router-dom';
 
 // MAT-UI COMPONENTS ------
 import AppBar from '@material-ui/core/AppBar';
@@ -18,13 +19,6 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import Menu from '@material-ui/core/Menu';
-// import MenuItem from '@material-ui/core/MenuItem';
-import Paper from '@material-ui/core/Paper';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -37,7 +31,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import SendIcon from '@material-ui/icons/Send';
 
 // THEMES AND COLORS ------
-import {alpha, makeStyles} from '@material-ui/core/styles';
+import {makeStyles} from '@material-ui/core/styles';
 import {createTheme, ThemeProvider} from '@material-ui/core/styles';
 import {purple, green} from '@material-ui/core/colors';
 
@@ -116,6 +110,13 @@ const useStyles = makeStyles((theme) => ({
       width: drawerWidth,
     },
   },
+  mobileDrawerSize: { // Size of the drawer objects
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      width: drawerWidth,
+      display: 'none',
+    },
+  },
   threadSize: { // Size and margin of the threadSize
     [theme.breakpoints.up('xs')]: {
       width: `50%`,
@@ -135,10 +136,9 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   search: {
-    position: 'relative',
     borderRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    width: '50%',
+    backgroundColor: 'white',
+    width: 'auto',
     display: 'none',
     marginLeft: 'auto',
     marginRight: 'auto',
@@ -212,8 +212,9 @@ const useStyles = makeStyles((theme) => ({
  * Main function!
  * @return {object} JSX
  */
-function ResponsiveDrawer() {
+function Home() {
   const classes = useStyles();
+  const history = useHistory();
 
   const [mobileWorkspacesOpen, setMobileWorkspacesOpen] =
     React.useState(false);
@@ -392,14 +393,24 @@ function ResponsiveDrawer() {
       <div className={classes.toolbar} />
       <Divider />
       <ListSubheader>
-        <ListItemText primary={'All DMs'} />
+        <ListItemText
+          primary={'All DMs'}
+          onClick={
+            () => {
+              history.push('/dms');
+          }}
+        />
       </ListSubheader>
-      <Divider />
       <Divider />
       <ListSubheader>
-        <ListItemText primary={'Mentions'} />
+      <ListItemText
+          primary={'Mentions'}
+          onClick={
+            () => {
+              history.push('/mentions');
+          }}
+        />
       </ListSubheader>
-      <Divider />
       <Divider />
       <ListSubheader>
         <ListItemText primary={'Channels'} />
@@ -440,36 +451,36 @@ function ResponsiveDrawer() {
   );
 
   const message = (
-    <TableRow key={'xxx'}>
-      <TableCell align="left" onClick={() => threadHandler(true)}>
+    <div>
+      <ListItem key={'ID'} onClick={() => threadHandler(true)}>
         {/* Thread handler should also change state
         of the side thread panel */}
-        <ListItem button key={'ID'}>
-          <ListItemAvatar>
-            <Badge variant="dot" color="secondary" invisible={false}>
-              <Avatar>X</Avatar>
-            </Badge>
-          </ListItemAvatar>
-          <ListItemText
-            primary={'[Person 1\'s Name]'}
-            secondary={'[Date]'}
-          />
-        </ListItem>
-        <ListItemText primary={'[Message Body]'}
-          secondary={'People in Thread'}/>
-      </TableCell>
-    </TableRow>
+        <ListItemAvatar>
+          <Badge variant="dot" color="secondary" invisible={false}>
+            <Avatar>X</Avatar>
+          </Badge>
+        </ListItemAvatar>
+        <ListItemText
+          primary={'[Person 1\'s Name]  /  [Date]'}
+          secondary={'[Message Body] : ' +
+            'dsasdad sdddddddd dddddddd ddddd ddddddd' +
+            'dsa sdadsdddd dddddddd ddddddddddd ddddd' +
+            'dsas dadsdddddd dddddddddd ddddddd ddddd'}
+        />
+
+      </ListItem>
+      <ListSubheader>
+        People in Thread
+      </ListSubheader>
+    </div>
   );
 
   const messageTable = (
-    <TableContainer component={Paper}>
-      <Table>
-        <TableBody>
-          {message}
-          {message}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <List>
+      {message}
+      {message}
+      {message}
+    </List>
   );
 
   const topWorkspaceBar = (
@@ -502,18 +513,24 @@ function ResponsiveDrawer() {
           <ArrowDropDownCircleIcon />
         </IconButton>
         {webWorkspaceMenu}
-        <div className={classes.search}>
-          <div className={classes.searchIcon}>
-            <SearchIcon />
-          </div>
-          <InputBase
-            placeholder="Search…"
-            classes={{
-              root: classes.inputRoot,
-              input: classes.inputInput,
-            }}
-          />
-        </div>
+        <TextField
+          label="Search…"
+          size="small"
+          variant="outlined"
+          className={classes.search}
+          InputProps={{
+            endAdornment:
+            <InputAdornment position="end">
+                <IconButton
+                  color={theme.palette.primary.dark}
+                  edge="end"
+                  onClick={doNothing()}
+                  >
+                  <SearchIcon />
+                </IconButton>
+            </InputAdornment>,
+          }}
+        />
         <div className={classes.searchBuffer}/>
         <IconButton
           color="inherit"
@@ -537,19 +554,17 @@ function ResponsiveDrawer() {
       {/* LeftPanels */}
       <nav className={classes.drawerSpace}>
         {/* Mobile Channel Panel */}
-        <Hidden smDown implementation="css">
-          <Drawer
-            classes={{paper: classes.drawerSize}}
-            variant="temporary"
-            open={mobileChannelsOpen}
-            onClose={openMobileChannelsMenu}
-            onClick={openMobileChannelsMenu}
-            BackdropProps={{invisible: true}}
-            ModalProps={{keepMounted: true}}
-          >
-            {channels}
-          </Drawer>
-        </Hidden>
+        <Drawer
+          classes={{paper: classes.mobileDrawerSize}}
+          variant="temporary"
+          open={mobileChannelsOpen}
+          onClose={openMobileChannelsMenu}
+          onClick={openMobileChannelsMenu}
+          BackdropProps={{invisible: true}}
+          ModalProps={{keepMounted: true}}
+        >
+          {channels}
+        </Drawer>
         {/* Mobile Workspace Panel */}
         <Hidden smDown implementation="css">
           <Drawer
@@ -578,6 +593,11 @@ function ResponsiveDrawer() {
       {/* Main Content */}
       <main className={classes.content}>
         <div className={classes.toolbar} />
+        <ListSubheader>
+          <ListItemText
+            primary={currChannel}
+          />
+        </ListSubheader>
         {messageTable}
         <TextField
           label="Send a message to ${currChannel}"
@@ -663,4 +683,4 @@ function ResponsiveDrawer() {
   );
 }
 
-export default ResponsiveDrawer;
+export default Home;
