@@ -2,9 +2,10 @@ import React from 'react';
 
 // MAT-UI COMPONENTS ------
 import AppBar from '@material-ui/core/AppBar';
+import Avatar from '@material-ui/core/Avatar';
+import Badge from '@material-ui/core/Badge';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Divider from '@material-ui/core/Divider';
-// import Dialog from '@material-ui/core/Dialog';
 import Drawer from '@material-ui/core/Drawer';
 import Hidden from '@material-ui/core/Hidden';
 import IconButton from '@material-ui/core/IconButton';
@@ -12,6 +13,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import InputBase from '@material-ui/core/InputBase';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListSubheader from '@material-ui/core/ListSubheader';
@@ -28,7 +30,6 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 
 // ICONS ------
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import ArrowDropDownCircleIcon from '@material-ui/icons/ArrowDropDownCircle';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -38,7 +39,7 @@ import SendIcon from '@material-ui/icons/Send';
 // THEMES AND COLORS ------
 import {alpha, makeStyles} from '@material-ui/core/styles';
 import {createTheme, ThemeProvider} from '@material-ui/core/styles';
-import {purple, orange} from '@material-ui/core/colors';
+import {purple, green} from '@material-ui/core/colors';
 
 // PERSONAL ------
 import NavPage from './NavPage';
@@ -56,7 +57,7 @@ const theme = createTheme({
       main: purple[900],
     },
     secondary: {
-      main: orange[500],
+      main: green[400],
     },
   },
 });
@@ -263,6 +264,8 @@ function ResponsiveDrawer() {
     setCurrChannel(newChannel);
   };
 
+  // const change
+
   const doNothing = () => () =>{
     console.log('Temp Function Call');
   };
@@ -302,6 +305,7 @@ function ResponsiveDrawer() {
   const webWorkspaceMenu = (
     <Menu
       onClose={openWebWorkspacesMenu()}
+      onClick={openWebWorkspacesMenu()}
       open={webWorkspacesOpen}
     >
       <List>
@@ -337,7 +341,9 @@ function ResponsiveDrawer() {
       <List>
         <ListItem>
           <ListItemIcon>
-          <AccountCircleIcon />
+            <Badge variant="dot" color="secondary" invisible={false}>
+              <Avatar>X</Avatar>
+            </Badge>
           </ListItemIcon>
           <ListItemText primary={'[User Name]'} />
         </ListItem>
@@ -358,13 +364,6 @@ function ResponsiveDrawer() {
           <ListItemText primary={'Set yourself as away'} />
         </ListItem>
         <Divider />
-        <ListItem
-          button
-          onClick={doNothing()}
-          key={'Edit Profile'}
-        >
-          <ListItemText primary={'Edit Profile'} />
-        </ListItem>
         <ListItem
           button
           onClick={doNothing()}
@@ -421,25 +420,51 @@ function ResponsiveDrawer() {
       </ListSubheader>
       <Divider />
         <ListItem button onClick={doNothing()} key={'Inbox'}>
-          <ListItemText primary={'Person 1'} />
+          <ListItemIcon>
+            <Badge variant="dot" color="secondary" invisible={false}>
+              <Avatar>X</Avatar>
+            </Badge>
+          </ListItemIcon>
+        <ListItemText primary={'Person 1'} />
         </ListItem>
         <ListItem button onClick={doNothing()} key={'Trash'}>
-          <ListItemText primary={'Person 2'} />
+        <ListItemIcon>
+          <Badge variant="dot" color="secondary" invisible={false}>
+            <Avatar>X</Avatar>
+          </Badge>
+        </ListItemIcon>
+        <ListItemText primary={'Person 2'} />
         </ListItem>
       </List>
     </div>
   );
 
-  const mainMessages = (
+  const message = (
+    <TableRow key={'xxx'}>
+      <TableCell align="left" onClick={() => threadHandler()}>
+        <ListItem button key={'ID'}>
+          <ListItemAvatar>
+            <Badge variant="dot" color="secondary" invisible={false}>
+              <Avatar>X</Avatar>
+            </Badge>
+          </ListItemAvatar>
+          <ListItemText
+            primary={'[Person 1\'s Name]'}
+            secondary={'[Date]'}
+          />
+        </ListItem>
+        <ListItemText primary={'[Message Body]'}
+          secondary={'People in Thread'}/>
+      </TableCell>
+    </TableRow>
+  );
+
+  const messageTable = (
     <TableContainer component={Paper}>
       <Table>
         <TableBody>
-          <TableRow key={'xxx'}
-            onClick={() => threadHandler()}>
-            <TableCell align="center">
-              [Message]
-            </TableCell>
-          </TableRow>
+          {message}
+          {message}
         </TableBody>
       </Table>
     </TableContainer>
@@ -492,7 +517,9 @@ function ResponsiveDrawer() {
           color="inherit"
           edge="end"
           onClick={openWebUserProfileMenu()}>
-          <AccountCircleIcon />
+            <Badge variant="dot" color="secondary" invisible={false}>
+              <Avatar>X</Avatar>
+            </Badge>
         </IconButton>
         {webUserProfileMenu}
       </Toolbar>
@@ -549,7 +576,7 @@ function ResponsiveDrawer() {
       {/* Main Content */}
       <main className={classes.content}>
         <div className={classes.toolbar} />
-        {mainMessages}
+        {messageTable}
         <TextField
           label="Send a message to ${currChannel}"
           size="small"
@@ -604,7 +631,7 @@ function ResponsiveDrawer() {
             </AppBar>
             <div className={classes.toolbar} />
             <Typography variant="h6">
-              {mainMessages}
+              {messageTable}
             </Typography>
             <TextField
               label="Add a reply..."
