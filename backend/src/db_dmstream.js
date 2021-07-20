@@ -22,8 +22,25 @@ const getDMstreamIds = async (userId) => {
   return rows[0].userdata.dmstream;
 }
 
+// helper function to find out the name of the other user in the DM
+const findOtherUserName = async (dmStreamId, userId) => {
+  // get the message rows using the initialMessage id
+  const select = 'SELECT users FROM dmstream WHERE id = $1';
+  const query = {
+    text: select,
+    values: [dmStreamId],
+  };
+  const {rows} = await pool.query(query);
+  console.log('rows', rows);
+  if (rows[0].users.user1 == userId) {
+    return users.getUser(rows[0].users.user2);
+  } else {
+    return users.getUser(rows[0].users.user1);
+  }
+}
+
 // helper function to retrieve all messages within a DM stream
-const getMessagesFromDM = async (dmStreamId) => {
+const getMessagesFromDM = async (dmStreamId, userId) => {
   const messages = [];
 
   // get the initialMessage id from the dmStreamId
@@ -35,12 +52,21 @@ const getMessagesFromDM = async (dmStreamId) => {
   let {rows} = await pool.query(initialMessageQuery);
   const initialMessageId = rows[0].initialmessage;
 
+  // get all messages and replies from dm and fill it into messages[]
   const messagesAndReplies = await getAllMessagesAndReplies(initialMessageId);
   for (index in messagesAndReplies) {
     messages.push(messagesAndReplies[index]);
   }
 
-  return messages;
+  // find out the name of the other user in the DM
+  const otherUserName = await findOtherUserName(dmStreamId, userId);
+
+  // create a DM object to return messages and name of the other user
+  const DMObj = {};
+  DMObj.otherUser = otherUserName;
+  DMObj.messages = messages;
+
+  return DMObj;
 }
 
 // helper function to retrieve all messages/replies within a DM/thread
@@ -86,7 +112,7 @@ exports.getDMs = async (userId) => {
   // using each dmStreamId, get all messages within the dm and add
   // them to the array of DMs
   for (index in dmStreamIds) {
-    const dmMessages = await getMessagesFromDM(dmStreamIds[index]);
+    const dmMessages = await getMessagesFromDM(dmStreamIds[index], userId);
     allDMs.push(dmMessages);
   }
 

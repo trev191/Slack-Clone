@@ -72,9 +72,15 @@ components:
         $ref: '#/components/schemas/SingleDMStream'
     
     SingleDMStream:
-      type: array
-      items:
-        $ref: '#/components/schemas/Message'
+      type: object
+      properties:
+        otherUser:
+          type: string
+          default: 'name'
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
 
     Message:
       type: object

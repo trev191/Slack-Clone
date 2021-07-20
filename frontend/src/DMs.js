@@ -53,7 +53,7 @@ function DMs() {
   return (
     <div>
       DMs
-      {dms.length == 0? ' No messages found.' : ' There are messages!'}
+      {dms.length === 0? ' No messages found.' : ' There are messages!'}
     </div>
   );
 }
