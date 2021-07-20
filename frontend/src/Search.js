@@ -37,6 +37,9 @@ import {purple, green} from '@material-ui/core/colors';
 // PERSONAL ------
 import NavPage from './NavPage';
 
+// BACKEND ------
+import {useHistory} from 'react-router-dom';
+
 /** Base: https://codesandbox.io/s/6khtm?file=/demo.js */
 /** Table: https://material-ui.com/components/tables/#table */
 /** Drawers: https://material-ui.com/components/drawers/#drawer */
@@ -84,6 +87,11 @@ const useStyles = makeStyles((theme) => ({
       display: 'none',
     },
   },
+  smUpVisible: { // Appear on smUp
+    [theme.breakpoints.down('xs')]: {
+      display: 'none',
+    },
+  },
   mdDownVisible: { // Appear on mdUp
     [theme.breakpoints.up('md')]: {
       display: 'none',
@@ -126,12 +134,8 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: theme.shape.borderRadius,
     backgroundColor: 'white',
     width: 'auto',
-    display: 'none',
     marginLeft: 'auto',
     marginRight: 'auto',
-    [theme.breakpoints.up('sm')]: {
-      display: 'block',
-    },
   },
   searchBuffer: {
     position: 'relative',
@@ -203,6 +207,8 @@ const useStyles = makeStyles((theme) => ({
  */
 function Search() {
   const classes = useStyles();
+  const user = JSON.parse(localStorage.getItem('user'));
+  const history = useHistory();
 
   const [mobileWorkspacesOpen, setMobileWorkspacesOpen] =
     React.useState(false);
@@ -218,6 +224,7 @@ function Search() {
 
   const [currWorkspace, setCurrWorkspace] = React.useState('null');
   const [currChannel, setCurrChannel] = React.useState('null');
+  const [isActive, toggleActive] = React.useState(true);
 
   const toggleThread = (open) => (event) => {
     if (event.type === 'keydown' &&
@@ -253,13 +260,21 @@ function Search() {
     setCurrChannel(newChannel);
   };
 
-  // const change
+  const logout = () => {
+    localStorage.removeItem('user');
+    history.push('/');
+  };
+
+  // flip the user status from away to active, or vice versa
+  const toggleStatus = () => {
+    toggleActive(!isActive);
+  };
 
   const doNothing = () => () =>{
     console.log('Temp Function Call');
   };
 
-/**
+  /**
  * @param {bool} bool
  */
   function threadHandler(bool) {
@@ -270,9 +285,9 @@ function Search() {
     <div>
       <List>
         <Divider />
-          <ListSubheader>
-            <ListItemText primary={'Workspaces'} />
-          </ListSubheader>
+        <ListSubheader>
+          <ListItemText primary={'Workspaces'} />
+        </ListSubheader>
         <Divider />
         <ListItem
           button
@@ -299,9 +314,9 @@ function Search() {
     >
       <List>
         <Divider />
-          <ListSubheader>
-            <ListItemText primary={'Workspaces'} />
-          </ListSubheader>
+        <ListSubheader>
+          <ListItemText primary={'Workspaces'} />
+        </ListSubheader>
         <Divider />
         <ListItem
           button
@@ -330,32 +345,46 @@ function Search() {
       <List>
         <ListItem>
           <ListItemIcon>
-            <Badge variant="dot" color="secondary" invisible={false}>
-              <Avatar>X</Avatar>
+            <Badge
+              variant="dot"
+              color="secondary"
+              invisible={isActive? false : true}
+            >
+              <Avatar>
+                {user ? user.userName.charAt(0) : ''}
+              </Avatar>
             </Badge>
           </ListItemIcon>
-          <ListItemText primary={'[User Name]'} />
+          <ListItemText
+            primary={user ? user.userName : '[User Name]'}
+            secondary={isActive? 'Active' : 'Away'}
+          />
         </ListItem>
         <Divider />
         <InputBase
-            placeholder="Update your status"
-            classes={{
-              root: classes.inputRoot,
-              input: classes.inputInput,
-            }}
-          />
+          placeholder="Update your status"
+          classes={{
+            root: classes.inputRoot,
+            input: classes.inputInput,
+          }}
+        />
         <Divider />
         <ListItem
           button
-          onClick={doNothing()}
+          onClick={toggleStatus}
           key={'Set yourself as away'}
         >
-          <ListItemText primary={'Set yourself as away'} />
+          <ListItemText
+            primary={isActive ?
+              'Set Yourself as Away' :
+              'Set Yourself as Active'
+            }
+          />
         </ListItem>
         <Divider />
         <ListItem
           button
-          onClick={doNothing()}
+          onClick={logout}
           key={'Sign Out'}
         >
           <ListItemText primary={'Sign Out'} />
@@ -379,16 +408,28 @@ function Search() {
         </Toolbar>
       </AppBar>
       <div className={classes.toolbar} />
-      <Divider />
-      <ListSubheader>
-        <ListItemText primary={'All DMs'} />
-      </ListSubheader>
-      <Divider />
-      <Divider />
-      <ListSubheader>
-        <ListItemText primary={'Mentions'} />
-      </ListSubheader>
-      <Divider />
+      <div className={classes.smUpVisible}>
+        <Divider />
+        <ListSubheader>
+          <ListItemText
+            primary={'All DMs'}
+            onClick={
+              () => {
+                history.push('/dms');
+              }}
+          />
+        </ListSubheader>
+        <Divider />
+        <ListSubheader>
+          <ListItemText
+            primary={'Mentions'}
+            onClick={
+              () => {
+                history.push('/mentions');
+              }}
+          />
+        </ListSubheader>
+      </div>
       <Divider />
       <ListSubheader>
         <ListItemText primary={'Channels'} />
@@ -403,26 +444,26 @@ function Search() {
         </ListItem>
       </List>
       <List>
-      <Divider />
-      <ListSubheader>
-        <ListItemText primary={'Direct Messages'} />
-      </ListSubheader>
-      <Divider />
+        <Divider />
+        <ListSubheader>
+          <ListItemText primary={'Direct Messages'} />
+        </ListSubheader>
+        <Divider />
         <ListItem button onClick={doNothing()} key={'Inbox'}>
           <ListItemIcon>
             <Badge variant="dot" color="secondary" invisible={false}>
               <Avatar>X</Avatar>
             </Badge>
           </ListItemIcon>
-        <ListItemText primary={'Person 1'} />
+          <ListItemText primary={'Person 1'} />
         </ListItem>
         <ListItem button onClick={doNothing()} key={'Trash'}>
-        <ListItemIcon>
-          <Badge variant="dot" color="secondary" invisible={false}>
-            <Avatar>X</Avatar>
-          </Badge>
-        </ListItemIcon>
-        <ListItemText primary={'Person 2'} />
+          <ListItemIcon>
+            <Badge variant="dot" color="secondary" invisible={false}>
+              <Avatar>X</Avatar>
+            </Badge>
+          </ListItemIcon>
+          <ListItemText primary={'Person 2'} />
         </ListItem>
       </List>
     </div>
@@ -481,31 +522,39 @@ function Search() {
         </IconButton>
         {webWorkspaceMenu}
         <TextField
-            label="Search…"
-            size="small"
-            variant="outlined"
-            className={classes.search}
-            InputProps={{
-              endAdornment:
-              <InputAdornment position="end">
-                  <IconButton
-                    color={theme.palette.primary.dark}
-                    edge="end"
-                    onClick={doNothing()}
-                    >
-                    <SearchIcon />
-                  </IconButton>
-              </InputAdornment>,
-            }}
-          />
-        <IconButton
-          color="inherit"
-          edge="end"
-          onClick={openWebUserProfileMenu()}>
-            <Badge variant="dot" color="secondary" invisible={false}>
-              <Avatar>X</Avatar>
+          label="Search…"
+          size="small"
+          variant="outlined"
+          className={classes.search}
+          InputProps={{
+            endAdornment:
+            <InputAdornment position="end">
+              <IconButton
+                color={theme.palette.primary.dark}
+                edge="end"
+                onClick={doNothing()}
+              >
+                <SearchIcon />
+              </IconButton>
+            </InputAdornment>,
+          }}
+        />
+        <div className={classes.smUpVisible}>
+          <IconButton
+            color="inherit"
+            edge="end"
+            onClick={openWebUserProfileMenu()}>
+            <Badge
+              variant="dot"
+              color="secondary"
+              invisible={isActive? false : true}
+            >
+              <Avatar>
+                {user ? user.userName.charAt(0) : ''}
+              </Avatar>
             </Badge>
-        </IconButton>
+          </IconButton>
+        </div>
         {webUserProfileMenu}
       </Toolbar>
     </AppBar>
@@ -514,99 +563,99 @@ function Search() {
   return (
     <div className={classes.root}>
       <ThemeProvider theme={theme}>
-      <CssBaseline />
-      {topWorkspaceBar}
-      <NavPage/>
-      {/* LeftPanels */}
-      <nav className={classes.drawerSpace}>
-        {/* Mobile Channel Panel */}
-        <Hidden smDown implementation="css">
-          <Drawer
-            classes={{paper: classes.drawerSize}}
-            variant="temporary"
-            open={mobileChannelsOpen}
-            onClose={openMobileChannelsMenu}
-            onClick={openMobileChannelsMenu}
-            BackdropProps={{invisible: true}}
-            ModalProps={{keepMounted: true}}
-          >
-            {channels}
-          </Drawer>
-        </Hidden>
-        {/* Mobile Workspace Panel */}
-        <Hidden smDown implementation="css">
-          <Drawer
-            classes={{paper: classes.drawerSize}}
-            variant="temporary"
-            open={mobileWorkspacesOpen}
-            onClose={openMobileWorkspacesMenu}
-            onClick={openMobileWorkspacesMenu}
-            BackdropProps={{invisible: true}}
-            ModalProps={{keepMounted: true}}
-          >
-            {workspaces}
-          </Drawer>
-        </Hidden>
-        {/* Website LeftPanel */}
-        <Hidden smDown implementation="css">
-          <Drawer
-            classes={{paper: classes.drawerSize}}
-            variant="permanent"
-            open
-          >
-            {channels}
-          </Drawer>
-        </Hidden>
-      </nav>
-      {/* Main Content */}
-      <main className={classes.content}>
-        <div className={classes.toolbar} />
-        <ListSubheader>
-          <ListItemText
-            primary='Search'
-          />
-        </ListSubheader>
-        {messageTable}
-      </main>
-      {/* ThreadPanel */}
-      <nav>
-        <Hidden smDown implementation="css">
-          <Drawer
-            classes={{paper: classes.threadSize}}
-            variant='temporary'
-            onClose={toggleThread(false)}
-            open={threadOpened}
-            BackdropProps={{invisible: true}}
-            ModalProps={{keepMounted: true}}
-            anchor="right"
-            transitionDuration={0}
-          >
-            <AppBar position="absolute">
-              <Toolbar variant="dense">
-                <IconButton
-                  color="inherit"
-                  edge="start"
-                  onClick={toggleThread(false)}>
-                  <ArrowBackIcon />
-                </IconButton>
-                <Typography variant="h6" noWrap className={classes.title}>
-                  Thread : {currChannel}
-                </Typography>
-              </Toolbar>
-            </AppBar>
-            <div className={classes.toolbar} />
-            <Typography variant="h6">
-              {messageTable}
-            </Typography>
-            <TextField
-              label="Add a reply..."
-              size="small"
-              variant="outlined"
-              multiline
-              className={classes.threadTextField}
-              InputProps={{
-                endAdornment:
-                <InputAdornment position="end">
+        <CssBaseline />
+        {topWorkspaceBar}
+        <NavPage/>
+        {/* LeftPanels */}
+        <nav className={classes.drawerSpace}>
+          {/* Mobile Channel Panel */}
+          <Hidden smDown implementation="css">
+            <Drawer
+              classes={{paper: classes.drawerSize}}
+              variant="temporary"
+              open={mobileChannelsOpen}
+              onClose={openMobileChannelsMenu}
+              onClick={openMobileChannelsMenu}
+              BackdropProps={{invisible: true}}
+              ModalProps={{keepMounted: true}}
+            >
+              {channels}
+            </Drawer>
+          </Hidden>
+          {/* Mobile Workspace Panel */}
+          <Hidden smDown implementation="css">
+            <Drawer
+              classes={{paper: classes.drawerSize}}
+              variant="temporary"
+              open={mobileWorkspacesOpen}
+              onClose={openMobileWorkspacesMenu}
+              onClick={openMobileWorkspacesMenu}
+              BackdropProps={{invisible: true}}
+              ModalProps={{keepMounted: true}}
+            >
+              {workspaces}
+            </Drawer>
+          </Hidden>
+          {/* Website LeftPanel */}
+          <Hidden smDown implementation="css">
+            <Drawer
+              classes={{paper: classes.drawerSize}}
+              variant="permanent"
+              open
+            >
+              {channels}
+            </Drawer>
+          </Hidden>
+        </nav>
+        {/* Main Content */}
+        <main className={classes.content}>
+          <div className={classes.toolbar} />
+          <ListSubheader>
+            <ListItemText
+              primary='Search'
+            />
+          </ListSubheader>
+          {messageTable}
+        </main>
+        {/* ThreadPanel */}
+        <nav>
+          <Hidden smDown implementation="css">
+            <Drawer
+              classes={{paper: classes.threadSize}}
+              variant='temporary'
+              onClose={toggleThread(false)}
+              open={threadOpened}
+              BackdropProps={{invisible: true}}
+              ModalProps={{keepMounted: true}}
+              anchor="right"
+              transitionDuration={0}
+            >
+              <AppBar position="absolute">
+                <Toolbar variant="dense">
+                  <IconButton
+                    color="inherit"
+                    edge="start"
+                    onClick={toggleThread(false)}>
+                    <ArrowBackIcon />
+                  </IconButton>
+                  <Typography variant="h6" noWrap className={classes.title}>
+                    Thread : {currChannel}
+                  </Typography>
+                </Toolbar>
+              </AppBar>
+              <div className={classes.toolbar} />
+              <Typography variant="h6">
+                {messageTable}
+              </Typography>
+              <TextField
+                label="Add a reply..."
+                size="small"
+                variant="outlined"
+                multiline
+                className={classes.threadTextField}
+                InputProps={{
+                  endAdornment:
+                  <InputAdornment position="end">
                     <IconButton
                       color="inherit"
                       edge="end"
@@ -614,13 +663,13 @@ function Search() {
                       onClick={doNothing()}>
                       <SendIcon />
                     </IconButton>
-                </InputAdornment>,
-              }}
-            >
-            </TextField>
-          </Drawer>
-        </Hidden>
-      </nav>
+                  </InputAdornment>,
+                }}
+              >
+              </TextField>
+            </Drawer>
+          </Hidden>
+        </nav>
       </ThemeProvider>
     </div>
   );

@@ -1,5 +1,4 @@
 import React from 'react';
-import {useHistory} from 'react-router-dom';
 
 // MAT-UI COMPONENTS ------
 import AppBar from '@material-ui/core/AppBar';
@@ -37,6 +36,9 @@ import {purple, green} from '@material-ui/core/colors';
 
 // PERSONAL ------
 import NavPage from './NavPage';
+
+// BACKEND ------
+import {useHistory} from 'react-router-dom';
 
 /** Base: https://codesandbox.io/s/6khtm?file=/demo.js */
 /** Table: https://material-ui.com/components/tables/#table */
@@ -85,6 +87,11 @@ const useStyles = makeStyles((theme) => ({
       display: 'none',
     },
   },
+  smUpVisible: { // Appear on smUp
+    [theme.breakpoints.down('xs')]: {
+      display: 'none',
+    },
+  },
   mdDownVisible: { // Appear on mdUp
     [theme.breakpoints.up('md')]: {
       display: 'none',
@@ -114,7 +121,6 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     [theme.breakpoints.up('sm')]: {
       width: drawerWidth,
-      display: 'none',
     },
   },
   threadSize: { // Size and margin of the threadSize
@@ -206,6 +212,10 @@ const useStyles = makeStyles((theme) => ({
       width: '20ch',
     },
   },
+  button: {
+    // for Buttons that toggle the user status and sign out
+    cursor: 'pointer',
+  },
 }));
 
 /**
@@ -214,22 +224,21 @@ const useStyles = makeStyles((theme) => ({
  */
 function Home() {
   const classes = useStyles();
+  const user = JSON.parse(localStorage.getItem('user'));
   const history = useHistory();
 
   const [mobileWorkspacesOpen, setMobileWorkspacesOpen] =
     React.useState(false);
   const [mobileChannelsOpen, setMobileChannelsOpen] =
     React.useState(true);
-
   const [webWorkspacesOpen, setWebWorkspacesOpen] =
     React.useState(false);
   const [webUserProfileOpen, setWebUserProfileOpen] =
     React.useState(false);
-
   const [threadOpened, openThread] = React.useState(false);
-
   const [currWorkspace, setCurrWorkspace] = React.useState('null');
   const [currChannel, setCurrChannel] = React.useState('null');
+  const [isActive, toggleActive] = React.useState(true);
 
   const toggleThread = (open) => (event) => {
     if (event.type === 'keydown' &&
@@ -265,13 +274,21 @@ function Home() {
     setCurrChannel(newChannel);
   };
 
-  // const change
+  const logout = () => {
+    localStorage.removeItem('user');
+    history.push('/');
+  };
+
+  // flip the user status from away to active, or vice versa
+  const toggleStatus = () => {
+    toggleActive(!isActive);
+  };
 
   const doNothing = () => () =>{
     console.log('Temp Function Call');
   };
 
-/**
+  /**
  * @param {bool} bool
  */
   function threadHandler(bool) {
@@ -282,9 +299,9 @@ function Home() {
     <div>
       <List>
         <Divider />
-          <ListSubheader>
-            <ListItemText primary={'Workspaces'} />
-          </ListSubheader>
+        <ListSubheader>
+          <ListItemText primary={'Workspaces'} />
+        </ListSubheader>
         <Divider />
         <ListItem
           button
@@ -311,9 +328,9 @@ function Home() {
     >
       <List>
         <Divider />
-          <ListSubheader>
-            <ListItemText primary={'Workspaces'} />
-          </ListSubheader>
+        <ListSubheader>
+          <ListItemText primary={'Workspaces'} />
+        </ListSubheader>
         <Divider />
         <ListItem
           button
@@ -342,32 +359,46 @@ function Home() {
       <List>
         <ListItem>
           <ListItemIcon>
-            <Badge variant="dot" color="secondary" invisible={false}>
-              <Avatar>X</Avatar>
+            <Badge
+              variant="dot"
+              color="secondary"
+              invisible={isActive? false : true}
+            >
+              <Avatar>
+                {user ? user.userName.charAt(0) : ''}
+              </Avatar>
             </Badge>
           </ListItemIcon>
-          <ListItemText primary={'[User Name]'} />
+          <ListItemText
+            primary={user ? user.userName : '[User Name]'}
+            secondary={isActive? 'Active' : 'Away'}
+          />
         </ListItem>
         <Divider />
         <InputBase
-            placeholder="Update your status"
-            classes={{
-              root: classes.inputRoot,
-              input: classes.inputInput,
-            }}
-          />
+          placeholder="Update your status"
+          classes={{
+            root: classes.inputRoot,
+            input: classes.inputInput,
+          }}
+        />
         <Divider />
         <ListItem
           button
-          onClick={doNothing()}
+          onClick={toggleStatus}
           key={'Set yourself as away'}
         >
-          <ListItemText primary={'Set yourself as away'} />
+          <ListItemText
+            primary={isActive ?
+              'Set Yourself as Away' :
+              'Set Yourself as Active'
+            }
+          />
         </ListItem>
         <Divider />
         <ListItem
           button
-          onClick={doNothing()}
+          onClick={logout}
           key={'Sign Out'}
         >
           <ListItemText primary={'Sign Out'} />
@@ -391,26 +422,28 @@ function Home() {
         </Toolbar>
       </AppBar>
       <div className={classes.toolbar} />
-      <Divider />
-      <ListSubheader>
-        <ListItemText
-          primary={'All DMs'}
-          onClick={
-            () => {
-              history.push('/dms');
-          }}
-        />
-      </ListSubheader>
-      <Divider />
-      <ListSubheader>
-      <ListItemText
-          primary={'Mentions'}
-          onClick={
-            () => {
-              history.push('/mentions');
-          }}
-        />
-      </ListSubheader>
+      <div className={classes.smUpVisible}>
+        <Divider />
+        <ListSubheader>
+          <ListItemText
+            primary={'All DMs'}
+            onClick={
+              () => {
+                history.push('/dms');
+              }}
+          />
+        </ListSubheader>
+        <Divider />
+        <ListSubheader>
+          <ListItemText
+            primary={'Mentions'}
+            onClick={
+              () => {
+                history.push('/mentions');
+              }}
+          />
+        </ListSubheader>
+      </div>
       <Divider />
       <ListSubheader>
         <ListItemText primary={'Channels'} />
@@ -425,26 +458,26 @@ function Home() {
         </ListItem>
       </List>
       <List>
-      <Divider />
-      <ListSubheader>
-        <ListItemText primary={'Direct Messages'} />
-      </ListSubheader>
-      <Divider />
+        <Divider />
+        <ListSubheader>
+          <ListItemText primary={'Direct Messages'} />
+        </ListSubheader>
+        <Divider />
         <ListItem button onClick={doNothing()} key={'Inbox'}>
           <ListItemIcon>
             <Badge variant="dot" color="secondary" invisible={false}>
               <Avatar>X</Avatar>
             </Badge>
           </ListItemIcon>
-        <ListItemText primary={'Person 1'} />
+          <ListItemText primary={'Person 1'} />
         </ListItem>
         <ListItem button onClick={doNothing()} key={'Trash'}>
-        <ListItemIcon>
-          <Badge variant="dot" color="secondary" invisible={false}>
-            <Avatar>X</Avatar>
-          </Badge>
-        </ListItemIcon>
-        <ListItemText primary={'Person 2'} />
+          <ListItemIcon>
+            <Badge variant="dot" color="secondary" invisible={false}>
+              <Avatar>X</Avatar>
+            </Badge>
+          </ListItemIcon>
+          <ListItemText primary={'Person 2'} />
         </ListItem>
       </List>
     </div>
@@ -452,6 +485,7 @@ function Home() {
 
   const message = (
     <div>
+      <Divider />
       <ListItem key={'ID'} onClick={() => threadHandler(true)}>
         {/* Thread handler should also change state
         of the side thread panel */}
@@ -467,11 +501,8 @@ function Home() {
             'dsa sdadsdddd dddddddd ddddddddddd ddddd' +
             'dsas dadsdddddd dddddddddd ddddddd ddddd'}
         />
-
       </ListItem>
-      <ListSubheader>
         People in Thread
-      </ListSubheader>
     </div>
   );
 
@@ -521,25 +552,33 @@ function Home() {
           InputProps={{
             endAdornment:
             <InputAdornment position="end">
-                <IconButton
-                  color={theme.palette.primary.dark}
-                  edge="end"
-                  onClick={doNothing()}
-                  >
-                  <SearchIcon />
-                </IconButton>
+              <IconButton
+                color={theme.palette.primary.dark}
+                edge="end"
+                onClick={doNothing()}
+              >
+                <SearchIcon />
+              </IconButton>
             </InputAdornment>,
           }}
         />
         <div className={classes.searchBuffer}/>
-        <IconButton
-          color="inherit"
-          edge="end"
-          onClick={openWebUserProfileMenu()}>
-            <Badge variant="dot" color="secondary" invisible={false}>
-              <Avatar>X</Avatar>
+        <div className={classes.smUpVisible}>
+          <IconButton
+            color="inherit"
+            edge="end"
+            onClick={openWebUserProfileMenu()}>
+              <Badge
+                variant="dot"
+                color="secondary"
+                invisible={isActive? false : true}
+              >
+              <Avatar>
+                {user ? user.userName.charAt(0) : ''}
+              </Avatar>
             </Badge>
-        </IconButton>
+          </IconButton>
+        </div>
         {webUserProfileMenu}
       </Toolbar>
     </AppBar>
@@ -548,66 +587,66 @@ function Home() {
   return (
     <div className={classes.root}>
       <ThemeProvider theme={theme}>
-      <CssBaseline />
-      {topWorkspaceBar}
-      <NavPage/>
-      {/* LeftPanels */}
-      <nav className={classes.drawerSpace}>
-        {/* Mobile Channel Panel */}
-        <Drawer
-          classes={{paper: classes.mobileDrawerSize}}
-          variant="temporary"
-          open={mobileChannelsOpen}
-          onClose={openMobileChannelsMenu}
-          onClick={openMobileChannelsMenu}
-          BackdropProps={{invisible: true}}
-          ModalProps={{keepMounted: true}}
-        >
-          {channels}
-        </Drawer>
-        {/* Mobile Workspace Panel */}
-        <Hidden smDown implementation="css">
+        <CssBaseline />
+        {topWorkspaceBar}
+        <NavPage/>
+        {/* LeftPanels */}
+        <nav className={classes.drawerSpace}>
+          {/* Mobile Channel Panel */}
           <Drawer
-            classes={{paper: classes.drawerSize}}
+            classes={{paper: classes.mobileDrawerSize}}
             variant="temporary"
-            open={mobileWorkspacesOpen}
-            onClose={openMobileWorkspacesMenu}
-            onClick={openMobileWorkspacesMenu}
+            open={mobileChannelsOpen}
+            onClose={openMobileChannelsMenu}
+            onClick={openMobileChannelsMenu}
             BackdropProps={{invisible: true}}
             ModalProps={{keepMounted: true}}
           >
-            {workspaces}
-          </Drawer>
-        </Hidden>
-        {/* Website LeftPanel */}
-        <Hidden smDown implementation="css">
-          <Drawer
-            classes={{paper: classes.drawerSize}}
-            variant="permanent"
-            open
-          >
             {channels}
           </Drawer>
-        </Hidden>
-      </nav>
-      {/* Main Content */}
-      <main className={classes.content}>
-        <div className={classes.toolbar} />
-        <ListSubheader>
-          <ListItemText
-            primary={currChannel}
-          />
-        </ListSubheader>
-        {messageTable}
-        <TextField
-          label="Send a message to ${currChannel}"
-          size="small"
-          variant="outlined"
-          multiline
-          className={classes.mainTextField}
-          InputProps={{
-            endAdornment:
-            <InputAdornment position="end">
+          {/* Mobile Workspace Panel */}
+          <Hidden smDown implementation="css">
+            <Drawer
+              classes={{paper: classes.drawerSize}}
+              variant="temporary"
+              open={mobileWorkspacesOpen}
+              onClose={openMobileWorkspacesMenu}
+              onClick={openMobileWorkspacesMenu}
+              BackdropProps={{invisible: true}}
+              ModalProps={{keepMounted: true}}
+            >
+              {workspaces}
+            </Drawer>
+          </Hidden>
+          {/* Website LeftPanel */}
+          <Hidden smDown implementation="css">
+            <Drawer
+              classes={{paper: classes.drawerSize}}
+              variant="permanent"
+              open
+            >
+              {channels}
+            </Drawer>
+          </Hidden>
+        </nav>
+        {/* Main Content */}
+        <main className={classes.content}>
+          <div className={classes.toolbar} />
+          <ListSubheader>
+            <ListItemText
+              primary={currChannel}
+            />
+          </ListSubheader>
+          {messageTable}
+          <TextField
+            label="Send a message to ${currChannel}"
+            size="small"
+            variant="outlined"
+            multiline
+            className={classes.mainTextField}
+            InputProps={{
+              endAdornment:
+              <InputAdornment position="end">
                 <IconButton
                   color={theme.palette.primary.dark}
                   edge="end"
@@ -636,34 +675,34 @@ function Home() {
               ModalProps={{keepMounted: true}}
               anchor="right"
               transitionDuration={0}
-          >
-            <AppBar position="absolute">
-              <Toolbar variant="dense">
-                <IconButton
-                  color="inherit"
-                  edge="start"
-                  onClick={toggleThread(false)}
-                  className={classes.smDownVisible}>
-                  <ArrowBackIcon />
-                </IconButton>
-                <Typography variant="h6" noWrap className={classes.title}>
-                  Thread : {currChannel}
-                </Typography>
-              </Toolbar>
-            </AppBar>
-            <div className={classes.toolbar} />
-            <Typography variant="h6">
-              {messageTable}
-            </Typography>
-            <TextField
-              label="Add a reply..."
-              size="small"
-              variant="outlined"
-              multiline
-              className={classes.threadTextField}
-              InputProps={{
-                endAdornment:
-                <InputAdornment position="end">
+            >
+              <AppBar position="absolute">
+                <Toolbar variant="dense">
+                  <IconButton
+                    color="inherit"
+                    edge="start"
+                    onClick={toggleThread(false)}
+                    className={classes.smDownVisible}>
+                    <ArrowBackIcon />
+                  </IconButton>
+                  <Typography variant="h6" noWrap className={classes.title}>
+                    Thread : {currChannel}
+                  </Typography>
+                </Toolbar>
+              </AppBar>
+              <div className={classes.toolbar} />
+              <Typography variant="h6">
+                {messageTable}
+              </Typography>
+              <TextField
+                label="Add a reply..."
+                size="small"
+                variant="outlined"
+                multiline
+                className={classes.threadTextField}
+                InputProps={{
+                  endAdornment:
+                  <InputAdornment position="end">
                     <IconButton
                       color="inherit"
                       edge="end"
@@ -671,7 +710,7 @@ function Home() {
                       onClick={doNothing()}>
                       <SendIcon />
                     </IconButton>
-                </InputAdornment>,
+                  </InputAdornment>,
                 }}
               >
               </TextField>

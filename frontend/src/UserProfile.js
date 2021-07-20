@@ -72,41 +72,6 @@ const useStyles = makeStyles((theme) => ({
       width: '20ch',
     },
   },
-  root2: {
-    'padding': '10px 10px 10px 10px',
-    '& > *': {
-      margin: theme.spacing(1),
-    },
-  },
-  activeStatus: {
-    // the status (circle) indicating the user is ACTIVE
-    color: 'green',
-  },
-  awayStatus: {
-    // the status (circle) indicating the user is AWAY
-    color: 'gray',
-  },
-  nameHeader: {
-    // the Container containing the Avatar, the Username,
-    // and the Status (the circle and text)
-    'display': 'inline-flex',
-    'align-items': 'center',
-  },
-  nameStatus: {
-    // the Container containing just the username and the status
-    display: 'block',
-    width: '100%',
-  },
-  blockContainer: {
-    // the Container to (hopefully, but failed to) display on
-    // a new line (ie. below the nameHeader)
-    display: 'block',
-    flexGrow: 1,
-    width: 'auto',
-    borderRadius: '2px',
-    border: 'solid',
-    position: 'relative',
-  },
   button: {
     // for Buttons that toggle the user status and sign out
     cursor: 'pointer',
@@ -122,17 +87,16 @@ function UserProfile() {
   const user = JSON.parse(localStorage.getItem('user'));
   const history = useHistory();
 
-   // isActive is current status of the user (either active or away)
-   const [isActive, toggleActive] = React.useState(true);
+  // isActive is current status of the user (either active or away)
+  const [isActive, toggleActive] = React.useState(true);
 
-   const logout = () => {
+  const logout = () => {
     localStorage.removeItem('user');
-    // go back to login screen
     history.push('/');
   };
 
-   // flip the user status from away to active, or vice versa
-   const toggleStatus = () => {
+  // flip the user status from away to active, or vice versa
+  const toggleStatus = () => {
     toggleActive(!isActive);
   };
 
@@ -152,56 +116,52 @@ function UserProfile() {
         {/* Main Content */}
         <main className={classes.content}>
           <div className={classes.toolbar} />
-            <List>
-              <ListItem>
-                <ListItemIcon>
-                  <Badge
-                    variant="dot"
-                    color="secondary"
-                    invisible={isActive? false : true}
-                  >
-                    <Avatar>X</Avatar>
-                  </Badge>
-                </ListItemIcon>
-                <ListItemText
-                  primary={user ? user.userName : '[User Name]'}
-                  secondary={isActive? 'Active' : 'Away'}
-                />
-              </ListItem>
-              <Divider />
-              <InputBase
-                  placeholder="What's your status?"
-                  classes={{
-                    root: classes.inputRoot,
-                    input: classes.inputInput,
-                  }}
-                />
-
-              <Divider />
-
-              <ListItem
-                button
-                onClick={toggleStatus}
-                key={'Set yourself as away'}
-              >
-                <ListItemText
-                  primary={isActive ?
-                    'Set Yourself as Away' :
-                    'Set Yourself as Active'
-                  }
-                />
-              </ListItem>
-
-              <Divider />
-
-              <ListItem
-                button
-                onClick={logout}
-                key={'Sign Out'}
-              >
-                <ListItemText primary={'Sign Out'} />
-              </ListItem>
-            </List>
+          <List>
+            <ListItem>
+              <ListItemIcon>
+                <Badge
+                  variant="dot"
+                  color="secondary"
+                  invisible={isActive? false : true}
+                >
+                  <Avatar>X</Avatar>
+                </Badge>
+              </ListItemIcon>
+              <ListItemText
+                primary={user ? user.userName : '[User Name]'}
+                secondary={isActive? 'Active' : 'Away'}
+              />
+            </ListItem>
+            <Divider />
+            <InputBase
+              placeholder="What's your status?"
+              classes={{
+                root: classes.inputRoot,
+                input: classes.inputInput,
+              }}
+            />
+            <Divider />
+            <ListItem
+              button
+              onClick={toggleStatus}
+              key={'Set yourself as away'}
+            >
+              <ListItemText
+                primary={isActive ?
+                  'Set Yourself as Away' :
+                  'Set Yourself as Active'
+                }
+              />
+            </ListItem>
+            <Divider />
+            <ListItem
+              button
+              onClick={logout}
+              key={'Sign Out'}
+            >
+              <ListItemText primary={'Sign Out'} />
+            </ListItem>
+          </List>
         </main>
       </ThemeProvider>
     </div>

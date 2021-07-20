@@ -19,22 +19,22 @@ function App() {
       <CssBaseline />
       <BrowserRouter>
         <Switch>
-          <Route exact path="/" exact id="route">
+          <Route exact path="/" id="route">
             <Login/>
           </Route>
-          <Route exact path="/home" exact id="route">
+          <Route exact path="/home" id="route">
             <Home/>
           </Route>
-          <Route exact path="/dms" exact id="route">
+          <Route exact path="/dms" id="route">
             <DMs/>
           </Route>
-          <Route exact path="/mentions" exact id="route">
+          <Route exact path="/mentions" id="route">
             <Mentions/>
           </Route>
-          <Route exact path="/search" exact id="route">
+          <Route exact path="/search" id="route">
             <Search/>
           </Route>
-          <Route exact path="/user" exact id="route">
+          <Route exact path="/user" id="route">
             <UserProfile/>
           </Route>
         </Switch>
