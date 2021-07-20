@@ -615,19 +615,19 @@ function Home() {
                   onClick={doNothing()}>
                   <SendIcon />
                 </IconButton>
-            </InputAdornment>,
-          }}
-        />
-      </main>
-      {/* ThreadPanel */}
-      <nav
-        className={
-          threadOpened ?
-          classes.threadSpaceOpened :
-          classes.threadSpaceClosed}
-      >
-        <Hidden smDown implementation="css">
-          <Drawer
+              </InputAdornment>,
+            }}
+          />
+        </main>
+        {/* ThreadPanel */}
+        <nav
+          className={
+            threadOpened ?
+              classes.threadSpaceOpened :
+              classes.threadSpaceClosed}
+        >
+          <Hidden smDown implementation="css">
+            <Drawer
               classes={{paper: classes.threadSize}}
               variant='temporary'
               onClose={toggleThread(false)}
@@ -672,12 +672,12 @@ function Home() {
                       <SendIcon />
                     </IconButton>
                 </InputAdornment>,
-              }}
-            >
-            </TextField>
-          </Drawer>
-        </Hidden>
-      </nav>
+                }}
+              >
+              </TextField>
+            </Drawer>
+          </Hidden>
+        </nav>
       </ThemeProvider>
     </div>
   );

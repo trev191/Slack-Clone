@@ -16,29 +16,29 @@ import './App.css';
 function App() {
   return (
     <div>
-    <CssBaseline />
-    <BrowserRouter>
-      <Switch>
-        <Route exact path="/login" exact id="route">
-          <Login/>
-        </Route>
-        <Route exact path="/" exact id="route">
-          <Home/>
-        </Route>
-        <Route exact path="/dms" exact id="route">
-          <DMs/>
-        </Route>
-        <Route exact path="/mentions" exact id="route">
-          <Mentions/>
-        </Route>
-        <Route exact path="/search" exact id="route">
-          <Search/>
-        </Route>
-        <Route exact path="/user" exact id="route">
-          <UserProfile/>
-        </Route>
-      </Switch>
-    </BrowserRouter>
+      <CssBaseline />
+      <BrowserRouter>
+        <Switch>
+          <Route exact path="/" exact id="route">
+            <Login/>
+          </Route>
+          <Route exact path="/home" exact id="route">
+            <Home/>
+          </Route>
+          <Route exact path="/dms" exact id="route">
+            <DMs/>
+          </Route>
+          <Route exact path="/mentions" exact id="route">
+            <Mentions/>
+          </Route>
+          <Route exact path="/search" exact id="route">
+            <Search/>
+          </Route>
+          <Route exact path="/user" exact id="route">
+            <UserProfile/>
+          </Route>
+        </Switch>
+      </BrowserRouter>
     </div>
   );
 }

@@ -1,3 +1,9 @@
+/**
+ * Sources Used:
+ *    The fetchDMs() function is merely a modified version of fetchBooks()
+ *    from the authenticated books example.
+ */
+
 import React from 'react';
 import {useHistory} from 'react-router-dom';
 

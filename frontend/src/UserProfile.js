@@ -128,7 +128,7 @@ function UserProfile() {
    const logout = () => {
     localStorage.removeItem('user');
     // go back to login screen
-    history.push('/Login');
+    history.push('/');
   };
 
    // flip the user status from away to active, or vice versa
