@@ -29,6 +29,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /dms:
+    get:
+      description: Return all unique DMstreams, along with messages within each stream.
+      responses:
+        200:
+          description: Success. Retrieved all dmstreams.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllDMs'
+        default:
+          description: Unexpected error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
   schemas:
@@ -49,6 +65,30 @@ components:
       properties:
         message:
           type: string
+
+    AllDMs:
+      type: array
+      items:
+        $ref: '#/components/schemas/SingleDMStream'
+    
+    SingleDMStream:
+      type: array
+      items:
+        $ref: '#/components/schemas/Message'
+
+    Message:
+      type: object
+      properties:
+        from:
+          type: string
+          default: 'name'
+        content:
+          type: string
+          default: 'content'
+      required:
+      - from
+      - content
+    
     
   securitySchemes:
     bearerAuth:            # arbitrary name for the security scheme

@@ -13,7 +13,7 @@ const fetchDMs = (setDms) => {
   }
   const user = JSON.parse(item);
   const bearerToken = user ? user.accessToken : '';
-  fetch('/v0/DMs', {
+  fetch('/v0/dms', {
     method: 'get',
     headers: new Headers({
       'Authorization': `Bearer ${bearerToken}`,
@@ -27,12 +27,12 @@ const fetchDMs = (setDms) => {
       return response.json();
     })
     .then((json) => {
+      console.log(json);
       setDms(json);
     })
     .catch((error) => {
       console.log(error);
       setDms([]);
-      setDms([' error']);
     });
 };
 
@@ -49,10 +49,11 @@ function DMs() {
     fetchDMs(setDms);
   }, []);
 
+
   return (
     <div>
       DMs
-      {dms}
+      {dms.length == 0? ' No messages found.' : ' There are messages!'}
     </div>
   );
 }
