@@ -16,7 +16,7 @@ INSERT INTO users(id, userName, userData) VALUES (
     "loggedOn":"false",
     "status":"EMPTY_STATUS",
     "workspaces":["18679300-a341-4647-849d-0529fae9d7a7", "2f9108ef-0661-4ea0-9b48-411409eeefe6"],
-    "channels":["7e8b485a-2ab0-4241-913f-460393723227", "b5dbf3bf-2083-4e57-9b3f-7e9e2fc14cb5"],
+    "channels":["7e8b485a-2ab0-4241-913f-460393723227"],
     "dmstream":["754dd19b-9348-4d06-99e7-55274bc2bd27", "64ed3198-c45b-4e48-8e23-e95e72d7b120"]}'
   );
 INSERT INTO users(id, userName, userData) VALUES (
@@ -104,6 +104,36 @@ INSERT INTO messages(id, messageData) VALUES (
     "replies":[]}'
   );
 
+-- Thread with 1 reply 
+INSERT INTO messages(id, messageData) VALUES (
+  '30d3dd65-30bc-40c5-b70c-107ed9d38d42',
+  '{"from":"943b1b36-ae1b-417c-8254-46eec5bd41fa",
+    "content":"whats the homework for tonight?????",
+    "replies":["c2a38e9a-5ec5-4783-9cb4-ded43ab00dbb"]}'
+  );
+INSERT INTO messages(id, messageData) VALUES (
+  'c2a38e9a-5ec5-4783-9cb4-ded43ab00dbb',
+  '{"from":"e4332099-25c9-4bff-b986-009c631e60ee",
+    "content":"guess theres no homework!! haha!! XD",
+    "replies":[]}'
+  );
+
+-- Thread with no reply
+INSERT INTO messages(id, messageData) VALUES (
+  '8166e988-26d8-403c-802e-c62cb61f87f1',
+  '{"from":"e4332099-25c9-4bff-b986-009c631e60ee",
+    "content":"Anybody wanna build a web app together?",
+    "replies":[]}'
+  );
+
+-- Thread with no reply
+INSERT INTO messages(id, messageData) VALUES (
+  '54b5c684-f757-4c30-a568-5132ac60b6dc',
+  '{"from":"943b1b36-ae1b-417c-8254-46eec5bd41fa",
+    "content":"Its quiet in this chat...",
+    "replies":[]}'
+  );
+
   -- Workspace Table --
 INSERT INTO workspace(id, workspaceName, workspaceData) VALUES (
   '18679300-a341-4647-849d-0529fae9d7a7',
@@ -125,13 +155,13 @@ INSERT INTO channel(id, channelName, channelData) VALUES (
   '7e8b485a-2ab0-4241-913f-460393723227',
   'Assignment 1',
   '{
-    "threads":["df40b29d-5c07-4a40-be2e-960b94acfcbe",
-                "a56f12cc-77d2-449a-9697-e6a1e5a3532a"]}'
+    "threads":["30d3dd65-30bc-40c5-b70c-107ed9d38d42",
+                "8166e988-26d8-403c-802e-c62cb61f87f1"]}'
 );
 
 INSERT INTO channel(id, channelName, channelData) VALUES (
   'b5dbf3bf-2083-4e57-9b3f-7e9e2fc14cb5',
   'Assignment 2',
   '{
-    "threads":[]}'
+    "threads":["54b5c684-f757-4c30-a568-5132ac60b6dc"]}'
 );

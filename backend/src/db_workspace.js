@@ -1,4 +1,5 @@
 const channel = require('./db_channel');
+const users = require('./db_users');
 const {Pool} = require('pg');
 
 const pool = new Pool({
@@ -31,8 +32,8 @@ const getWorkspaceName = async (id) => {
   return rows[0].workspacename;
 };
 
-// function to get the corresponding workspace name given a workspace ID
-const getChannelIdsAndNames = async (id) => {
+// function to get the channel ids and names within a workspace
+const getChannelIdsAndNames = async (userId, id) => {
   const select = 'SELECT workspaceData FROM workspace WHERE id = $1';
   const query = {
     text: select,
@@ -42,11 +43,15 @@ const getChannelIdsAndNames = async (id) => {
   const channelIds = rows[0].workspacedata.channels;
   const allChannels = [];
 
+  // add the channel Id and Name to allChannels IFF the user is a member of it
   for (channelId of channelIds) {
-    const channelObj = {};
-    channelObj.channelId = channelId;
-    channelObj.channelName = await channel.getChannelName(channelId);
-    allChannels.push(channelObj);
+    const isMember = await users.userIsChannelMember(userId, channelId);
+    if (isMember) {
+      const channelObj = {};
+      channelObj.channelId = channelId;
+      channelObj.channelName = await channel.getChannelName(channelId);
+      allChannels.push(channelObj);
+    }
   }
 
   return allChannels;
@@ -63,7 +68,7 @@ exports.getWorkspacesAndChannels = async (userId) => {
   for (id of workspaceIds) {
     const workspace = {};
     workspace.workspaceName = await getWorkspaceName(id);
-    workspace.channels = await getChannelIdsAndNames(id);
+    workspace.channels = await getChannelIdsAndNames(userId, id);
     allWorkspacesAndChannels.push(workspace);
   }
   return allWorkspacesAndChannels;
