@@ -45,6 +45,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /home:
+    get:
+      description: Return all workspace names, along with channels within each workspace.
+      responses:
+        200:
+          description: Success. Retrieved all workspaces and channels.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllWorkspacesAndChannels'
+        default:
+          description: Unexpected error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
   schemas:
@@ -81,6 +97,41 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Message'
+      required:
+        - otherUser
+        - messages
+
+    AllWorkspacesAndChannels:
+      type: array
+      items:
+        $ref: '#/components/schemas/Workspace'
+    
+    Workspace:
+      type: object
+      properties:
+        workspaceName:
+          type: string
+          default: 'workspace name'
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/Channel'
+      required:
+        - workspaceName
+        - channels
+
+    Channel:
+      type: object
+      properties:
+        channelName:
+          type: string
+          default: 'channel name'
+        channelId:
+          type: string
+          format: uuid
+      required:
+        - channelName
+        - channelId
 
     Message:
       type: object

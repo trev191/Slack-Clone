@@ -15,6 +15,8 @@ INSERT INTO users(id, userName, userData) VALUES (
   '{"password":"$2b$10$NWRUkWNTCvaW8fBMe59.6ev47FOAJ9GATcaOWugGn.knKqHXLfp8W",
     "loggedOn":"false",
     "status":"EMPTY_STATUS",
+    "workspaces":["18679300-a341-4647-849d-0529fae9d7a7", "2f9108ef-0661-4ea0-9b48-411409eeefe6"],
+    "channels":["7e8b485a-2ab0-4241-913f-460393723227", "b5dbf3bf-2083-4e57-9b3f-7e9e2fc14cb5"],
     "dmstream":["754dd19b-9348-4d06-99e7-55274bc2bd27", "64ed3198-c45b-4e48-8e23-e95e72d7b120"]}'
   );
 INSERT INTO users(id, userName, userData) VALUES (
@@ -23,6 +25,8 @@ INSERT INTO users(id, userName, userData) VALUES (
   '{"password":"$2b$10$NWRUkWNTCvaW8fBMe59.6ev47FOAJ9GATcaOWugGn.knKqHXLfp8W",
     "loggedOn":"false",
     "status":"EMPTY_STATUS",
+    "workspaces":["18679300-a341-4647-849d-0529fae9d7a7", "2f9108ef-0661-4ea0-9b48-411409eeefe6"],
+    "channels":["7e8b485a-2ab0-4241-913f-460393723227", "b5dbf3bf-2083-4e57-9b3f-7e9e2fc14cb5"],
     "dmstream":["754dd19b-9348-4d06-99e7-55274bc2bd27"]}'
   );
 INSERT INTO users(id, userName, userData) VALUES (
@@ -31,6 +35,8 @@ INSERT INTO users(id, userName, userData) VALUES (
   '{"password":"$2b$10$NWRUkWNTCvaW8fBMe59.6eEMGgk37kLXmJlngvHcYlNnP88MbrEl6",
     "loggedOn":"false",
     "status":"EMPTY_STATUS",
+    "workspaces":["18679300-a341-4647-849d-0529fae9d7a7"],
+    "channels":["7e8b485a-2ab0-4241-913f-460393723227", "b5dbf3bf-2083-4e57-9b3f-7e9e2fc14cb5"],
     "dmstream":["64ed3198-c45b-4e48-8e23-e95e72d7b120"]}'
   );
 INSERT INTO users(id, userName, userData) VALUES (
@@ -39,6 +45,8 @@ INSERT INTO users(id, userName, userData) VALUES (
   '{"password":"$2b$10$NWRUkWNTCvaW8fBMe59.6e2ktsXcRV2gS7Mk7rzwWFtRCKqMBvBm6",
     "loggedOn":"false",
     "status":"EMPTY_STATUS",
+    "workspaces":["2f9108ef-0661-4ea0-9b48-411409eeefe6"],
+    "channels":[],
     "dmstream":[]}'
   );
 
@@ -51,13 +59,15 @@ DELETE FROM dmstream;
 -- DM of Trevor and Carrum
 INSERT INTO dmstream(id, users, initialMessage) VALUES (
   '754dd19b-9348-4d06-99e7-55274bc2bd27',
-  '{"user1":"9a9986ec-6703-40d1-a873-3125fd065242","user2":"0c187a60-8793-4a84-99c9-a1f8a4e3ea77"}',
+  '{"user1":"9a9986ec-6703-40d1-a873-3125fd065242",
+    "user2":"0c187a60-8793-4a84-99c9-a1f8a4e3ea77"}',
   'df40b29d-5c07-4a40-be2e-960b94acfcbe'
   );
 -- DM of Trevor and molly@member.com
 INSERT INTO dmstream(id, users, initialMessage) VALUES (
   '64ed3198-c45b-4e48-8e23-e95e72d7b120',
-  '{"user1":"9a9986ec-6703-40d1-a873-3125fd065242","user2":"943b1b36-ae1b-417c-8254-46eec5bd41fa"}',
+  '{"user1":"9a9986ec-6703-40d1-a873-3125fd065242",
+    "user2":"943b1b36-ae1b-417c-8254-46eec5bd41fa"}',
   'a56f12cc-77d2-449a-9697-e6a1e5a3532a'
   );
 
@@ -93,3 +103,35 @@ INSERT INTO messages(id, messageData) VALUES (
     "content":"heyoooo",
     "replies":[]}'
   );
+
+  -- Workspace Table --
+INSERT INTO workspace(id, workspaceName, workspaceData) VALUES (
+  '18679300-a341-4647-849d-0529fae9d7a7',
+  'CSE 183',
+  '{
+    "channels":["7e8b485a-2ab0-4241-913f-460393723227",
+                "b5dbf3bf-2083-4e57-9b3f-7e9e2fc14cb5"]}'
+);
+
+INSERT INTO workspace(id, workspaceName, workspaceData) VALUES (
+  '2f9108ef-0661-4ea0-9b48-411409eeefe6',
+  'CSE 9000',
+  '{
+    "channels":[]}'
+);
+
+  -- Channel Table --
+INSERT INTO channel(id, channelName, channelData) VALUES (
+  '7e8b485a-2ab0-4241-913f-460393723227',
+  'Assignment 1',
+  '{
+    "threads":["df40b29d-5c07-4a40-be2e-960b94acfcbe",
+                "a56f12cc-77d2-449a-9697-e6a1e5a3532a"]}'
+);
+
+INSERT INTO channel(id, channelName, channelData) VALUES (
+  'b5dbf3bf-2083-4e57-9b3f-7e9e2fc14cb5',
+  'Assignment 2',
+  '{
+    "threads":[]}'
+);

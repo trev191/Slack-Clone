@@ -22,3 +22,11 @@ CREATE TABLE dmstream(id UUID UNIQUE PRIMARY KEY, users jsonb, initialMessage UU
 -- Table of General Messages (for DMs and Channels/Threads) --
 DROP TABLE IF EXISTS messages;
 CREATE TABLE messages(id UUID UNIQUE PRIMARY KEY, messageData jsonb);
+
+-- Table of Workspaces --
+DROP TABLE IF EXISTS workspace;
+CREATE TABLE workspace(id UUID UNIQUE PRIMARY KEY, workspaceName VARCHAR(32), workspaceData jsonb);
+
+-- Table of Channels --
+DROP TABLE IF EXISTS channel;
+CREATE TABLE channel(id UUID UNIQUE PRIMARY KEY, channelName VARCHAR(32), channelData jsonb);
