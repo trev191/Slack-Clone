@@ -9,6 +9,7 @@ const OpenApiValidator = require('express-openapi-validator');
 const dmstream = require('./dmstream');
 const auth = require('./auth');
 const workspace = require('./workspace');
+const channel = require('./channel');
 const dummy = require('./dummy');
 
 const app = express();
@@ -35,7 +36,8 @@ app.use(
 app.get('/v0/dummy', dummy.get);
 // Your routes go here
 app.get('/v0/dms', auth.check, dmstream.getAllDMs);
-app.get('/v0/home', auth.check, workspace.getWorkspacesAndChannels);
+app.get('/v0/workspace', auth.check, workspace.getWorkspacesAndChannels);
+app.get('/v0/channel/:id', auth.check, channel.getChannelAndThreads);
 
 app.use((err, req, res, next) => {
   console.log('Message: ' + err);

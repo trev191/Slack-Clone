@@ -18,3 +18,23 @@ exports.getChannelName = async (id) => {
   const {rows} = await pool.query(query);
   return rows[0].channelname;
 }
+
+// given a channel Id, return all threads and their replies within
+// that channel
+exports.getChannelAndThreads = async (id) => {
+  const def = [];
+  for (let i = 0; i < 3; i++) {
+    const thr = {};
+    thr.otherUser = 'wilbert #' + i;
+    thr.messages = [];
+    for (let num = 0; num < 2; num++) {
+      const msg = {};
+      msg.content = 'hi ' + num;
+      msg.from = 'from ' + i;
+      thr.messages.push(msg);
+    }
+    def.push(thr);
+  }
+
+  return def;
+}

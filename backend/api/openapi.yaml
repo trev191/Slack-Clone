@@ -45,7 +45,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /home:
+  /workspace:
     get:
       description: Return all workspace names, along with channels within each workspace.
       responses:
@@ -55,6 +55,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AllWorkspacesAndChannels'
+        default:
+          description: Unexpected error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /channel/{id}:
+    get:
+      description: Return all threads in a channel, along with all their replies.
+      parameters:
+      - name: id
+        in: path
+        description: UUID identifying the channel ID to query.
+        required: true
+        schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Success. Retrieved threads and replies.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllDMs'
         default:
           description: Unexpected error.
           content:
