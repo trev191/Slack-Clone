@@ -239,6 +239,9 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up('sm')]: {
       width: drawerWidth,
     },
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
+    },
   },
   threadSize: { // Size and margin of the threadSize
     [theme.breakpoints.up('xs')]: {
@@ -278,17 +281,9 @@ const useStyles = makeStyles((theme) => ({
       display: 'none',
     },
   },
-  searchIcon: {
-    padding: theme.spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   mainTextField: {
     position: 'fixed',
+    backgroundColor: 'white',
     [theme.breakpoints.up('xs')]: {
       bottom: '10px',
       width: `98%`,
@@ -304,6 +299,7 @@ const useStyles = makeStyles((theme) => ({
   },
   threadTextField: {
     position: 'fixed',
+    backgroundColor: 'white',
     [theme.breakpoints.up('xs')]: {
       bottom: '10px',
       width: `50%`,
@@ -330,7 +326,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   button: {
-    // for Buttons that toggle the user status and sign out
     cursor: 'pointer',
   },
 }));
@@ -362,6 +357,11 @@ function Home() {
   const [isActive, toggleActive] = React.useState(true);
   const [dms, setDms] = React.useState([]);
   const [currThread, setThread] = React.useState(null);
+
+  // Text Input States ---
+  const [searchInput, setSearchInput] = React.useState('');
+  const [msgInput, setMsgInput] = React.useState('');
+  const [threadInput, setThreadInput] = React.useState('');
 
   const toggleThread = (open) => (event) => {
     if (event.type === 'keydown' &&
@@ -404,14 +404,33 @@ function Home() {
     history.push('/');
   };
 
-  // flip the user status from away to active, or vice versa
   const toggleStatus = () => {
     toggleActive(!isActive);
   };
 
-  const doNothing = () => () =>{
-    console.log('Temp Function Call');
+  // Text Input Functions ---
+  const handleSearchChange = (event) => {
+    setSearchInput(event.target.value);
   };
+  const searchFunction = () => () => {
+    console.log('Searching: ' + searchInput);
+  };
+  const handleMsgChange = (event) => {
+    setMsgInput(event.target.value);
+  };
+  const msgFunction = () => () => {
+    console.log('Sending msg to Channel: ' + msgInput);
+  };
+  const handleThreadChange = (event) => {
+    setThreadInput(event.target.value);
+  };
+  const threadFunction = () => () => {
+    console.log('Sending msg to Thread: ' + threadInput);
+  };
+
+  // const doNothing = () => () => {
+  //   console.log('Temp Function Call');
+  // };
 
   /**
  * @param {messages} messages
@@ -691,13 +710,14 @@ function Home() {
           size="small"
           variant="outlined"
           className={classes.search}
+          onChange={handleSearchChange}
           InputProps={{
             endAdornment:
             <InputAdornment position="end">
               <IconButton
                 color={theme.palette.primary.dark}
                 edge="end"
-                onClick={doNothing()}
+                onClick={searchFunction()}
               >
                 <SearchIcon />
               </IconButton>
@@ -748,7 +768,6 @@ function Home() {
             variant="temporary"
             open={mobileChannelsOpen}
             onClose={openMobileChannelsMenu}
-            onClick={openMobileChannelsMenu}
             BackdropProps={{invisible: true}}
             ModalProps={{keepMounted: true}}
           >
@@ -761,7 +780,6 @@ function Home() {
               variant="temporary"
               open={mobileWorkspacesOpen}
               onClose={openMobileWorkspacesMenu}
-              onClick={openMobileWorkspacesMenu}
               BackdropProps={{invisible: true}}
               ModalProps={{keepMounted: true}}
             >
@@ -794,6 +812,7 @@ function Home() {
             variant="outlined"
             multiline
             className={classes.mainTextField}
+            onChange={handleMsgChange}
             InputProps={{
               endAdornment:
               <InputAdornment position="end">
@@ -801,7 +820,7 @@ function Home() {
                   color={theme.palette.primary.dark}
                   edge="end"
                   // Sends msg to channel v
-                  onClick={doNothing()}>
+                  onClick={msgFunction()}>
                   <SendIcon />
                 </IconButton>
               </InputAdornment>,
@@ -850,6 +869,7 @@ function Home() {
                 variant="outlined"
                 multiline
                 className={classes.threadTextField}
+                onChange={handleThreadChange}
                 InputProps={{
                   endAdornment:
                   <InputAdornment position="end">
@@ -857,7 +877,7 @@ function Home() {
                       color="inherit"
                       edge="end"
                       // Sends msg to thread v
-                      onClick={doNothing()}>
+                      onClick={threadFunction()}>
                       <SendIcon />
                     </IconButton>
                   </InputAdornment>,

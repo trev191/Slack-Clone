@@ -45,7 +45,6 @@ import {useHistory} from 'react-router-dom';
 /** Drawers: https://material-ui.com/components/drawers/#drawer */
 
 const drawerWidth = 300;
-const threadWidth = `calc((100% - ${drawerWidth}px) * 0.5)`;
 
 const theme = createTheme({
   palette: {
@@ -99,23 +98,10 @@ const useStyles = makeStyles((theme) => ({
       flexShrink: 0,
     },
   },
-  threadSpaceClosed: { // Right offset space for thread
-    width: 0,
-    flexShrink: 0,
-  },
-  threadSpaceOpened: { // Right offset space for thread
-    width: threadWidth,
-    flexShrink: 0,
-  },
   appBar: { // ?
     [theme.breakpoints.up('sm')]: {
       marginLeft: drawerWidth,
       zIndex: theme.zIndex.drawer + 1,
-    },
-  },
-  smDownVisible: { // Appear on smDown
-    [theme.breakpoints.up('sm')]: {
-      display: 'none',
     },
   },
   smUpVisible: { // Appear on smUp
@@ -168,41 +154,9 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 'auto',
     marginRight: 'auto',
   },
-  searchBuffer: {
-    position: 'relative',
-    width: '50%',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    [theme.breakpoints.up('sm')]: {
-      display: 'none',
-    },
-  },
-  searchIcon: {
-    padding: theme.spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mainTextField: {
-    position: 'fixed',
-    [theme.breakpoints.up('xs')]: {
-      bottom: '10px',
-      width: `98%`,
-    },
-    [theme.breakpoints.down('xs')]: {
-      bottom: '70px',
-      width: `97%`,
-    },
-    [theme.breakpoints.up('md')]: {
-      bottom: '10px',
-      width: `calc(99% - ${drawerWidth}px)`,
-    },
-  },
   threadTextField: {
     position: 'fixed',
+    backgroundColor: 'white',
     width: `calc((100% - 300px))`,
     bottom: '10px',
     [theme.breakpoints.down('sm')]: {
@@ -212,11 +166,6 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down('xs')]: {
       bottom: '70px',
     },
-  },
-  searchTextField: {
-    position: 'fixed',
-    width: `100%`,
-    bottom: '10px',
   },
   inputRoot: {
     color: 'inherit',
@@ -258,6 +207,9 @@ function Search() {
   const [isActive, toggleActive] = React.useState(true);
   const [dms, setDms] = React.useState([]);
   const [currThread, setThread] = React.useState(null);
+
+  // Text Input States ---
+  const [searchInput, setSearchInput] = React.useState('');
 
   const toggleThread = (open) => (event) => {
     if (event.type === 'keydown' &&
@@ -301,6 +253,15 @@ function Search() {
   // flip the user status from away to active, or vice versa
   const toggleStatus = () => {
     toggleActive(!isActive);
+  };
+
+  // Text Input Functions ---
+  const handleSearchChange = (event) => {
+    console.log(event.target.value);
+    setSearchInput(event.target.value);
+  };
+  const searchFunction = () => () => {
+    console.log('SEARCHING: ' + searchInput);
   };
 
   const doNothing = () => () =>{
@@ -578,13 +539,14 @@ function Search() {
           size="small"
           variant="outlined"
           className={classes.search}
+          onChange={handleSearchChange}
           InputProps={{
             endAdornment:
             <InputAdornment position="end">
               <IconButton
                 color={theme.palette.primary.dark}
                 edge="end"
-                onClick={doNothing()}
+                onClick={searchFunction()}
               >
                 <SearchIcon />
               </IconButton>
