@@ -2,6 +2,10 @@
 # CSE183 Assignment 8 Backend
 #
 
+# Sources Used:
+#   Variable Types:
+#     https://swagger.io/docs/specification/data-models/data-types/
+
 openapi: '3.0.3'
 
 info:
@@ -35,6 +39,46 @@ paths:
       responses:
         200:
           description: Success. Retrieved all dmstreams.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllDMs'
+        default:
+          description: Unexpected error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /workspace:
+    get:
+      description: Return all workspace names, along with channels within each workspace.
+      responses:
+        200:
+          description: Success. Retrieved all workspaces and channels.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllWorkspacesAndChannels'
+        default:
+          description: Unexpected error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /channel/{id}:
+    get:
+      description: Return all threads in a channel, along with all their replies.
+      parameters:
+      - name: id
+        in: path
+        description: UUID identifying the channel ID to query.
+        required: true
+        schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Success. Retrieved threads and replies.
           content:
             application/json:
               schema:
@@ -81,6 +125,41 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Message'
+      required:
+        - otherUser
+        - messages
+
+    AllWorkspacesAndChannels:
+      type: array
+      items:
+        $ref: '#/components/schemas/Workspace'
+    
+    Workspace:
+      type: object
+      properties:
+        workspaceName:
+          type: string
+          default: 'workspace name'
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/Channel'
+      required:
+        - workspaceName
+        - channels
+
+    Channel:
+      type: object
+      properties:
+        channelName:
+          type: string
+          default: 'channel name'
+        channelId:
+          type: string
+          format: uuid
+      required:
+        - channelName
+        - channelId
 
     Message:
       type: object
@@ -91,9 +170,12 @@ components:
         content:
           type: string
           default: 'content'
+        time:
+          type: string
       required:
       - from
       - content
+      - time
     
     
   securitySchemes:

@@ -581,11 +581,11 @@ function DMs() {
             color="inherit"
             edge="end"
             onClick={openWebUserProfileMenu()}>
-              <Badge
-                variant="dot"
-                color="secondary"
-                invisible={isActive? false : true}
-              >
+            <Badge
+              variant="dot"
+              color="secondary"
+              invisible={isActive? false : true}
+            >
               <Avatar>
                 {user ? user.userName.charAt(0) : ''}
               </Avatar>

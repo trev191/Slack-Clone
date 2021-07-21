@@ -413,7 +413,7 @@ function Mentions() {
       styles={{width: '600px'}}
     >
       <List>
-      <ListItem>
+        <ListItem>
           <ListItemIcon>
             <Badge
               variant="dot"
@@ -572,17 +572,17 @@ function Mentions() {
             color="inherit"
             edge="end"
             onClick={openWebUserProfileMenu()}>
-              <Badge
-                variant="dot"
-                color="secondary"
-                invisible={isActive? false : true}
-              >
+            <Badge
+              variant="dot"
+              color="secondary"
+              invisible={isActive? false : true}
+            >
               <Avatar>
                 {user ? user.userName.charAt(0) : ''}
               </Avatar>
             </Badge>
           </IconButton>
-          </div>
+        </div>
         {webUserProfileMenu}
       </Toolbar>
     </AppBar>

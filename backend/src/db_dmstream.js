@@ -84,5 +84,7 @@ exports.getDMs = async (userId) => {
     allDMs.push(dmMessages);
   }
 
+  allDMs.sort((a, b) => msgs.sortMessages(a, b));
+
   return (allDMs);
 };

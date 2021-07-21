@@ -44,6 +44,92 @@ import {useHistory} from 'react-router-dom';
 /** Table: https://material-ui.com/components/tables/#table */
 /** Drawers: https://material-ui.com/components/drawers/#drawer */
 
+// backend function to retrieve an array of workspace objects;
+// each workspace object consists of the workspace name and an array
+// of channel objects; each channel object consists of the channel name,
+// the channel id, and the threads/replies within the channel
+const fetchWorkspacesAndChannels = (setWorkspacesAndChannels) => {
+  const item = localStorage.getItem('user');
+  if (!item) {
+    return;
+  }
+  const user = JSON.parse(item);
+  const bearerToken = user ? user.accessToken : '';
+  fetch('/v0/workspace', {
+    method: 'get',
+    headers: new Headers({
+      'Authorization': `Bearer ${bearerToken}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        console.log('Logged Out');
+        throw response;
+      }
+      return response.json();
+    })
+    .then((json) => {
+      setWorkspacesAndChannels(json);
+    })
+    .catch((error) => {
+      console.log(error);
+      setWorkspacesAndChannels([]);
+    });
+};
+
+// backend function to retrieve all threads and replies within a channel
+const fetchThreadsAndReplies = (workspaces, setThreadsAndReplies) => {
+  const item = localStorage.getItem('user');
+  if (!item) {
+    return;
+  }
+  const user = JSON.parse(item);
+
+  // get the corresponding channel name based on the current channel (had to
+  // modify the map function to prevent .map from checking every single
+  // workspace and channel after a match has already been found)
+  //
+  // this is currently hardcoded to the 'Assignment 1' channel from the database
+  // so you'll need to change it after you properly implement the workspaces and
+  // channel names (to do so, just change 'Assignment 1' with currChannel)
+  let currChannelId = null;
+  workspaces.map(({channels}) => {
+    if (!currChannelId) {
+      const f = channels.find(({channelName}) =>
+        channelName === 'Assignment 1');
+      if (f) {
+        currChannelId = f.channelId;
+      }
+    }
+    // ignore this statement; lint requires maps receive a return value
+    return true;
+  });
+
+  const bearerToken = user ? user.accessToken : '';
+  fetch('/v0/channel/' + currChannelId, {
+    method: 'get',
+    headers: new Headers({
+      'Authorization': `Bearer ${bearerToken}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw response;
+      }
+      return response.json();
+    })
+    .then((json) => {
+      setThreadsAndReplies(json);
+    })
+    .catch((error) => {
+      console.log(error);
+      setThreadsAndReplies([]);
+    });
+};
+
+
 const drawerWidth = 300;
 const threadWidth = `calc((100% - ${drawerWidth}px) * 0.5)`;
 
@@ -261,6 +347,10 @@ function Home() {
     React.useState(false);
   const [webUserProfileOpen, setWebUserProfileOpen] =
     React.useState(false);
+  const [workspacesAndChannels, setWorkspacesAndChannels] =
+    React.useState([]);
+  const [threadsAndReplies, setThreadsAndReplies] =
+    React.useState([]);
   const [threadOpened, openThread] = React.useState(false);
   const [currWorkspace, setCurrWorkspace] = React.useState('null');
   const [currChannel, setCurrChannel] = React.useState('null');
@@ -305,6 +395,8 @@ function Home() {
   const changeChannel = (newChannel) => () => {
     console.log('Changed Channel to ' + newChannel);
     setCurrChannel(newChannel);
+    fetchThreadsAndReplies(workspacesAndChannels, setThreadsAndReplies);
+    console.log('threads and replies', threadsAndReplies);
   };
 
   const logout = () => {
@@ -638,11 +730,11 @@ function Home() {
             color="inherit"
             edge="end"
             onClick={openWebUserProfileMenu()}>
-              <Badge
-                variant="dot"
-                color="secondary"
-                invisible={isActive? false : true}
-              >
+            <Badge
+              variant="dot"
+              color="secondary"
+              invisible={isActive? false : true}
+            >
               <Avatar>
                 {user ? user.userName.charAt(0) : ''}
               </Avatar>
@@ -656,7 +748,11 @@ function Home() {
 
   React.useEffect(() => {
     fetchDMs(setDms);
+    fetchWorkspacesAndChannels(setWorkspacesAndChannels);
   }, []);
+  // console.log('DMS :');
+  // console.log(dms.length);
+  console.log('workspacesAndChannels', workspacesAndChannels);
 
   return (
     <div className={classes.root}>
