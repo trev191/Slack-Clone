@@ -1,38 +1,44 @@
 import React from 'react';
+
+// MAT-UI COMPONENTS ------
 import AppBar from '@material-ui/core/AppBar';
+import Avatar from '@material-ui/core/Avatar';
+import Badge from '@material-ui/core/Badge';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import Hidden from '@material-ui/core/Hidden';
 import IconButton from '@material-ui/core/IconButton';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import InputBase from '@material-ui/core/InputBase';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
-import MenuIcon from '@material-ui/icons/Menu';
-import Close from '@material-ui/icons/Close';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListSubheader from '@material-ui/core/ListSubheader';
+import Menu from '@material-ui/core/Menu';
+import TextField from '@material-ui/core/TextField';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import {alpha, makeStyles} from '@material-ui/core/styles';
 
-import Paper from '@material-ui/core/Paper';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableRow from '@material-ui/core/TableRow';
+// ICONS ------
+import ArrowDropDownCircleIcon from '@material-ui/icons/ArrowDropDownCircle';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import MenuIcon from '@material-ui/icons/Menu';
+import SearchIcon from '@material-ui/icons/Search';
+import SendIcon from '@material-ui/icons/Send';
 
+// THEMES AND COLORS ------
+import {makeStyles} from '@material-ui/core/styles';
+import {createTheme, ThemeProvider} from '@material-ui/core/styles';
+import {purple, green} from '@material-ui/core/colors';
+
+// PERSONAL ------
 import NavPage from './NavPage';
 
-import InputBase from '@material-ui/core/InputBase';
-import SearchIcon from '@material-ui/icons/Search';
-import TextField from '@material-ui/core/TextField';
-import SendIcon from '@material-ui/icons/Send';
-import InputAdornment from '@material-ui/core/InputAdornment';
-
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import ArrowDropDownCircleIcon from '@material-ui/icons/ArrowDropDownCircle';
-import {createTheme, ThemeProvider} from '@material-ui/core/styles';
-import {purple, orange} from '@material-ui/core/colors';
+// BACKEND ------
+import {useHistory} from 'react-router-dom';
 
 /** Base: https://codesandbox.io/s/6khtm?file=/demo.js */
 /** Table: https://material-ui.com/components/tables/#table */
@@ -47,10 +53,41 @@ const theme = createTheme({
       main: purple[900],
     },
     secondary: {
-      main: orange[500],
+      main: green[400],
     },
   },
 });
+
+const fetchDMs = (setDms) => {
+  const item = localStorage.getItem('user');
+  if (!item) {
+    return;
+  }
+  const user = JSON.parse(item);
+  const bearerToken = user ? user.accessToken : '';
+  fetch('/v0/dms', {
+    method: 'get',
+    headers: new Headers({
+      'Authorization': `Bearer ${bearerToken}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        console.log('Logged Out');
+        throw response;
+      }
+      return response.json();
+    })
+    .then((json) => {
+      console.log(json);
+      setDms(json);
+    })
+    .catch((error) => {
+      console.log(error);
+      setDms([]);
+    });
+};
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -62,11 +99,11 @@ const useStyles = makeStyles((theme) => ({
       flexShrink: 0,
     },
   },
-  threadSpaceClosed: { // Left offset space for table
+  threadSpaceClosed: { // Right offset space for thread
     width: 0,
     flexShrink: 0,
   },
-  threadSpaceOpened: { // Left offset space for table
+  threadSpaceOpened: { // Right offset space for thread
     width: threadWidth,
     flexShrink: 0,
   },
@@ -76,8 +113,26 @@ const useStyles = makeStyles((theme) => ({
       zIndex: theme.zIndex.drawer + 1,
     },
   },
+  smDownVisible: { // Appear on smDown
+    [theme.breakpoints.up('sm')]: {
+      display: 'none',
+    },
+  },
+  smUpVisible: { // Appear on smUp
+    [theme.breakpoints.down('xs')]: {
+      display: 'none',
+    },
+  },
   mdDownVisible: { // Appear on mdUp
     [theme.breakpoints.up('md')]: {
+      display: 'none',
+    },
+  },
+  mdVisible: { // Appear only on mdZone
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
+    },
+    [theme.breakpoints.down('xs')]: {
       display: 'none',
     },
   },
@@ -88,6 +143,12 @@ const useStyles = makeStyles((theme) => ({
   },
   toolbar: theme.mixins.toolbar, // Offset space for top appBar
   drawerSize: { // Size of the drawer objects
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      width: drawerWidth,
+    },
+  },
+  mobileDrawerSize: { // Size of the drawer objects
     width: '100%',
     [theme.breakpoints.up('sm')]: {
       width: drawerWidth,
@@ -112,15 +173,23 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   search: {
-    position: 'relative',
     borderRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    width: '50%',
+    backgroundColor: 'white',
+    width: 'auto',
     display: 'none',
     marginLeft: 'auto',
     marginRight: 'auto',
     [theme.breakpoints.up('sm')]: {
       display: 'block',
+    },
+  },
+  searchBuffer: {
+    position: 'relative',
+    width: '50%',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    [theme.breakpoints.up('sm')]: {
+      display: 'none',
     },
   },
   searchIcon: {
@@ -174,24 +243,35 @@ const useStyles = makeStyles((theme) => ({
       width: '20ch',
     },
   },
+  button: {
+    // for Buttons that toggle the user status and sign out
+    cursor: 'pointer',
+  },
 }));
 
 /**
  * Main function!
  * @return {object} JSX
  */
-function ResponsiveDrawer() {
+function Home() {
   const classes = useStyles();
-  const [mobileChannelsOpen, setMobileChannelsOpen] = React.useState(false);
-  const [mobileWorkspacesOpen, setMobileWorkspacesOpen] = React.useState(false);
-  const [threadOpened, openThread] = React.useState(false);
+  const user = JSON.parse(localStorage.getItem('user'));
+  const history = useHistory();
 
-  const toggleChannels = (open) => (event) => {
-    if (event.type === 'keydown' &&
-      (event.key === 'Tab' || event.key === 'Shift')) {
-      return;
-    }
-  };
+  const [mobileWorkspacesOpen, setMobileWorkspacesOpen] =
+    React.useState(false);
+  const [mobileChannelsOpen, setMobileChannelsOpen] =
+    React.useState(true);
+  const [webWorkspacesOpen, setWebWorkspacesOpen] =
+    React.useState(false);
+  const [webUserProfileOpen, setWebUserProfileOpen] =
+    React.useState(false);
+  const [threadOpened, openThread] = React.useState(false);
+  const [currWorkspace, setCurrWorkspace] = React.useState('null');
+  const [currChannel, setCurrChannel] = React.useState('null');
+  const [isActive, toggleActive] = React.useState(true);
+  const [dms, setDms] = React.useState([]);
+  const [currThread, setThread] = React.useState(null);
 
   const toggleThread = (open) => (event) => {
     if (event.type === 'keydown' &&
@@ -201,37 +281,226 @@ function ResponsiveDrawer() {
     openThread(open);
   };
 
-  const openChannelsMenu = () => {
+  const openMobileChannelsMenu = () => {
     setMobileChannelsOpen(!mobileChannelsOpen);
   };
 
-  const openWorkspacesMenu = () => {
+  const openMobileWorkspacesMenu = () => {
     setMobileWorkspacesOpen(!mobileWorkspacesOpen);
   };
 
+  const openWebWorkspacesMenu = () => () =>{
+    setWebWorkspacesOpen(!webWorkspacesOpen);
+  };
+
+  const openWebUserProfileMenu = () => () =>{
+    setWebUserProfileOpen(!webUserProfileOpen);
+  };
+
+  const changeWorkspace = (newWorkspace) => () => {
+    console.log('Changed Workspace ' + newWorkspace);
+    setCurrWorkspace(newWorkspace);
+  };
+
+  const changeChannel = (newChannel) => () => {
+    console.log('Changed Channel to ' + newChannel);
+    setCurrChannel(newChannel);
+  };
+
+  const logout = () => {
+    localStorage.removeItem('user');
+    history.push('/');
+  };
+
+  // flip the user status from away to active, or vice versa
+  const toggleStatus = () => {
+    toggleActive(!isActive);
+  };
+
+  const doNothing = () => () =>{
+    console.log('Temp Function Call');
+  };
+
   /**
-   * @param {id} id
-   */
-  function threadHandler() {
-    openThread(true);
+ * @param {messages} messages
+ * @param {bool} bool
+ */
+  function threadHandler(messages, bool) {
+    console.log(messages);
+    setThread(messages);
+    openThread(bool);
   }
+
+  const threadMessage = (msg) => (
+    <div>
+      <ListItem key={'ID'}>
+        <ListItemAvatar>
+          <Badge variant="dot" color="secondary" invisible={false}>
+            <Avatar>{msg.from.charAt(0)}</Avatar>
+          </Badge>
+        </ListItemAvatar>
+        <ListItemText
+          primary={msg.from + '  /  [Date]'}
+          secondary={msg.content}
+        />
+      </ListItem>
+    </div>
+  );
+
+  const mainMessage = (convo) => (
+    <div>
+      <ListItem
+        key={'ID'}
+        button
+        onClick={() => threadHandler(convo.messages, true)}
+      >
+        <ListItemAvatar>
+          <Badge
+            variant="dot"
+            color="secondary"
+            invisible={false}
+          >
+            <Avatar>
+              {convo.messages[convo.messages.length-1].from.charAt(0)}
+            </Avatar>
+          </Badge>
+        </ListItemAvatar>
+        <ListItemText
+          primary={convo.messages[convo.messages.length-1].from +
+            '  /  [Date]'}
+          secondary={convo.messages[convo.messages.length-1].content}
+        />
+      </ListItem>
+    </div>
+  );
+
+  const mainMessageTable = (
+    <List>
+      {dms.map(
+        (convo) =>
+          mainMessage(convo),
+      )}
+    </List>
+  );
+
+  const threadMessageTable = (
+    <List>
+      {currThread ?
+        currThread.map((message)=> threadMessage(message)) :
+        ''}
+    </List>
+  );
 
   const workspaces = (
     <div>
-      <Divider />
       <List>
-        <ListItem button onClick={toggleChannels(false)} key={'Workspace 1'}>
+        <Divider />
+        <ListSubheader>
+          <ListItemText primary={'Workspaces'} />
+        </ListSubheader>
+        <Divider />
+        <ListItem
+          button
+          onClick={changeWorkspace('Workspace 1')}
+          key={'Workspace 1'}
+        >
           <ListItemText primary={'Workspace 1'} />
         </ListItem>
-      </List>
-      <Divider />
-      <List>
-        <ListItem button onClick={toggleChannels(true)} key={'Workspace 2'}>
+        <ListItem
+          button
+          onClick={changeWorkspace('Workspace 2')}
+          key={'Workspace 2'}>
           <ListItemText primary={'Workspace 2'} />
         </ListItem>
       </List>
-      <Divider />
     </div>
+  );
+
+  const webWorkspaceMenu = (
+    <Menu
+      onClose={openWebWorkspacesMenu()}
+      onClick={openWebWorkspacesMenu()}
+      open={webWorkspacesOpen}
+    >
+      <List>
+        <Divider />
+        <ListSubheader>
+          <ListItemText primary={'Workspaces'} />
+        </ListSubheader>
+        <Divider />
+        <ListItem
+          button
+          onClick={changeWorkspace('Workspace 1')}
+          key={'Workspace 1'}
+        >
+          <ListItemText primary={'Workspace 1'} />
+        </ListItem>
+        <ListItem
+          button
+          onClick={changeWorkspace('Workspace 2')}
+          key={'Workspace 2'}>
+          <ListItemText primary={'Workspace 2'} />
+        </ListItem>
+      </List>
+    </Menu>
+  );
+
+  const webUserProfileMenu = (
+    <Menu
+      onClose={openWebUserProfileMenu()}
+      open={webUserProfileOpen}
+      anchorOrigin={{horizontal: 'right'}}
+      styles={{width: '600px'}}
+    >
+      <List>
+        <ListItem>
+          <ListItemIcon>
+            <Badge
+              variant="dot"
+              color="secondary"
+              invisible={isActive? false : true}
+            >
+              <Avatar>
+                {user ? user.userName.charAt(0) : ''}
+              </Avatar>
+            </Badge>
+          </ListItemIcon>
+          <ListItemText
+            primary={user ? user.userName : '[User Name]'}
+            secondary={isActive? 'Active' : 'Away'}
+          />
+        </ListItem>
+        <Divider />
+        <InputBase
+          placeholder="Update your status"
+          classes={{
+            root: classes.inputRoot,
+            input: classes.inputInput,
+          }}
+        />
+        <Divider />
+        <ListItem
+          button
+          onClick={toggleStatus}
+          key={'Set yourself as away'}
+        >
+          <ListItemText
+            primary={isActive ?
+              'Set Yourself as Away' :
+              'Set Yourself as Active'
+            }
+          />
+        </ListItem>
+        <Divider />
+        <ListItem
+          button
+          onClick={logout}
+          key={'Sign Out'}
+        >
+          <ListItemText primary={'Sign Out'} />
+        </ListItem>
+      </List>
+    </Menu>
   );
 
   const channels = (
@@ -239,45 +508,60 @@ function ResponsiveDrawer() {
       <AppBar position="absolute" className={classes.appBar}>
         <Toolbar variant="dense">
           <IconButton color="inherit"
-            edge="start" onClick={openWorkspacesMenu}
+            edge="start" onClick={openMobileWorkspacesMenu}
             className={classes.mdDownVisible}>
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
-            [Workspace Name]
+            {currWorkspace}
           </Typography>
         </Toolbar>
       </AppBar>
       <div className={classes.toolbar} />
+      <div className={classes.smUpVisible}>
+        <Divider />
+        <ListSubheader>
+          <ListItemText
+            primary={'All DMs'}
+            onClick={
+              () => {
+                history.push('/dms');
+              }}
+          />
+        </ListSubheader>
+        <Divider />
+        <ListSubheader>
+          <ListItemText
+            primary={'Mentions'}
+            onClick={
+              () => {
+                history.push('/mentions');
+              }}
+          />
+        </ListSubheader>
+      </div>
+      <Divider />
+      <ListSubheader>
+        <ListItemText primary={'Channels'} />
+      </ListSubheader>
       <Divider />
       <List>
-        <ListItem button onClick={toggleChannels(false)} key={'Inbox'}>
+        <ListItem button onClick={changeChannel('Channel 1')} key={'Inbox'}>
           <ListItemText primary={'Channel 1'} />
         </ListItem>
-      </List>
-      <Divider />
-      <List>
-        <ListItem button onClick={toggleChannels(true)} key={'Trash'}>
+        <ListItem button onClick={changeChannel('Channel 2')} key={'Trash'}>
           <ListItemText primary={'Channel 2'} />
         </ListItem>
       </List>
-      <Divider />
+      <List>
+        <Divider />
+        <ListSubheader>
+          <ListItemText primary={'Direct Messages'} />
+        </ListSubheader>
+        <Divider />
+        {mainMessageTable}
+      </List>
     </div>
-  );
-
-  const mainMessages = (
-    <TableContainer component={Paper}>
-      <Table>
-        <TableBody>
-          <TableRow key={'xxx'}
-            onClick={() => threadHandler()}>
-            <TableCell align="center">
-              [Message]
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </TableContainer>
   );
 
   const topWorkspaceBar = (
@@ -286,44 +570,75 @@ function ResponsiveDrawer() {
         <IconButton
           color="inherit"
           edge="start"
-          onClick={openChannelsMenu}
-          className={classes.mdDownVisible}>
+          onClick={openMobileChannelsMenu}
+          className={classes.mdVisible}>
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6" noWrap>
-          [Channel Name]
-        </Typography>
         <IconButton
           color="inherit"
           edge="start"
-          onClick={openChannelsMenu}
-          className={classes.mdUpVisible}
-          edge="end"
-        >
-          <ArrowDropDownCircleIcon />
+          onClick={openMobileChannelsMenu}
+          className={classes.smDownVisible}>
+          <ArrowBackIcon />
         </IconButton>
-        <div className={classes.search}>
-          <div className={classes.searchIcon}>
-            <SearchIcon />
-          </div>
-          <InputBase
-            placeholder="Search…"
-            classes={{
-              root: classes.inputRoot,
-              input: classes.inputInput,
-            }}
-            inputProps={{'aria-label': 'search'}}
-          />
-        </div>
+        <Typography variant="h6" noWrap>
+          {currChannel}
+        </Typography>
         <IconButton
           color="inherit"
           edge="end"
-          onClick={toggleThread(false)}>
-          <AccountCircleIcon />
+          // Changes workspaces on web! v
+          onClick={openWebWorkspacesMenu()}
+          className={classes.mdUpVisible}
+        >
+          <ArrowDropDownCircleIcon />
         </IconButton>
+        {webWorkspaceMenu}
+        <TextField
+          label="Search…"
+          size="small"
+          variant="outlined"
+          className={classes.search}
+          InputProps={{
+            endAdornment:
+            <InputAdornment position="end">
+              <IconButton
+                color={theme.palette.primary.dark}
+                edge="end"
+                onClick={doNothing()}
+              >
+                <SearchIcon />
+              </IconButton>
+            </InputAdornment>,
+          }}
+        />
+        <div className={classes.searchBuffer}/>
+        <div className={classes.smUpVisible}>
+          <IconButton
+            color="inherit"
+            edge="end"
+            onClick={openWebUserProfileMenu()}>
+              <Badge
+                variant="dot"
+                color="secondary"
+                invisible={isActive? false : true}
+              >
+              <Avatar>
+                {user ? user.userName.charAt(0) : ''}
+              </Avatar>
+            </Badge>
+          </IconButton>
+        </div>
+        {webUserProfileMenu}
       </Toolbar>
     </AppBar>
   );
+
+  React.useEffect(() => {
+    fetchDMs(setDms);
+  }, []);
+  console.log('DMS :');
+  console.log(dms.length);
 
   return (
     <div className={classes.root}>
@@ -334,27 +649,25 @@ function ResponsiveDrawer() {
         {/* LeftPanels */}
         <nav className={classes.drawerSpace}>
           {/* Mobile Channel Panel */}
-          <Hidden smDown implementation="css">
-            <Drawer
-              classes={{paper: classes.drawerSize}}
-              variant="temporary"
-              open={mobileChannelsOpen}
-              onClose={openChannelsMenu}
-              onClick={openChannelsMenu}
-              BackdropProps={{invisible: true}}
-              ModalProps={{keepMounted: true}}
-            >
-              {channels}
-            </Drawer>
-          </Hidden>
+          <Drawer
+            classes={{paper: classes.mobileDrawerSize}}
+            variant="temporary"
+            open={mobileChannelsOpen}
+            onClose={openMobileChannelsMenu}
+            onClick={openMobileChannelsMenu}
+            BackdropProps={{invisible: true}}
+            ModalProps={{keepMounted: true}}
+          >
+            {channels}
+          </Drawer>
           {/* Mobile Workspace Panel */}
           <Hidden smDown implementation="css">
             <Drawer
               classes={{paper: classes.drawerSize}}
               variant="temporary"
               open={mobileWorkspacesOpen}
-              onClose={openWorkspacesMenu}
-              onClick={openWorkspacesMenu}
+              onClose={openMobileWorkspacesMenu}
+              onClick={openMobileWorkspacesMenu}
               BackdropProps={{invisible: true}}
               ModalProps={{keepMounted: true}}
             >
@@ -375,9 +688,14 @@ function ResponsiveDrawer() {
         {/* Main Content */}
         <main className={classes.content}>
           <div className={classes.toolbar} />
-          {mainMessages}
+          <ListSubheader>
+            <ListItemText
+              primary={currChannel}
+            />
+          </ListSubheader>
+          {mainMessageTable}
           <TextField
-            label="Send a message to [Channel Name]"
+            label="Send a message to ${currChannel}"
             size="small"
             variant="outlined"
             multiline
@@ -388,7 +706,8 @@ function ResponsiveDrawer() {
                 <IconButton
                   color={theme.palette.primary.dark}
                   edge="end"
-                  onClick={toggleThread(false)}>
+                  // Sends msg to channel v
+                  onClick={doNothing()}>
                   <SendIcon />
                 </IconButton>
               </InputAdornment>,
@@ -415,20 +734,21 @@ function ResponsiveDrawer() {
             >
               <AppBar position="absolute">
                 <Toolbar variant="dense">
-                  <Typography variant="h6" noWrap className={classes.title}>
-                    Thread [current channel]
-                  </Typography>
                   <IconButton
                     color="inherit"
-                    edge="end"
-                    onClick={toggleThread(false)}>
-                    <Close />
+                    edge="start"
+                    onClick={toggleThread(false)}
+                    className={classes.smDownVisible}>
+                    <ArrowBackIcon />
                   </IconButton>
+                  <Typography variant="h6" noWrap className={classes.title}>
+                    Thread : {currChannel}
+                  </Typography>
                 </Toolbar>
               </AppBar>
               <div className={classes.toolbar} />
               <Typography variant="h6">
-                {mainMessages}
+                {threadMessageTable}
               </Typography>
               <TextField
                 label="Add a reply..."
@@ -438,14 +758,15 @@ function ResponsiveDrawer() {
                 className={classes.threadTextField}
                 InputProps={{
                   endAdornment:
-                <InputAdornment position="end">
-                  <IconButton
-                    color="inherit"
-                    edge="end"
-                    onClick={toggleThread(false)}>
-                    <SendIcon />
-                  </IconButton>
-                </InputAdornment>,
+                  <InputAdornment position="end">
+                    <IconButton
+                      color="inherit"
+                      edge="end"
+                      // Sends msg to thread v
+                      onClick={doNothing()}>
+                      <SendIcon />
+                    </IconButton>
+                  </InputAdornment>,
                 }}
               >
               </TextField>
@@ -457,4 +778,4 @@ function ResponsiveDrawer() {
   );
 }
 
-export default ResponsiveDrawer;
+export default Home;

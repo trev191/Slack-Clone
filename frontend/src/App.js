@@ -1,7 +1,6 @@
 import React from 'react';
 import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import NavPage from './NavPage';
 import Login from './Login';
 import Home from './Home';
 import DMs from './DMs';
@@ -20,26 +19,22 @@ function App() {
       <CssBaseline />
       <BrowserRouter>
         <Switch>
-          <Route exact path="/" exact id="route">
+          <Route exact path="/" id="route">
             <Login/>
           </Route>
-          <Route exact path="/home" exact id="route">
+          <Route exact path="/home" id="route">
             <Home/>
           </Route>
-          <Route exact path="/dms" exact id="route">
-            <NavPage/>
+          <Route exact path="/dms" id="route">
             <DMs/>
           </Route>
-          <Route exact path="/mentions" exact id="route">
-            <NavPage/>
+          <Route exact path="/mentions" id="route">
             <Mentions/>
           </Route>
-          <Route exact path="/search" exact id="route">
-            <NavPage/>
+          <Route exact path="/search" id="route">
             <Search/>
           </Route>
-          <Route exact path="/user" exact id="route">
-            <NavPage/>
+          <Route exact path="/user" id="route">
             <UserProfile/>
           </Route>
         </Switch>
