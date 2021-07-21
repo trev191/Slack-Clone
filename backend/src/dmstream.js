@@ -6,6 +6,6 @@ exports.getAllDMs = async (req, res) => {
   if (dms) {
     res.status(200).json(dms);
   } else {
-    res.stauts(404).send();
+    res.status(404).send();
   }
 }

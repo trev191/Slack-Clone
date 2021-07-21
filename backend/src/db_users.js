@@ -40,3 +40,22 @@ exports.getUser = async (id) => {
   const {rows} = await pool.query(query);
   return rows[0].username;
 }
+
+// verify if a user is a member in a given channel
+exports.userIsChannelMember = async (userId, channelId) => {
+  const select = 'SELECT userData FROM users WHERE id = $1';
+  const query = {
+    text: select,
+    values: [userId],
+  };
+  const {rows} = await pool.query(query);
+  const channelIds = rows[0].userdata.channels;
+  // check if the channelId is in the userdata - if it is, it means
+  // the user is a valid member of the channel
+  for (id of channelIds) {
+    if (id === channelId) {
+      return true;
+    }
+  }
+  return false;
+}

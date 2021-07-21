@@ -12,7 +12,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const secrets = require('./db_secretToken');
-var users = require('./db_users');
+const users = require('./db_users');
 
 // helper function to hash a password and return the hashed string
 exports.hashPassword = async (password) => {
