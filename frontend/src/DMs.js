@@ -49,7 +49,6 @@ import NavPage from './NavPage';
 /** Drawers: https://material-ui.com/components/drawers/#drawer */
 
 const drawerWidth = 300;
-const threadWidth = `calc((100% - ${drawerWidth}px) * 0.5)`;
 
 const theme = createTheme({
   palette: {
@@ -103,23 +102,10 @@ const useStyles = makeStyles((theme) => ({
       flexShrink: 0,
     },
   },
-  threadSpaceClosed: { // Right offset space for thread
-    width: 0,
-    flexShrink: 0,
-  },
-  threadSpaceOpened: { // Right offset space for thread
-    width: threadWidth,
-    flexShrink: 0,
-  },
   appBar: { // ?
     [theme.breakpoints.up('sm')]: {
       marginLeft: drawerWidth,
       zIndex: theme.zIndex.drawer + 1,
-    },
-  },
-  smDownVisible: { // Appear on smDown
-    [theme.breakpoints.up('sm')]: {
-      display: 'none',
     },
   },
   smUpVisible: { // Appear on smUp
@@ -185,32 +171,9 @@ const useStyles = makeStyles((theme) => ({
       display: 'none',
     },
   },
-  searchIcon: {
-    padding: theme.spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mainTextField: {
-    position: 'fixed',
-    [theme.breakpoints.up('xs')]: {
-      bottom: '10px',
-      width: `98%`,
-    },
-    [theme.breakpoints.down('xs')]: {
-      bottom: '70px',
-      width: `97%`,
-    },
-    [theme.breakpoints.up('md')]: {
-      bottom: '10px',
-      width: `calc(99% - ${drawerWidth}px)`,
-    },
-  },
   threadTextField: {
     position: 'fixed',
+    backgroundColor: 'white',
     width: `calc((100% - 300px))`,
     bottom: '10px',
     [theme.breakpoints.down('sm')]: {
@@ -262,6 +225,10 @@ function DMs() {
   const [dms, setDms] = React.useState([]);
   const [currThread, setThread] = React.useState(null);
 
+  // Text Input States ---
+  const [searchInput, setSearchInput] = React.useState('');
+  const [threadInput, setThreadInput] = React.useState('');
+
   const toggleThread = (open) => (event) => {
     if (event.type === 'keydown' &&
       (event.key === 'Tab' || event.key === 'Shift')) {
@@ -301,14 +268,27 @@ function DMs() {
     history.push('/');
   };
 
-  // flip the user status from away to active, or vice versa
   const toggleStatus = () => {
     toggleActive(!isActive);
   };
 
-  const doNothing = () => () =>{
-    console.log('Temp Function Call');
+  // Text Input Functions ---
+  const handleSearchChange = (event) => {
+    setSearchInput(event.target.value);
   };
+  const searchFunction = () => () => {
+    console.log('Searching: ' + searchInput);
+  };
+  const handleThreadChange = (event) => {
+    setThreadInput(event.target.value);
+  };
+  const threadFunction = () => () => {
+    console.log('Sending msg to Thread: ' + threadInput);
+  };
+
+  // const doNothing = () => () =>{
+  //   console.log('Temp Function Call');
+  // };
 
   /**
  * @param {messages} messages
@@ -581,13 +561,14 @@ function DMs() {
           size="small"
           variant="outlined"
           className={classes.search}
+          onChange={handleSearchChange}
           InputProps={{
             endAdornment:
             <InputAdornment position="end">
               <IconButton
                 color={theme.palette.primary.dark}
                 edge="end"
-                onClick={doNothing()}
+                onClick={searchFunction()}
               >
                 <SearchIcon />
               </IconButton>
@@ -619,8 +600,6 @@ function DMs() {
   React.useEffect(() => {
     fetchDMs(setDms);
   }, []);
-  console.log('DMS :');
-  console.log(dms.length);
 
   return (
     <div className={classes.root}>
@@ -715,6 +694,7 @@ function DMs() {
                 variant="outlined"
                 multiline
                 className={classes.threadTextField}
+                onChange={handleThreadChange}
                 InputProps={{
                   endAdornment:
                   <InputAdornment position="end">
@@ -722,7 +702,7 @@ function DMs() {
                       color="inherit"
                       edge="end"
                       // Sends msg to thread v
-                      onClick={doNothing()}>
+                      onClick={threadFunction()}>
                       <SendIcon />
                     </IconButton>
                   </InputAdornment>,
