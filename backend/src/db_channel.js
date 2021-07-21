@@ -1,3 +1,12 @@
+/**
+ * Sources Used:
+ *  How to compare dates to sort them in order:
+ *    https://www.geeksforgeeks.org/compare-two-dates-using-javascript/
+ *    https://stackoverflow.com/questions/14781153/how-to-compare-two-string-dates-in-javascript
+ *    https://stackoverflow.com/questions/979256/sorting-an-array-of-objects-by-property-values
+ *    https://flaviocopes.com/how-to-sort-array-of-objects-by-property-javascript/
+ */
+
 const msgs = require('./db_messages');
 const {Pool} = require('pg');
 
@@ -51,6 +60,8 @@ exports.getThreadsAndReplies = async (channelId) => {
     threadObj.messages = messages;
     allThreadsAndReplies.push(threadObj);
   }
+
+  allThreadsAndReplies.sort((a, b) => msgs.sortMessages(a, b));
 
   return allThreadsAndReplies;
 }

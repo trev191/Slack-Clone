@@ -2,6 +2,10 @@
 # CSE183 Assignment 8 Backend
 #
 
+# Sources Used:
+#   Variable Types:
+#     https://swagger.io/docs/specification/data-models/data-types/
+
 openapi: '3.0.3'
 
 info:
@@ -166,9 +170,12 @@ components:
         content:
           type: string
           default: 'content'
+        time:
+          type: string
       required:
       - from
       - content
+      - time
     
     
   securitySchemes:

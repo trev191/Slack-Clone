@@ -1,3 +1,12 @@
+/**
+ * Sources Used:
+ *  How to compare dates to sort them in order:
+ *    https://www.geeksforgeeks.org/compare-two-dates-using-javascript/
+ *    https://stackoverflow.com/questions/14781153/how-to-compare-two-string-dates-in-javascript
+ *    https://stackoverflow.com/questions/979256/sorting-an-array-of-objects-by-property-values
+ *    https://flaviocopes.com/how-to-sort-array-of-objects-by-property-javascript/
+ */
+
 const users = require('./db_users');
 const {Pool} = require('pg');
 
@@ -20,6 +29,14 @@ const getMessage = async (id) => {
   return rows[0].messagedata;
 }
 
+exports.sortMessages = (a, b) => {
+  const lengthA = a.messages.length - 1;
+  const lengthB = b.messages.length - 1;
+  const dateA = Date.parse(a.messages[lengthA].time.split('T')[0]);
+  const dateB = Date.parse(b.messages[lengthB].time.split('T')[0]);
+  return (dateB) - (dateA);
+}
+
 // helper function to retrieve all messages/replies within a DM/thread
 exports.getAllMessagesAndReplies = async (initialMessageId) => {
   // get the message row using the initialMessage id
@@ -40,8 +57,9 @@ exports.getAllMessagesAndReplies = async (initialMessageId) => {
   const userName = await users.getUser(fromUserId);
   messageObj.content = allMessages[0].messagedata.content;
   messageObj.from = userName;
+  messageObj.time = allMessages[0].messagedata.time;
   messageObjArray.push(messageObj);
-  
+
   // push the replies
   const replies = allMessages[0].messagedata.replies;
   for (replyId of replies) {
@@ -50,6 +68,7 @@ exports.getAllMessagesAndReplies = async (initialMessageId) => {
     const replyObj = {};
     replyObj.content = message.content;
     replyObj.from = name;
+    replyObj.time = message.time;
     messageObjArray.push(replyObj);
   }
 
