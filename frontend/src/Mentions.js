@@ -56,6 +56,37 @@ const theme = createTheme({
   },
 });
 
+const fetchDMs = (setDms) => {
+  const item = localStorage.getItem('user');
+  if (!item) {
+    return;
+  }
+  const user = JSON.parse(item);
+  const bearerToken = user ? user.accessToken : '';
+  fetch('/v0/dms', {
+    method: 'get',
+    headers: new Headers({
+      'Authorization': `Bearer ${bearerToken}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        console.log('Logged Out');
+        throw response;
+      }
+      return response.json();
+    })
+    .then((json) => {
+      console.log(json);
+      setDms(json);
+    })
+    .catch((error) => {
+      console.log(error);
+      setDms([]);
+    });
+};
+
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
@@ -117,15 +148,9 @@ const useStyles = makeStyles((theme) => ({
   },
   threadSize: { // Size and margin of the threadSize
     width: `calc((100% - 300px))`,
-    // [theme.breakpoints.up('xs')]: {
-    //   width: `50%`,
-    // },
     [theme.breakpoints.down('sm')]: {
       width: `100%`,
     },
-    // [theme.breakpoints.down('xs')]: {
-    //   width: `calc((100% - 300px))`,
-    // },
   },
   content: { // ?
     flexGrow: 1,
@@ -225,6 +250,8 @@ function Mentions() {
   const [currWorkspace, setCurrWorkspace] = React.useState('null');
   const [currChannel, setCurrChannel] = React.useState('null');
   const [isActive, toggleActive] = React.useState(true);
+  const [dms, setDms] = React.useState([]);
+  const [currThread, setThread] = React.useState(null);
 
   const toggleThread = (open) => (event) => {
     if (event.type === 'keydown' &&
@@ -274,12 +301,76 @@ function Mentions() {
     console.log('Temp Function Call');
   };
 
+
   /**
+ * @param {messages} messages
  * @param {bool} bool
  */
-  function threadHandler(bool) {
+  function threadHandler(messages, bool) {
+    console.log(messages);
+    setThread(messages);
     openThread(bool);
   }
+
+  const threadMessage = (msg) => (
+    <div>
+      <ListItem key={'ID'}>
+        <ListItemAvatar>
+          <Badge variant="dot" color="secondary" invisible={false}>
+            <Avatar>{msg.from.charAt(0)}</Avatar>
+          </Badge>
+        </ListItemAvatar>
+        <ListItemText
+          primary={msg.from + '  /  [Date]'}
+          secondary={msg.content}
+        />
+      </ListItem>
+    </div>
+  );
+
+  const mainMessage = (convo) => (
+    <div>
+      <ListItem
+        key={'ID'}
+        button
+        onClick={() => threadHandler(convo.messages, true)}
+      >
+        <ListItemAvatar>
+          <Badge
+            variant="dot"
+            color="secondary"
+            invisible={false}
+          >
+            <Avatar>
+              {convo.messages[convo.messages.length-1].from.charAt(0)}
+            </Avatar>
+          </Badge>
+        </ListItemAvatar>
+        <ListItemText
+          primary={convo.messages[convo.messages.length-1].from +
+            '  /  [Date]'}
+          secondary={convo.messages[convo.messages.length-1].content}
+        />
+      </ListItem>
+    </div>
+  );
+
+  const mainMessageTable = (
+    <List>
+      {dms.map(
+        (convo) =>
+          mainMessage(convo),
+      )}
+    </List>
+  );
+
+  const threadMessageTable = (
+    <List>
+      {currThread ?
+        currThread.map((message)=> threadMessage(message)) :
+        ''}
+    </List>
+  );
 
   const workspaces = (
     <div>
@@ -449,53 +540,9 @@ function Mentions() {
           <ListItemText primary={'Direct Messages'} />
         </ListSubheader>
         <Divider />
-        <ListItem button onClick={doNothing()} key={'Inbox'}>
-          <ListItemIcon>
-            <Badge variant="dot" color="secondary" invisible={false}>
-            <Avatar>X</Avatar>
-            </Badge>
-          </ListItemIcon>
-          <ListItemText primary={'Person 1'} />
-        </ListItem>
-        <ListItem button onClick={doNothing()} key={'Trash'}>
-          <ListItemIcon>
-            <Badge variant="dot" color="secondary" invisible={false}>
-              <Avatar>X</Avatar>
-            </Badge>
-          </ListItemIcon>
-          <ListItemText primary={'Person 2'} />
-        </ListItem>
+        {mainMessageTable}
       </List>
     </div>
-  );
-
-  const message = (
-    <div>
-      {/* Thread handler should also change state
-      of the side thread panel */}
-      <ListItem key={'ID'} button onClick={() => threadHandler(true)}>
-        <ListItemAvatar>
-          <Badge variant="dot" color="secondary" invisible={false}>
-            <Avatar>X</Avatar>
-          </Badge>
-        </ListItemAvatar>
-        <ListItemText
-          primary={'[Person 1\'s Name]  /  [Date]'}
-          secondary={'[Message Body] : ' +
-            'dsasdad sdddddddd dddddddd ddddd ddddddd' +
-            'dsa sdadsdddd dddddddd ddddddddddd ddddd' +
-            'dsas dadsdddddd dddddddddd ddddddd ddddd'}
-        />
-      </ListItem>
-    </div>
-  );
-
-  const messageTable = (
-    <List>
-      {message}
-      {message}
-      {message}
-    </List>
   );
 
   const topWorkspaceBar = (
@@ -561,6 +608,12 @@ function Mentions() {
     </AppBar>
   );
 
+  React.useEffect(() => {
+    fetchDMs(setDms);
+  }, []);
+  console.log('DMS :');
+  console.log(dms.length);
+
   return (
     <div className={classes.root}>
       <ThemeProvider theme={theme}>
@@ -616,7 +669,7 @@ function Mentions() {
               primary='Mentions'
             />
           </ListSubheader>
-          {messageTable}
+          {mainMessageTable}
         </main>
         {/* ThreadPanel */}
         <nav>
@@ -646,7 +699,7 @@ function Mentions() {
               </AppBar>
               <div className={classes.toolbar} />
               <Typography variant="h6">
-                {messageTable}
+                {threadMessageTable}
               </Typography>
               <TextField
                 label="Add a reply..."
