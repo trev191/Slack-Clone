@@ -308,7 +308,7 @@ function DMs() {
   const [mobileWorkspacesOpen, setMobileWorkspacesOpen] =
     React.useState(false);
   const [mobileChannelsOpen, setMobileChannelsOpen] =
-    React.useState(true);
+    React.useState(false);
 
   const [webWorkspacesOpen, setWebWorkspacesOpen] =
     React.useState(false);
@@ -694,7 +694,7 @@ function DMs() {
           <MenuIcon />
         </IconButton>
         <Typography variant="h6" noWrap>
-          {currChannel}
+          Direct Messages
         </Typography>
         <IconButton
           color="inherit"
@@ -758,7 +758,7 @@ function DMs() {
 
 
   React.useEffect(() => {
-    checkLoggedIn();    
+    checkLoggedIn();
     fetchWorkspacesAndChannels(setWorkspacesAndChannels,
       setCurrWorkspace, setCurrChannel);
     fetchDMs(setDms);

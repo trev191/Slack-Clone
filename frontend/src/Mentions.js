@@ -303,7 +303,7 @@ function Mentions() {
   const [mobileWorkspacesOpen, setMobileWorkspacesOpen] =
     React.useState(false);
   const [mobileChannelsOpen, setMobileChannelsOpen] =
-    React.useState(true);
+    React.useState(false);
 
   const [webWorkspacesOpen, setWebWorkspacesOpen] =
     React.useState(false);
@@ -689,7 +689,7 @@ function Mentions() {
           <MenuIcon />
         </IconButton>
         <Typography variant="h6" noWrap>
-          {currChannel}
+          Mentions
         </Typography>
         <IconButton
           color="inherit"

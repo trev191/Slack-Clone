@@ -291,7 +291,7 @@ function Search() {
   const [mobileWorkspacesOpen, setMobileWorkspacesOpen] =
     React.useState(false);
   const [mobileChannelsOpen, setMobileChannelsOpen] =
-    React.useState(true);
+    React.useState(false);
 
   const [webWorkspacesOpen, setWebWorkspacesOpen] =
     React.useState(false);
@@ -677,7 +677,7 @@ function Search() {
           <MenuIcon />
         </IconButton>
         <Typography variant="h6" noWrap>
-          {currChannel}
+          Search
         </Typography>
         <IconButton
           color="inherit"

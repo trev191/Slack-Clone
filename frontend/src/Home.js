@@ -454,7 +454,6 @@ function Home() {
  * @param {bool} bool
  */
   function threadHandler(messages, bool) {
-    console.log(messages);
     // setMobileChannelsOpen(false);
     setThread(messages);
     openThread(bool);
@@ -465,10 +464,7 @@ function Home() {
  * @return {str} str
  */
    function convertDate(str) {
-    console.log(str);
     const date = new Date(str);
-    console.log(date);
-    console.log(date.toDateString());
     return date.toString();
   }
 
@@ -516,7 +512,9 @@ function Home() {
   );
 
   const mainMessageTable = (
-    <List onClick = {() => setMain(true)}>
+    <List onClick = {() => {
+      setMain(true);
+      console.log('ClickedTrue')}}>
       {threadsAndReplies.map(
         (convo) =>
           mainMessage(convo),
@@ -839,8 +837,6 @@ function Home() {
       method: 'post',
       headers: new Headers({
         'Authorization': `Bearer ${bearerToken}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
       }),
       body: threadMessage,
     })
@@ -872,7 +868,7 @@ function Home() {
   };
 
   React.useEffect(() => {
-    checkLoggedIn();    
+    checkLoggedIn();
     fetchWorkspacesAndChannels(setWorkspacesAndChannels,
       setCurrWorkspace, setCurrChannel);
     fetchDMs(setDms);
