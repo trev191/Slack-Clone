@@ -82,7 +82,7 @@ exports.getThreadsAndReplies = async (channelId) => {
 }
 
 // post a new thread to a channel given the channelId and the
-// newThread object to post
+// newThread object to post; return the newly created message id
 exports.createThread = async (channelId, newThread) => {
   // create message with newThread and insert into messages table
   // and save the newly generated UUID return value
@@ -99,4 +99,6 @@ exports.createThread = async (channelId, newThread) => {
     values: [channelId, channelData],
   };
   await pool.query(query);
+
+  return messageId;
 }

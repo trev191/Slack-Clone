@@ -208,10 +208,14 @@ components:
           default: 'content'
         time:
           type: string
+        id:
+          type: string
+          format: uuid
       required:
       - from
       - content
       - time
+      - id
 
     MessageContent:
       type: object

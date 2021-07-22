@@ -85,6 +85,7 @@ exports.getAllMessagesAndReplies = async (initialMessageId) => {
   messageObj.content = allMessages[0].messagedata.content;
   messageObj.from = userName;
   messageObj.time = allMessages[0].messagedata.time;
+  messageObj.id = initialMessageId;
   messageObjArray.push(messageObj);
 
   // push the replies
@@ -96,6 +97,7 @@ exports.getAllMessagesAndReplies = async (initialMessageId) => {
     replyObj.content = message.content;
     replyObj.from = name;
     replyObj.time = message.time;
+    replyObj.id = replyId;
     messageObjArray.push(replyObj);
   }
 
