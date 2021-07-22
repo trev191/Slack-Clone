@@ -515,12 +515,12 @@ function Home() {
             invisible={false}
           >
             <Avatar>
-              {convo.messages[convo.messages.length-1].from.charAt(0)}
+              {convo.otherUser[0]}
             </Avatar>
           </Badge>
         </ListItemAvatar>
         <ListItemText
-          primary={convo.messages[convo.messages.length-1].from +
+          primary={convo.otherUser +
             '  /  [Date]'}
           secondary={convo.messages[convo.messages.length-1].content}
         />
