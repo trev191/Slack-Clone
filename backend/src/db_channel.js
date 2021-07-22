@@ -59,6 +59,19 @@ const getChannelData = async (channelId) => {
   }
 }
 
+// sort threads by the first message in each thread (this is different
+// from how regular DMs are sorted)
+const sortThreads = (a, b) => {
+  const dateA = Date.parse(a.messages[0].time.split('T')[0]);
+  const dateB = Date.parse(b.messages[0].time.split('T')[0]);
+  if (dateB === dateA) {
+    const objA = new Date(a.messages[0].time);
+    const objB = new Date(b.messages[0].time);
+    return (objB.getTime()) - (objA.getTime()); 
+  }
+  return (dateB) - (dateA);
+}
+
 // given a channel Id, return all threads and their replies within
 // that channel
 exports.getThreadsAndReplies = async (channelId) => {
@@ -76,7 +89,7 @@ exports.getThreadsAndReplies = async (channelId) => {
     allThreadsAndReplies.push(threadObj);
   }
 
-  allThreadsAndReplies.sort((a, b) => msgs.sortMessages(a, b));
+  allThreadsAndReplies.sort((a, b) => sortThreads(a, b));
 
   return allThreadsAndReplies;
 }

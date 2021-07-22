@@ -124,3 +124,29 @@ exports.createMessage = async (messageObj) => {
   // return the UUID
   return newId;
 }
+
+
+
+// create a new message with a newly generated UUID and add the message to
+// the replies of the initial message
+exports.createReply = async (initialMessageId, messageObj) => {
+  // create a new message and get the new UUID of it
+  const newId = await this.createMessage(messageObj)
+  const updatedMessageData = await getMessage(initialMessageId);
+  updatedMessageData.replies.push(newId);
+
+  console.log(newId);
+  console.log(updatedMessageData);
+
+  // update the new message in the replies[] of the initial message
+  const update = 'UPDATE messages SET messageData = $2 WHERE id = $1 RETURNING *';
+  const query = {
+    text: update,
+    values: [initialMessageId, updatedMessageData],
+  };
+  const {rows} = await pool.query(query);
+  console.log(rows[0]);
+
+  // return the UUID
+  return newId;
+}

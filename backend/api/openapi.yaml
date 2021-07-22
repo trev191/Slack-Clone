@@ -122,7 +122,39 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'  
+                $ref: '#/components/schemas/Error'
+
+  /reply/{id}:
+    post:
+      description: Post a reply to a DM or Thread.
+      parameters:
+      - name: id
+        in: path
+        description: UUID of the first message in DM or thread.
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        description: Content of new thread to post. Modify "Message Content" only.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageContent'
+      responses:
+        201:
+          description: Success. New thread created and posted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        default:
+          description: Unexpected error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       
 
 
