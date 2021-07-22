@@ -65,3 +65,16 @@ exports.getThreadsAndReplies = async (channelId) => {
 
   return allThreadsAndReplies;
 }
+
+// post a new thread to a channel given the channelId and the
+// newThread object to post
+exports.createThread = async (channelId, newThread) => {
+
+
+  // create message with newThread and insert into messages table
+
+  // get channel row with channelId and update channel's threads array 
+
+
+  return;
+}

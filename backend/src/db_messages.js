@@ -74,3 +74,15 @@ exports.getAllMessagesAndReplies = async (initialMessageId) => {
 
   return messageObjArray;
 }
+
+// create a new message with a newly generated UUID and add the message to
+// the table; return the new UUID
+exports.createMessage = async (messageObj) => {
+  // generate a UUID for the message
+
+  // create a message object to be inserted into the messages table
+
+  // insert the new message into the table
+
+  // return the UUID
+}
