@@ -125,7 +125,7 @@ const fetchThreadsAndReplies =
     })
     .then((json) => {
       console.log(json);
-      setThreadsAndReplies(json);
+      setThreadsAndReplies(json.reverse());
     })
     .catch((error) => {
       console.log(error);
@@ -237,9 +237,17 @@ const useStyles = makeStyles((theme) => ({
       width: `100%`,
     },
   },
-  content: { // ?
+  mainTableSize: { // Size of the message table
     flexGrow: 1,
-    padding: theme.spacing(1), // size of the message elements
+    maxHeight: '750px',
+    // backgroundColor: 'lightgrey',
+    overflow: 'auto',
+    [theme.breakpoints.up('sm')]: {
+      maxHeight: '800px',
+    },
+  },
+  content: { // Size of the main section
+    flexGrow: 1,
   },
   title: {
     flexGrow: 1,
@@ -414,6 +422,31 @@ function Mentions() {
     openThread(bool);
   }
 
+  /**
+ * @param {inputDate} inputDate
+ * @return {str} str
+ */
+   function convertDate(inputDate) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June',
+      'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+    let output = null;
+    const yearAgo = new Date();
+    const dayAgo = new Date();
+    const emailDate = new Date(inputDate);
+    yearAgo.setFullYear(yearAgo.getFullYear()-1);
+    dayAgo.setDate(dayAgo.getDate()-1);
+    if (yearAgo > emailDate) {
+      output = emailDate.getFullYear();
+    } else {
+      output = months[emailDate.getMonth().toString()] +
+        ' ' + emailDate.getDate();
+    }
+    if (dayAgo < emailDate) {
+      output = emailDate.getHours() + ':' + emailDate.getMinutes();
+    }
+    return output;
+  }
+
   const threadMessage = (msg) => (
     <div>
       <ListItem key={'ID'}>
@@ -423,7 +456,7 @@ function Mentions() {
           </Badge>
         </ListItemAvatar>
         <ListItemText
-          primary={msg.from + '  /  [Date]'}
+          primary={msg.from + '  -  ' + convertDate(msg.time)}
           secondary={msg.content}
         />
       </ListItem>
@@ -449,8 +482,8 @@ function Mentions() {
           </Badge>
         </ListItemAvatar>
         <ListItemText
-          primary={convo.messages[convo.messages.length-1].from +
-            '  /  [Date]'}
+          primary={convo.messages[convo.messages.length-1].from + '  -  ' +
+          convertDate(convo.messages[convo.messages.length-1].time)}
           secondary={convo.messages[convo.messages.length-1].content}
         />
       </ListItem>
@@ -458,7 +491,10 @@ function Mentions() {
   );
 
   const mainMessageTable = (
-    <List onClick = {() => setMain(true)}>
+    <List
+      onClick = {() => setMain(true)}
+      className = {classes.mainTableSize}
+    >
       {threadsAndReplies.map(
         (convo) =>
           mainMessage(convo),
@@ -467,7 +503,10 @@ function Mentions() {
   );
 
   const DMDisplay = (
-    <List>
+    <List
+      onClick = {() => setMain(false)}
+      className = {classes.mainTableSize}
+    >
       {dms.map(
         (convo) =>
           mainMessage(convo),
@@ -616,7 +655,7 @@ function Mentions() {
   );
 
   const channelsTable = (
-    <List>
+    <List onClick = {() => setMain(true)}>
       {returnChannelsArray().map(
         (channel) =>
           channelListItem(channel),
@@ -757,7 +796,12 @@ function Mentions() {
         setCurrWorkspace, setCurrChannel);
     fetchDMs(setDms);
   }, []);
-  console.log('workspacesAndChannels', workspacesAndChannels);
+  React.useEffect(() => {
+    console.log('Front Populated with ' + currChannel);
+    // I need the below to instantiate the threads...
+    fetchThreadsAndReplies(workspacesAndChannels,
+      setThreadsAndReplies, currChannel);
+  }, [currChannel]);
 
   return (
     <div className={classes.root}>
