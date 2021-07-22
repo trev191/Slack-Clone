@@ -58,6 +58,22 @@ function Login() {
   const [user, setUser] = React.useState({username: '', password: ''});
   const history = useHistory();
 
+  /**
+   * check if user is signed in and redirect immediately to /home page if true
+   */
+  function checkLoggedIn() {
+    const item = localStorage.getItem('user');
+    if (item) {
+      // go back to the home page
+      history.push('/home');
+    }
+  };
+
+  // call functions when page is loaded in
+  React.useEffect(() => {
+    checkLoggedIn();
+  }, []);
+
   // update user object state when input field changes
   const handleInput = (event) => {
     const {value, name} = event.target;
