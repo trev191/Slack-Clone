@@ -44,6 +44,21 @@ const getThreadIds = async (channelId) => {
   }
 }
 
+// helper function to get the channelData from a channel
+const getChannelData = async (channelId) => {
+  const select = 'SELECT channelData FROM channel WHERE id = $1';
+  const query = {
+    text: select,
+    values: [channelId],
+  }
+  const {rows} = await pool.query(query);
+  if (rows.length !== 0) {
+    return rows[0].channeldata;
+  } else {
+    return [];
+  }
+}
+
 // given a channel Id, return all threads and their replies within
 // that channel
 exports.getThreadsAndReplies = async (channelId) => {
@@ -69,12 +84,19 @@ exports.getThreadsAndReplies = async (channelId) => {
 // post a new thread to a channel given the channelId and the
 // newThread object to post
 exports.createThread = async (channelId, newThread) => {
-
-
   // create message with newThread and insert into messages table
+  // and save the newly generated UUID return value
+  const messageId = await msgs.createMessage(newThread);
+
+  // get current channelData object and add the newly created message to it
+  const channelData = await getChannelData(channelId);
+  channelData.threads.push(messageId);
 
   // get channel row with channelId and update channel's threads array 
-
-
-  return;
+  const update = 'UPDATE channel SET channelData = $2 WHERE id = $1';
+  const query = {
+    text: update,
+    values: [channelId, channelData],
+  };
+  await pool.query(query);
 }

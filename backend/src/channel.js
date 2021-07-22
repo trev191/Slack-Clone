@@ -22,7 +22,7 @@ exports.createThread = async (req, res) => {
   newThread.time = date.toISOString();
   newThread.content = content;
   newThread.from = userName;
-
   await channel.createThread(channelId, newThread);
+  newThread.from = userName;
   res.status(201).send(newThread);
 }
