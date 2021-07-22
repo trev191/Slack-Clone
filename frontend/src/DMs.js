@@ -758,7 +758,7 @@ function DMs() {
 
 
   React.useEffect(() => {
-    checkLoggedIn();    
+    checkLoggedIn();
     fetchWorkspacesAndChannels(setWorkspacesAndChannels,
       setCurrWorkspace, setCurrChannel);
     fetchDMs(setDms);
