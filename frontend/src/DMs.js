@@ -317,6 +317,9 @@ function DMs() {
 
   const [threadOpened, openThread] = React.useState(false);
 
+  // First message of Current Thread/DM Open:
+  const [currMessageId, setCurrMessageId] = React.useState('');
+
   // User Green Dot Status
   const [isActive, toggleActive] = React.useState(true);
 
@@ -403,6 +406,7 @@ function DMs() {
   };
   const threadFunction = () => () => {
     console.log('Sending msg to Thread: ' + threadInput);
+    postReply(setDms);
   };
 
   // const doNothing = () => () =>{
@@ -414,7 +418,7 @@ function DMs() {
  * @param {bool} bool
  */
   function threadHandler(messages, bool) {
-    console.log(messages);
+    setCurrMessageId(messages[0].id);
     setThread(messages);
     openThread(bool);
   }
@@ -756,6 +760,46 @@ function DMs() {
     }
   };
 
+    // create a new thread and add it to the current list of threads
+    const postReply = (setDms) => {
+      const item = localStorage.getItem('user');
+      if (!item) {
+        return;
+      }
+      const user = JSON.parse(item);
+      const bearerToken = user ? user.accessToken : '';
+      const reply = JSON.stringify({content: threadInput});
+      fetch('/v0/reply/' + currMessageId, {
+        method: 'post',
+        headers: new Headers({
+          'Authorization': `Bearer ${bearerToken}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        }),
+        body: reply,
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw response;
+          }
+          return response.json();
+        })
+        .then((json) => {
+          // find the correct dm box in dms and add the new message
+          for (const index in dms) {
+            if (dms[index].messages[0].id === currMessageId) {
+              delete json.replies;
+              dms[index].messages.push(json);
+              setDms(dms);
+              break;
+            }
+          }
+          setThreadInput('');
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    };
 
   React.useEffect(() => {
     checkLoggedIn();
@@ -863,6 +907,7 @@ function DMs() {
                 variant="outlined"
                 multiline
                 className={classes.threadTextField}
+                value={threadInput}
                 onChange={handleThreadChange}
                 InputProps={{
                   endAdornment:

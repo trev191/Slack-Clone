@@ -353,6 +353,12 @@ function Home() {
 
   const [threadOpened, openThread] = React.useState(false);
 
+  // First message of Current Thread/DM Open:
+  const [currMessageId, setCurrMessageId] = React.useState('');
+
+  // Which type of message is currently opened (thread or DM)
+  const [dmOpened, toggleDmOpened] = React.useState(false);
+
   // User Green Dot Status
   const [isActive, toggleActive] = React.useState(true);
 
@@ -447,15 +453,22 @@ function Home() {
   };
   const threadFunction = () => () => {
     console.log('Sending msg to Thread: ' + threadInput);
+    postReply(setThreadsAndReplies, setDms);
   };
 
   /**
  * @param {messages} messages
  * @param {bool} bool
+ * @param {bool} isDm var to denote whether message we opened is thread or dm
  */
-  function threadHandler(messages, bool) {
-    console.log(messages);
+  function threadHandler(messages, bool, isDm) {
+    setCurrMessageId(messages[0].id);
     // setMobileChannelsOpen(false);
+    if (isDm) {
+      toggleDmOpened(true);
+    } else {
+      toggleDmOpened(false);
+    }
     setThread(messages);
     openThread(bool);
   }
@@ -488,12 +501,12 @@ function Home() {
     </div>
   );
 
-  const mainMessage = (convo) => (
+  const mainMessage = (convo, isDm) => (
     <div>
       <ListItem
         key={'ID'}
         button
-        onClick={() => threadHandler(convo.messages, true)}
+        onClick={() => threadHandler(convo.messages, true, isDm)}
       >
         <ListItemAvatar>
           <Badge
@@ -519,7 +532,7 @@ function Home() {
     <List onClick = {() => setMain(true)}>
       {threadsAndReplies.map(
         (convo) =>
-          mainMessage(convo),
+          mainMessage(convo, false),
       )}
     </List>
   );
@@ -528,7 +541,7 @@ function Home() {
     <List onClick = {() => setMain(false)}>
       {dms.map(
         (convo) =>
-          mainMessage(convo),
+          mainMessage(convo, true),
       )}
     </List>
   );
@@ -869,6 +882,62 @@ function Home() {
       });
   };
 
+  // create a new thread and add it to the current list of threads
+  const postReply = (setThreadsAndReplies, setDms) => {
+    const item = localStorage.getItem('user');
+    if (!item) {
+      return;
+    }
+    const user = JSON.parse(item);
+    const bearerToken = user ? user.accessToken : '';
+    const reply = JSON.stringify({content: threadInput});
+    fetch('/v0/reply/' + currMessageId, {
+      method: 'post',
+      headers: new Headers({
+        'Authorization': `Bearer ${bearerToken}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      }),
+      body: reply,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw response;
+        }
+        return response.json();
+      })
+      .then((json) => {
+        console.log(json);
+        // based on whether we were replying to a dm or thread, add the new msg
+        if (dmOpened) {
+          // find the correct dm box in dms and add the new message
+          for (const index in dms) {
+            if (dms[index].messages[0].id === currMessageId) {
+              delete json.replies;
+              dms[index].messages.push(json);
+              setDms(dms);
+              break;
+            }
+          }
+        } else {
+          // we are viewing a thread, so add the new message to the threads arr
+          for (const index in threadsAndReplies) {
+            if (threadsAndReplies[index].messages[0].id === currMessageId) {
+              delete json.replies;
+              threadsAndReplies[index].messages.push(json);
+              setThreadsAndReplies(threadsAndReplies);
+              break;
+            }
+          }
+        }
+        // clear input in text field
+        setThreadInput('');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   // check if user is signed in and redirect immediately to login page if false
   const checkLoggedIn = () => {
     const item = localStorage.getItem('user');
@@ -1000,6 +1069,7 @@ function Home() {
                 size="small"
                 variant="outlined"
                 multiline
+                value={threadInput}
                 className={classes.threadTextField}
                 onChange={handleThreadChange}
                 InputProps={{
