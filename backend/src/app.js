@@ -38,6 +38,7 @@ app.get('/v0/dummy', dummy.get);
 app.get('/v0/dms', auth.check, dmstream.getAllDMs);
 app.get('/v0/workspace', auth.check, workspace.getWorkspacesAndChannels);
 app.get('/v0/channel/:id', auth.check, channel.getThreadsAndReplies);
+app.post('/v0/channel/:id', auth.check, channel.createThread);
 
 app.use((err, req, res, next) => {
   console.log('Message: ' + err);

@@ -5,6 +5,10 @@
 # Sources Used:
 #   Variable Types:
 #     https://swagger.io/docs/specification/data-models/data-types/
+#   Request Body Types:
+#     https://swagger.io/docs/specification/2-0/describing-request-body/
+#   Media Types:
+#     https://swagger.io/docs/specification/media-types/
 
 openapi: '3.0.3'
 
@@ -89,6 +93,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+    post:
+      description: Post a new thread message in a channel.
+      parameters:
+      - name: id
+        in: path
+        description: UUID identifying the channel the post the new thread to
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        description: Content of new thread to post. Modify "Message Content" only.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageContent'
+      responses:
+        201:
+          description: Success. New thread created and posted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        default:
+          description: Unexpected error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'  
+      
+
 
 components:
   schemas:
@@ -176,6 +212,15 @@ components:
       - from
       - content
       - time
+
+    MessageContent:
+      type: object
+      properties:
+        content:
+          type: string
+          default: 'Message Content'
+      required:
+      - content
     
     
   securitySchemes:

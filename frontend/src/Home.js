@@ -440,6 +440,7 @@ function Home() {
   };
   const msgFunction = () => () => {
     console.log('Sending msg to Channel: ' + msgInput);
+    postNewThread(setThreadsAndReplies);
   };
   const handleThreadChange = (event) => {
     setThreadInput(event.target.value);
@@ -806,7 +807,72 @@ function Home() {
     </AppBar>
   );
 
+  // Sources Used for Creating a Post Request:
+  //  https://simonplend.com/how-to-use-fetch-to-post-form-data-as-json-to-your-api/
+  //  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
+  //  https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+  //
+  // create a new thread and add it to the current list of threads
+  const postNewThread = (setThreadsAndReplies) => {
+    const item = localStorage.getItem('user');
+    if (!item) {
+      return;
+    }
+    const user = JSON.parse(item);
+    const bearerToken = user ? user.accessToken : '';
+    const threadMessage = JSON.stringify({content: msgInput});
+
+    let currChannelId = null;
+    workspacesAndChannels.map(({channels}) => {
+      if (!currChannelId) {
+        const f = channels.find(({channelName}) =>
+          channelName === 'Assignment 1');
+        if (f) {
+          currChannelId = f.channelId;
+        }
+      }
+      // ignore this statement; lint requires maps receive a return value
+      return true;
+    });
+
+    fetch('/v0/channel/' + currChannelId, {
+      method: 'post',
+      headers: new Headers({
+        'Authorization': `Bearer ${bearerToken}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      }),
+      body: threadMessage,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw response;
+        }
+        return response.json();
+      })
+      .then((json) => {
+        console.log(json);
+        const currThreads = [...threadsAndReplies];
+        currThreads.push(json);
+        setThreadsAndReplies(currThreads);
+      })
+      .catch((error) => {
+        console.log(error);
+        setThreadsAndReplies([]);
+      });
+  };
+
+  // check if user is signed in and redirect immediately to login page if false
+  const checkLoggedIn = () => {
+    const item = localStorage.getItem('user');
+    if (!item) {
+      // go back to the login page
+      history.push('/');
+    }
+  };
+
   React.useEffect(() => {
+    checkLoggedIn();    
     fetchWorkspacesAndChannels(setWorkspacesAndChannels,
       setCurrWorkspace, setCurrChannel);
     fetchDMs(setDms);

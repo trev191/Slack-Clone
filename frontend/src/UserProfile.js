@@ -100,6 +100,19 @@ function UserProfile() {
     toggleActive(!isActive);
   };
 
+  // check if user is signed in and redirect immediately to login page if false
+  const checkLoggedIn = () => {
+    const item = localStorage.getItem('user');
+    if (!item) {
+      // go back to the login page
+      history.push('/');
+    }
+  };
+
+  React.useEffect(() => {
+    checkLoggedIn();
+  }, []);
+
   return (
     <div className={classes.root}>
       <ThemeProvider theme={theme}>
