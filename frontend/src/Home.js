@@ -841,6 +841,7 @@ function Home() {
       body: threadMessage,
     })
       .then((response) => {
+        console.log(response);
         if (!response.ok) {
           throw response;
         }
@@ -849,12 +850,18 @@ function Home() {
       .then((json) => {
         console.log(json);
         const currThreads = [...threadsAndReplies];
-        currThreads.push(json);
+
+        // create a new thread object and push the new message in there
+        const threadObj = {};
+        threadObj.otherUser = json.from;
+        threadObj.messages = [json];
+        currThreads.push(threadObj);
+
         setThreadsAndReplies(currThreads);
+        setMsgInput('');
       })
       .catch((error) => {
         console.log(error);
-        setThreadsAndReplies([]);
       });
   };
 
@@ -873,7 +880,6 @@ function Home() {
       setCurrWorkspace, setCurrChannel);
     fetchDMs(setDms);
   }, []);
-  console.log('workspacesAndChannels', workspacesAndChannels);
 
   return (
     <div className={classes.root}>
@@ -932,6 +938,7 @@ function Home() {
             size="small"
             variant="outlined"
             multiline
+            value={msgInput}
             className={classes.mainTextField}
             onChange={handleMsgChange}
             InputProps={{
