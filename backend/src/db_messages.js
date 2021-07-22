@@ -5,6 +5,7 @@
  *    https://stackoverflow.com/questions/14781153/how-to-compare-two-string-dates-in-javascript
  *    https://stackoverflow.com/questions/979256/sorting-an-array-of-objects-by-property-values
  *    https://flaviocopes.com/how-to-sort-array-of-objects-by-property-javascript/
+ *    https://forum.freecodecamp.org/t/sort-on-iso-date/160518/10
  * 
  *  UUID Generator:
  *    https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid
@@ -53,11 +54,11 @@ const getMessage = async (id) => {
 exports.sortMessages = (a, b) => {
   const lengthA = a.messages.length - 1;
   const lengthB = b.messages.length - 1;
-  const objA = new Date(a.messages[lengthA].time);
-  const objB = new Date(b.messages[lengthB].time);
   const dateA = Date.parse(a.messages[lengthA].time.split('T')[0]);
   const dateB = Date.parse(b.messages[lengthB].time.split('T')[0]);
   if (dateB === dateA) {
+    const objA = new Date(a.messages[lengthA].time);
+    const objB = new Date(b.messages[lengthB].time);
     return (objB.getTime()) - (objA.getTime()); 
   }
   return (dateB) - (dateA);
