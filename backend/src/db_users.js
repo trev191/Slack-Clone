@@ -41,6 +41,17 @@ exports.getUser = async (id) => {
   return rows[0].username;
 }
 
+// return the uuid of a given user username
+exports.getUserId = async (userName) => {
+  const select = 'SELECT id FROM users WHERE userName = $1';
+  const query = {
+    text: select,
+    values: [userName],
+  };
+  const {rows} = await pool.query(query);
+  return rows[0].id;
+}
+
 // verify if a user is a member in a given channel
 exports.userIsChannelMember = async (userId, channelId) => {
   const select = 'SELECT userData FROM users WHERE id = $1';
