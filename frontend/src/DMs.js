@@ -48,18 +48,95 @@ import NavPage from './NavPage';
 /** Table: https://material-ui.com/components/tables/#table */
 /** Drawers: https://material-ui.com/components/drawers/#drawer */
 
-const drawerWidth = 300;
+// backend function to retrieve an array of workspace objects;
+// each workspace object consists of the workspace name and an array
+// of channel objects; each channel object consists of the channel name,
+// the channel id, and the threads/replies within the channel
+const fetchWorkspacesAndChannels =
+  (setWorkspacesAndChannels, setCurrWorkspace, setCurrChannel) => {
+  const item = localStorage.getItem('user');
+  if (!item) {
+    return;
+  }
+  const user = JSON.parse(item);
+  const bearerToken = user ? user.accessToken : '';
+  fetch('/v0/workspace', {
+    method: 'get',
+    headers: new Headers({
+      'Authorization': `Bearer ${bearerToken}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        console.log('Logged Out');
+        throw response;
+      }
+      return response.json();
+    })
+    .then((json) => {
+      setWorkspacesAndChannels(json);
+      setCurrWorkspace(json[0].workspaceName);
+      setCurrChannel(json[0].channels[0].channelName);
+    })
+    .catch((error) => {
+      console.log(error);
+      setWorkspacesAndChannels([]);
+    });
+};
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: purple[900],
-    },
-    secondary: {
-      main: green[400],
-    },
-  },
-});
+// backend function to retrieve all threads and replies within a channel
+const fetchThreadsAndReplies =
+  (workspaces, setThreadsAndReplies, newChannel) => {
+  const item = localStorage.getItem('user');
+  if (!item) {
+    return;
+  }
+  const user = JSON.parse(item);
+
+  // get the corresponding channel name based on the current channel (had to
+  // modify the map function to prevent .map from checking every single
+  // workspace and channel after a match has already been found)
+  //
+  // this is currently hardcoded to the 'Assignment 1' channel from the database
+  // so you'll need to change it after you properly implement the workspaces and
+  // channel names (to do so, just change 'Assignment 1' with currChannel)
+  let currChannelId = null;
+  workspaces.map(({channels}) => {
+    if (!currChannelId) {
+      const f = channels.find(({channelName}) =>
+        channelName === newChannel);
+      if (f) {
+        currChannelId = f.channelId;
+      }
+    }
+    // ignore this statement; lint requires maps receive a return value
+    return true;
+  });
+
+  const bearerToken = user ? user.accessToken : '';
+  fetch('/v0/channel/' + currChannelId, {
+    method: 'get',
+    headers: new Headers({
+      'Authorization': `Bearer ${bearerToken}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw response;
+      }
+      return response.json();
+    })
+    .then((json) => {
+      console.log(json);
+      setThreadsAndReplies(json);
+    })
+    .catch((error) => {
+      console.log(error);
+      setThreadsAndReplies([]);
+    });
+};
 
 const fetchDMs = (setDms) => {
   const item = localStorage.getItem('user');
@@ -91,6 +168,18 @@ const fetchDMs = (setDms) => {
       setDms([]);
     });
 };
+
+const drawerWidth = 300;
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: purple[900],
+    },
+    secondary: {
+      main: green[400],
+    },
+  },
+});
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -136,6 +225,15 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     [theme.breakpoints.up('sm')]: {
       width: drawerWidth,
+    },
+  },
+  mobileDrawerSize: { // Size of the drawer objects
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      width: drawerWidth,
+    },
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
     },
   },
   threadSize: { // Size and margin of the threadSize
@@ -210,7 +308,7 @@ function DMs() {
   const [mobileWorkspacesOpen, setMobileWorkspacesOpen] =
     React.useState(false);
   const [mobileChannelsOpen, setMobileChannelsOpen] =
-    React.useState(false);
+    React.useState(true);
 
   const [webWorkspacesOpen, setWebWorkspacesOpen] =
     React.useState(false);
@@ -219,15 +317,28 @@ function DMs() {
 
   const [threadOpened, openThread] = React.useState(false);
 
-  const [currWorkspace, setCurrWorkspace] = React.useState('null');
-  const [currChannel, setCurrChannel] = React.useState('null');
+  // User Green Dot Status
   const [isActive, toggleActive] = React.useState(true);
-  const [dms, setDms] = React.useState([]);
-  const [currThread, setThread] = React.useState(null);
 
   // Text Input States ---
   const [searchInput, setSearchInput] = React.useState('');
   const [threadInput, setThreadInput] = React.useState('');
+
+  // Current location of User
+  const [currWorkspace, setCurrWorkspace] = React.useState('null');
+  const [currChannel, setCurrChannel] = React.useState('null');
+  const [currThread, setThread] = React.useState(null);
+
+  // Workspaces and Channels Backend ---
+  const [workspacesAndChannels, setWorkspacesAndChannels] =
+    React.useState([]);
+  const [threadsAndReplies, setThreadsAndReplies] =
+    React.useState([]);
+
+  // DMs Backend ---
+  const [dms, setDms] = React.useState([]);
+
+  const [currMain, setMain] = React.useState(false);
 
   const toggleThread = (open) => (event) => {
     if (event.type === 'keydown' &&
@@ -253,16 +364,6 @@ function DMs() {
     setWebUserProfileOpen(!webUserProfileOpen);
   };
 
-  const changeWorkspace = (newWorkspace) => () => {
-    console.log('Changed Workspace ' + newWorkspace);
-    setCurrWorkspace(newWorkspace);
-  };
-
-  const changeChannel = (newChannel) => () => {
-    console.log('Changed Channel to ' + newChannel);
-    setCurrChannel(newChannel);
-  };
-
   const logout = () => {
     localStorage.removeItem('user');
     history.push('/');
@@ -270,6 +371,24 @@ function DMs() {
 
   const toggleStatus = () => {
     toggleActive(!isActive);
+  };
+
+  // Change Workspace and Channel ---
+  const changeWorkspace = (newWorkspace) => () => {
+    console.log('Changed Workspace ' + newWorkspace);
+    setCurrWorkspace(newWorkspace);
+    {if (mobileWorkspacesOpen) {
+      openMobileWorkspacesMenu();
+    }};
+  };
+  const changeChannel = (newChannel) => () => {
+    console.log('Changed Channel to ' + newChannel);
+    setCurrChannel(newChannel);
+    setMobileChannelsOpen(false);
+    fetchThreadsAndReplies(workspacesAndChannels,
+      setThreadsAndReplies, newChannel);
+    // Below gets called before change. Ignore!
+    console.log('threads and replies', threadsAndReplies);
   };
 
   // Text Input Functions ---
@@ -344,7 +463,16 @@ function DMs() {
   );
 
   const mainMessageTable = (
-    <List>
+    <List onClick = {() => setMain(true)}>
+      {threadsAndReplies.map(
+        (convo) =>
+          mainMessage(convo),
+      )}
+    </List>
+  );
+
+  const DMDisplay = (
+    <List onClick = {() => setMain(false)}>
       {dms.map(
         (convo) =>
           mainMessage(convo),
@@ -360,6 +488,27 @@ function DMs() {
     </List>
   );
 
+  const workspaceListItem = (workspace) => (
+    <ListItem
+      button
+      onClick={ changeWorkspace(workspace.workspaceName)}
+      key={workspace.workspaceName}
+    >
+      <ListItemText
+        primary={workspace.workspaceName}
+      />
+    </ListItem>
+  );
+
+  const workspacesTable = (
+    <div>
+      {workspacesAndChannels ?
+        workspacesAndChannels.map(
+          (workspace)=> workspaceListItem(workspace)) :
+        ''}
+    </div>
+  );
+
   const workspaces = (
     <div>
       <List>
@@ -368,19 +517,7 @@ function DMs() {
           <ListItemText primary={'Workspaces'} />
         </ListSubheader>
         <Divider />
-        <ListItem
-          button
-          onClick={changeWorkspace('Workspace 1')}
-          key={'Workspace 1'}
-        >
-          <ListItemText primary={'Workspace 1'} />
-        </ListItem>
-        <ListItem
-          button
-          onClick={changeWorkspace('Workspace 2')}
-          key={'Workspace 2'}>
-          <ListItemText primary={'Workspace 2'} />
-        </ListItem>
+        {workspacesTable}
       </List>
     </div>
   );
@@ -393,23 +530,7 @@ function DMs() {
     >
       <List>
         <Divider />
-        <ListSubheader>
-          <ListItemText primary={'Workspaces'} />
-        </ListSubheader>
-        <Divider />
-        <ListItem
-          button
-          onClick={changeWorkspace('Workspace 1')}
-          key={'Workspace 1'}
-        >
-          <ListItemText primary={'Workspace 1'} />
-        </ListItem>
-        <ListItem
-          button
-          onClick={changeWorkspace('Workspace 2')}
-          key={'Workspace 2'}>
-          <ListItemText primary={'Workspace 2'} />
-        </ListItem>
+        {workspaces}
       </List>
     </Menu>
   );
@@ -472,6 +593,42 @@ function DMs() {
     </Menu>
   );
 
+  /**
+   * @return {array} JSX
+  */
+   function returnChannelsArray() {
+    let arr = [];
+    workspacesAndChannels.map(
+      (workspace) => {
+        if (workspace.workspaceName == currWorkspace) {
+          arr = workspace.channels;
+        }
+      },
+    );
+    return arr;
+  }
+
+  const channelListItem = (channel) => (
+    <ListItem
+      button
+      onClick={changeChannel(channel.channelName)}
+      key={channel.channelName}
+    >
+      <ListItemText
+        primary={channel.channelName}
+      />
+    </ListItem>
+  );
+
+  const channelsTable = (
+    <List>
+      {returnChannelsArray().map(
+        (channel) =>
+          channelListItem(channel),
+      )}
+    </List>
+  );
+
   const channels = (
     <div>
       <AppBar position="absolute" className={classes.appBar}>
@@ -514,21 +671,14 @@ function DMs() {
         <ListItemText primary={'Channels'} />
       </ListSubheader>
       <Divider />
-      <List>
-        <ListItem button onClick={changeChannel('Channel 1')} key={'Inbox'}>
-          <ListItemText primary={'Channel 1'} />
-        </ListItem>
-        <ListItem button onClick={changeChannel('Channel 2')} key={'Trash'}>
-          <ListItemText primary={'Channel 2'} />
-        </ListItem>
-      </List>
+      {channelsTable}
       <List>
         <Divider />
         <ListSubheader>
           <ListItemText primary={'Direct Messages'} />
         </ListSubheader>
         <Divider />
-        {mainMessageTable}
+        {DMDisplay}
       </List>
     </div>
   );
@@ -608,9 +758,12 @@ function DMs() {
 
 
   React.useEffect(() => {
-    checkLoggedIn();
+    checkLoggedIn();    
+    fetchWorkspacesAndChannels(setWorkspacesAndChannels,
+      setCurrWorkspace, setCurrChannel);
     fetchDMs(setDms);
   }, []);
+  console.log('workspacesAndChannels', workspacesAndChannels);
 
   return (
     <div className={classes.root}>
@@ -623,7 +776,7 @@ function DMs() {
           {/* Mobile Channel Panel */}
           <Hidden smDown implementation="css">
             <Drawer
-              classes={{paper: classes.drawerSize}}
+              classes={{paper: classes.mobileDrawerSize}}
               variant="temporary"
               open={mobileChannelsOpen}
               onClose={openMobileChannelsMenu}
@@ -667,10 +820,15 @@ function DMs() {
               primary='All Direct Messages'
             />
           </ListSubheader>
-          {mainMessageTable}
+          {currMain ? mainMessageTable : DMDisplay}
         </main>
         {/* ThreadPanel */}
-        <nav>
+        <nav
+          className={
+            threadOpened ?
+              classes.threadSpaceOpened :
+              classes.threadSpaceClosed}
+        >
           <Hidden smDown implementation="css">
             <Drawer
               classes={{paper: classes.threadSize}}
