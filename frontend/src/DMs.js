@@ -230,6 +230,12 @@ const useStyles = makeStyles((theme) => ({
       width: drawerWidth,
     },
   },
+  workspaceDrawerSize: { // Size of the drawer objects
+    width: '70%',
+    [theme.breakpoints.up('sm')]: {
+      width: drawerWidth,
+    },
+  },
   mobileDrawerSize: { // Size of the drawer objects
     width: '100%',
     [theme.breakpoints.up('sm')]: {
@@ -278,6 +284,38 @@ const useStyles = makeStyles((theme) => ({
     marginRight: 'auto',
     [theme.breakpoints.up('sm')]: {
       display: 'none',
+    },
+  },
+  mainTextField: {
+    position: 'fixed',
+    backgroundColor: 'white',
+    [theme.breakpoints.up('xs')]: {
+      bottom: '10px',
+      width: `98%`,
+    },
+    [theme.breakpoints.down('xs')]: {
+      bottom: '70px',
+      width: `97%`,
+    },
+    [theme.breakpoints.up('md')]: {
+      bottom: '10px',
+      width: `calc(99% - ${drawerWidth}px)`,
+    },
+  },
+  mainTextField2: {
+    position: 'fixed',
+    backgroundColor: 'white',
+    [theme.breakpoints.up('xs')]: {
+      bottom: '50px',
+      width: `98%`,
+    },
+    [theme.breakpoints.down('xs')]: {
+      bottom: '110px',
+      width: `97%`,
+    },
+    [theme.breakpoints.up('md')]: {
+      bottom: '50px',
+      width: `calc(99% - ${drawerWidth}px)`,
     },
   },
   threadTextField: {
@@ -331,16 +369,22 @@ function DMs() {
   // First message of Current Thread/DM Open:
   const [currMessageId, setCurrMessageId] = React.useState('');
 
+  // Which type of message is currently opened (thread or DM)
+  const [dmOpened, toggleDmOpened] = React.useState(false);
+
   // User Green Dot Status
   const [isActive, toggleActive] = React.useState(true);
 
   // Text Input States ---
   const [searchInput, setSearchInput] = React.useState('');
+  const [msgInput, setMsgInput] = React.useState('');
+  const [msgInput2, setMsgInput2] = React.useState('');
   const [threadInput, setThreadInput] = React.useState('');
 
   // Current location of User
   const [currWorkspace, setCurrWorkspace] = React.useState('null');
   const [currChannel, setCurrChannel] = React.useState('null');
+  const [currDm, setCurrDm] = React.useState(false);
   const [currThread, setThread] = React.useState(null);
 
   // Workspaces and Channels Backend ---
@@ -412,12 +456,23 @@ function DMs() {
   const searchFunction = () => () => {
     console.log('Searching: ' + searchInput);
   };
+  const handleMsgChange = (event) => {
+    setMsgInput(event.target.value);
+  };
+  const handleMsgChange2 = (event) => {
+    setMsgInput2(event.target.value);
+  };
+  const msgFunction = () => () => {
+    console.log('To: ' + msgInput);
+    console.log('Msg: ' + msgInput2);
+    postNewThread(setThreadsAndReplies);
+  };
   const handleThreadChange = (event) => {
     setThreadInput(event.target.value);
   };
   const threadFunction = () => () => {
     console.log('Sending msg to Thread: ' + threadInput);
-    postReply(setDms);
+    postReply(setThreadsAndReplies, setDms);
   };
 
   // const doNothing = () => () =>{
@@ -427,9 +482,18 @@ function DMs() {
   /**
  * @param {messages} messages
  * @param {bool} bool
+ * @param {bool} isDm var to denote whether message we opened is thread or dm
  */
-  function threadHandler(messages, bool) {
+   function threadHandler(messages, bool, isDm) {
     setCurrMessageId(messages[0].id);
+    // setMobileChannelsOpen(false);
+    if (isDm) {
+      setCurrDm(true);
+      toggleDmOpened(true);
+    } else {
+      setCurrDm(false);
+      toggleDmOpened(false);
+    }
     setThread(messages);
     openThread(bool);
   }
@@ -475,12 +539,12 @@ function DMs() {
     </div>
   );
 
-  const mainMessage = (convo) => (
+  const mainMessage = (convo, isDm) => (
     <div>
       <ListItem
         key={'ID'}
         button
-        onClick={() => threadHandler(convo.messages, true)}
+        onClick={() => threadHandler(convo.messages, true, isDm)}
       >
         <ListItemAvatar>
           <Badge
@@ -489,14 +553,13 @@ function DMs() {
             invisible={false}
           >
             <Avatar>
-              {convo.messages[convo.messages.length-1].from.charAt(0)}
+              {convo.otherUser[0]}
             </Avatar>
           </Badge>
         </ListItemAvatar>
         <ListItemText
-          primary={convo.messages[convo.messages.length-1].from +
-            '  -  ' +
-            convertDate(convo.messages[convo.messages.length-1].time)}
+          primary={convo.otherUser +
+            '  /  ' + convertDate(convo.messages[convo.messages.length-1].time)}
           secondary={convo.messages[convo.messages.length-1].content}
         />
       </ListItem>
@@ -510,7 +573,7 @@ function DMs() {
     >
       {threadsAndReplies.map(
         (convo) =>
-          mainMessage(convo),
+          mainMessage(convo, false),
       )}
     </List>
   );
@@ -522,13 +585,15 @@ function DMs() {
     >
       {dms.map(
         (convo) =>
-          mainMessage(convo),
+          mainMessage(convo, true),
       )}
     </List>
   );
 
   const threadMessageTable = (
-    <List>
+    <List
+    className = {classes.mainTableSize}
+    >
       {currThread ?
         currThread.map((message)=> threadMessage(message)) :
         ''}
@@ -715,7 +780,13 @@ function DMs() {
       </div>
       <Divider />
       <ListSubheader>
-        <ListItemText primary={'Channels'} />
+        <ListItemText
+            primary={'Channels'}
+            onClick={
+              () => {
+                history.push('/home');
+              }}
+          />
       </ListSubheader>
       <Divider />
       {channelsTable}
@@ -803,31 +874,98 @@ function DMs() {
     }
   };
 
-    // create a new thread and add it to the current list of threads
-    const postReply = (setDms) => {
-      const item = localStorage.getItem('user');
-      if (!item) {
-        return;
+
+  // Sources Used for Creating a Post Request:
+  //  https://simonplend.com/how-to-use-fetch-to-post-form-data-as-json-to-your-api/
+  //  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
+  //  https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+  //
+  // create a new thread and add it to the current list of threads
+  const postNewThread = (setThreadsAndReplies) => {
+    const item = localStorage.getItem('user');
+    if (!item) {
+      return;
+    }
+    const user = JSON.parse(item);
+    const bearerToken = user ? user.accessToken : '';
+    const threadMessage = JSON.stringify({content: msgInput});
+
+    let currChannelId = null;
+    workspacesAndChannels.map(({channels}) => {
+      if (!currChannelId) {
+        const f = channels.find(({channelName}) =>
+          channelName === 'Assignment 1');
+        if (f) {
+          currChannelId = f.channelId;
+        }
       }
-      const user = JSON.parse(item);
-      const bearerToken = user ? user.accessToken : '';
-      const reply = JSON.stringify({content: threadInput});
-      fetch('/v0/reply/' + currMessageId, {
-        method: 'post',
-        headers: new Headers({
-          'Authorization': `Bearer ${bearerToken}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        }),
-        body: reply,
+      // ignore this statement; lint requires maps receive a return value
+      return true;
+    });
+
+    fetch('/v0/channel/' + currChannelId, {
+      method: 'post',
+      headers: new Headers({
+        'Authorization': `Bearer ${bearerToken}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      }),
+      body: threadMessage,
+    })
+      .then((response) => {
+        console.log(response);
+        if (!response.ok) {
+          throw response;
+        }
+        return response.json();
       })
-        .then((response) => {
-          if (!response.ok) {
-            throw response;
-          }
-          return response.json();
-        })
-        .then((json) => {
+      .then((json) => {
+        console.log(json);
+        const currThreads = [...threadsAndReplies];
+
+        // create a new thread object and push the new message in there
+        const threadObj = {};
+        threadObj.otherUser = json.from;
+        threadObj.messages = [json];
+        currThreads.push(threadObj);
+
+        setThreadsAndReplies(currThreads);
+        setMsgInput('');
+        setMsgInput2('');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  // create a new thread and add it to the current list of threads
+  const postReply = (setThreadsAndReplies, setDms) => {
+    const item = localStorage.getItem('user');
+    if (!item) {
+      return;
+    }
+    const user = JSON.parse(item);
+    const bearerToken = user ? user.accessToken : '';
+    const reply = JSON.stringify({content: threadInput});
+    fetch('/v0/reply/' + currMessageId, {
+      method: 'post',
+      headers: new Headers({
+        'Authorization': `Bearer ${bearerToken}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      }),
+      body: reply,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw response;
+        }
+        return response.json();
+      })
+      .then((json) => {
+        console.log(json);
+        // based on whether we were replying to a dm or thread, add the new msg
+        if (dmOpened) {
           // find the correct dm box in dms and add the new message
           for (const index in dms) {
             if (dms[index].messages[0].id === currMessageId) {
@@ -837,12 +975,24 @@ function DMs() {
               break;
             }
           }
-          setThreadInput('');
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    };
+        } else {
+          // we are viewing a thread, so add the new message to the threads arr
+          for (const index in threadsAndReplies) {
+            if (threadsAndReplies[index].messages[0].id === currMessageId) {
+              delete json.replies;
+              threadsAndReplies[index].messages.push(json);
+              setThreadsAndReplies(threadsAndReplies);
+              break;
+            }
+          }
+        }
+        // clear input in text field
+        setThreadInput('');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   React.useEffect(() => {
     checkLoggedIn();
@@ -850,7 +1000,7 @@ function DMs() {
       setCurrWorkspace, setCurrChannel);
     fetchDMs(setDms);
   }, []);
-  console.log('workspacesAndChannels', workspacesAndChannels);
+  // console.log('workspacesAndChannels', workspacesAndChannels);
   React.useEffect(() => {
     console.log('Front Populated with ' + currChannel);
     // I need the below to instantiate the threads...
@@ -883,7 +1033,7 @@ function DMs() {
           {/* Mobile Workspace Panel */}
           <Hidden smDown implementation="css">
             <Drawer
-              classes={{paper: classes.drawerSize}}
+              classes={{paper: classes.workspaceDrawerSize}}
               variant="temporary"
               open={mobileWorkspacesOpen}
               onClose={openMobileWorkspacesMenu}
@@ -910,10 +1060,40 @@ function DMs() {
           <div className={classes.toolbar} />
           <ListSubheader>
             <ListItemText
-              primary='All Direct Messages'
+              primary={!currMain ? 'Direct Message' : currChannel}
             />
           </ListSubheader>
           {currMain ? mainMessageTable : DMDisplay}
+          <TextField
+            label={'User to send to...'}
+            size="small"
+            variant="outlined"
+            multiline
+            value={msgInput}
+            className={classes.mainTextField2}
+            onChange={handleMsgChange}
+          />
+          <TextField
+            label={'Message to send...'}
+            size="small"
+            variant="outlined"
+            multiline
+            value={msgInput2}
+            className={classes.mainTextField}
+            onChange={handleMsgChange2}
+            InputProps={{
+              endAdornment:
+              <InputAdornment position="end">
+                <IconButton
+                  color={theme.palette.primary.dark}
+                  edge="end"
+                  // Sends msg to channel v
+                  onClick={msgFunction()}>
+                  <SendIcon />
+                </IconButton>
+              </InputAdornment>,
+            }}
+          />
         </main>
         {/* ThreadPanel */}
         <nav
@@ -942,7 +1122,7 @@ function DMs() {
                     <ArrowBackIcon />
                   </IconButton>
                   <Typography variant="h6" noWrap className={classes.title}>
-                    Thread : {currChannel}
+                    {currDm ? 'Direct Message' : currChannel}
                   </Typography>
                 </Toolbar>
               </AppBar>

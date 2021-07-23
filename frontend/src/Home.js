@@ -238,6 +238,12 @@ const useStyles = makeStyles((theme) => ({
       width: drawerWidth,
     },
   },
+  workspaceDrawerSize: { // Size of the drawer objects
+    width: '70%',
+    [theme.breakpoints.up('sm')]: {
+      width: drawerWidth,
+    },
+  },
   mobileDrawerSize: { // Size of the drawer objects
     width: '100%',
     [theme.breakpoints.up('sm')]: {
@@ -261,14 +267,16 @@ const useStyles = makeStyles((theme) => ({
   mainTableSize: { // Size of the message table
     flexGrow: 1,
     maxHeight: '750px',
-    // backgroundColor: 'lightgrey',
-    overflow: 'auto',
+    backgroundColor: 'lightgrey',
+    overflow: 'scroll',
     [theme.breakpoints.up('sm')]: {
+      // maxHeight: '60%',
       maxHeight: '800px',
     },
   },
   content: { // Size of the main section
     flexGrow: 1,
+    maxHeight: '850px',
   },
   title: {
     flexGrow: 1,
@@ -380,6 +388,7 @@ function Home() {
   // Current location of User
   const [currWorkspace, setCurrWorkspace] = React.useState('null');
   const [currChannel, setCurrChannel] = React.useState('null');
+  const [currDm, setCurrDm] = React.useState(false);
   const [currThread, setThread] = React.useState(null);
 
   // Workspaces and Channels Backend ---
@@ -475,8 +484,10 @@ function Home() {
     setCurrMessageId(messages[0].id);
     // setMobileChannelsOpen(false);
     if (isDm) {
+      setCurrDm(true);
       toggleDmOpened(true);
     } else {
+      setCurrDm(false);
       toggleDmOpened(false);
     }
     setThread(messages);
@@ -544,7 +555,7 @@ function Home() {
         </ListItemAvatar>
         <ListItemText
           primary={convo.otherUser +
-            '  /  [Date]'}
+            '  /  ' + convertDate(convo.messages[convo.messages.length-1].time)}
           secondary={convo.messages[convo.messages.length-1].content}
         />
       </ListItem>
@@ -576,7 +587,9 @@ function Home() {
   );
 
   const threadMessageTable = (
-    <List>
+    <List
+    className = {classes.mainTableSize}
+    >
       {currThread ?
         currThread.map((message)=> threadMessage(message)) :
         ''}
@@ -763,7 +776,13 @@ function Home() {
       </div>
       <Divider />
       <ListSubheader>
-        <ListItemText primary={'Channels'} />
+      <ListItemText
+            primary={'Channels'}
+            onClick={
+              () => {
+                history.push('/home');
+              }}
+          />
       </ListSubheader>
       <Divider />
         {channelsTable}
@@ -1011,7 +1030,7 @@ function Home() {
           {/* Mobile Workspace Panel */}
           <Hidden smDown implementation="css">
             <Drawer
-              classes={{paper: classes.drawerSize}}
+              classes={{paper: classes.workspaceDrawerSize}}
               variant="temporary"
               open={mobileWorkspacesOpen}
               onClose={openMobileWorkspacesMenu}
@@ -1037,7 +1056,7 @@ function Home() {
           <div className={classes.toolbar} />
           <ListSubheader>
             <ListItemText
-              primary={currChannel}
+              primary={!currMain ? 'Direct Message' : currChannel}
             />
           </ListSubheader>
           {currMain ? mainMessageTable : DMDisplay}
@@ -1091,7 +1110,7 @@ function Home() {
                     <ArrowBackIcon />
                   </IconButton>
                   <Typography variant="h6" noWrap className={classes.title}>
-                    Thread : {currChannel}
+                    {currDm ? 'Direct Message' : currChannel}
                   </Typography>
                 </Toolbar>
               </AppBar>

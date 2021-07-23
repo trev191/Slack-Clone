@@ -515,7 +515,9 @@ function Mentions() {
   );
 
   const threadMessageTable = (
-    <List>
+    <List
+    className = {classes.mainTableSize}
+    >
       {currThread ?
         currThread.map((message)=> threadMessage(message)) :
         ''}
@@ -702,7 +704,13 @@ function Mentions() {
       </div>
       <Divider />
       <ListSubheader>
-        <ListItemText primary={'Channels'} />
+      <ListItemText
+            primary={'Channels'}
+            onClick={
+              () => {
+                history.push('/home');
+              }}
+          />
       </ListSubheader>
       <Divider />
       {channelsTable}
@@ -859,6 +867,7 @@ function Mentions() {
             />
           </ListSubheader>
           {currMain ? mainMessageTable : DMDisplay}
+          {console.log(currMain + '' + mainMessageTable + '' + DMDisplay)}
         </main>
         {/* ThreadPanel */}
         <nav
