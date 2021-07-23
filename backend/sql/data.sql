@@ -60,6 +60,17 @@ INSERT INTO users(id, userName, userData) VALUES (
     "dmstream":[]}'
   );
 
+INSERT INTO users(id, userName, userData) VALUES (
+  'e7ec61b0-76dd-43f8-aa63-06c8f3b98081',
+  'Jimothy',
+  '{"password":"$2b$10$NWRUkWNTCvaW8fBMe59.6ev47FOAJ9GATcaOWugGn.knKqHXLfp8W",
+    "loggedOn":"false",
+    "status":"EMPTY_STATUS",
+    "workspaces":["18679300-a341-4647-849d-0529fae9d7a7", "2f9108ef-0661-4ea0-9b48-411409eeefe6"],
+    "channels":["7e8b485a-2ab0-4241-913f-460393723227", "b5dbf3bf-2083-4e57-9b3f-7e9e2fc14cb5", "73ae363b-5a67-4647-932a-31a5538598b3", "7170f314-20d4-48ef-b3ea-8cc7f7272cb4"],
+    "dmstream":[]}'
+  );
+
 -- Secret Key Table --
 DELETE FROM token;
 INSERT INTO token(secret_key) VALUES ('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFubmFAYm9va3MuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNjA2Mjc3MDAxLCJleHAiOjE2MDYyNzcwNjF9.1nwY0lDMGrb7AUFFgSaYd4Q7Tzr-BjABclmoKZOqmr4');

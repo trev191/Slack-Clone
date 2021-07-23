@@ -457,21 +457,20 @@ function DMs() {
     console.log('Searching: ' + searchInput);
   };
   const handleMsgChange = (event) => {
+    // handler for a change in the username to send a message to
     setMsgInput(event.target.value);
   };
   const handleMsgChange2 = (event) => {
+    // handler for a change in the message to create a new dm
     setMsgInput2(event.target.value);
   };
   const msgFunction = () => () => {
-    console.log('To: ' + msgInput);
-    console.log('Msg: ' + msgInput2);
-    postNewThread(setThreadsAndReplies);
+    createNewDM(setDms);
   };
   const handleThreadChange = (event) => {
     setThreadInput(event.target.value);
   };
   const threadFunction = () => () => {
-    console.log('Sending msg to Thread: ' + threadInput);
     postReply(setThreadsAndReplies, setDms);
   };
 
@@ -874,46 +873,27 @@ function DMs() {
     }
   };
 
-
-  // Sources Used for Creating a Post Request:
-  //  https://simonplend.com/how-to-use-fetch-to-post-form-data-as-json-to-your-api/
-  //  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
-  //  https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-  //
-  // create a new thread and add it to the current list of threads
-  const postNewThread = (setThreadsAndReplies) => {
+  // create a new DM with another user; if the DM already exists, simply send
+  // a message to them
+  const createNewDM = (setDms) => {
     const item = localStorage.getItem('user');
-    if (!item) {
+    if (!item || msgInput === '' || msgInput2 === '') {
       return;
     }
     const user = JSON.parse(item);
     const bearerToken = user ? user.accessToken : '';
-    const threadMessage = JSON.stringify({content: msgInput});
+    const newDM = JSON.stringify({content: msgInput2});
 
-    let currChannelId = null;
-    workspacesAndChannels.map(({channels}) => {
-      if (!currChannelId) {
-        const f = channels.find(({channelName}) =>
-          channelName === 'Assignment 1');
-        if (f) {
-          currChannelId = f.channelId;
-        }
-      }
-      // ignore this statement; lint requires maps receive a return value
-      return true;
-    });
-
-    fetch('/v0/channel/' + currChannelId, {
+    fetch('/v0/dms/' + msgInput, {
       method: 'post',
       headers: new Headers({
         'Authorization': `Bearer ${bearerToken}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       }),
-      body: threadMessage,
+      body: newDM,
     })
       .then((response) => {
-        console.log(response);
         if (!response.ok) {
           throw response;
         }
@@ -921,17 +901,19 @@ function DMs() {
       })
       .then((json) => {
         console.log(json);
-        const currThreads = [...threadsAndReplies];
-
-        // create a new thread object and push the new message in there
-        const threadObj = {};
-        threadObj.otherUser = json.from;
-        threadObj.messages = [json];
-        currThreads.push(threadObj);
-
-        setThreadsAndReplies(currThreads);
         setMsgInput('');
         setMsgInput2('');
+
+        for (const dm of dms) {
+          if (dm.otherUser === msgInput) {
+            delete json.replies;
+            dm.messages.push(json);
+            setDms(dms);
+            return;
+          }
+        }
+        dms.push(json);
+        setDms(dms);
       })
       .catch((error) => {
         console.log(error);

@@ -85,9 +85,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-
-
   /workspace:
     get:
       description: Return all workspace names, along with channels within each workspace.
