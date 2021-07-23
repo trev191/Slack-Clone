@@ -73,7 +73,9 @@ const fetchWorkspacesAndChannels =
     .then((json) => {
       setWorkspacesAndChannels(json);
       setCurrWorkspace(json[0].workspaceName);
-      setCurrChannel(json[0].channels[0].channelName);
+      if (json[0].channels[0] !== undefined) {
+        setCurrChannel(json[0].channels[0].channelName);
+      }
     })
     .catch((error) => {
       console.log(error);
@@ -85,7 +87,7 @@ const fetchWorkspacesAndChannels =
 const fetchThreadsAndReplies =
   (workspaces, setThreadsAndReplies, newChannel) => {
   const item = localStorage.getItem('user');
-  if (!item) {
+  if (!item || newChannel === 'null') {
     return;
   }
   const user = JSON.parse(item);

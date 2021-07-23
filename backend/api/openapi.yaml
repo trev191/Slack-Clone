@@ -53,6 +53,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /dms/{userName}:
+    post:
+      description: Create a new DM with user if exists. If DM already exists, just send a message.
+      parameters:
+      - name: userName
+        in: path
+        description: Name of other user to create the DM with.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Content of new thread to post. Modify "Message Content" only.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageContent'
+      responses:
+        201:
+          description: Success. New DM created/already existing and message sent.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        404:
+          description: Failure. User doesn't exist.
+        default:
+          description: Unexpected error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+
   /workspace:
     get:
       description: Return all workspace names, along with channels within each workspace.

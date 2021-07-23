@@ -21,6 +21,38 @@ const getDMstreamIds = async (userId) => {
   return rows[0].userdata.dmstream;
 }
 
+// given a DMStream Id, check the users {} to see if they match
+const checkUsersInDMStream = async (dmId, userId1, userId2) => {
+  const select = 'SELECT users, initialMessage FROM dmstream WHERE id = $1';
+  const query = {
+    text: select,
+    values: [dmId],
+  };
+  const {rows} = await pool.query(query);
+  const users = rows[0].users;
+  const initialMessage = rows[0].initialmessage;
+
+  if (users.user1 === userId1 && users.user2 === userId2) {
+    return initialMessage;
+  } else if (users.user1 === userId2 && users.user2 === userId1) { 
+    return initialMessage;
+  } else {
+    return false;
+  }
+}
+
+// function to check to see if a DM exists between the 2 users
+exports.checkDmExists = async (userId1, userId2) => {
+  const dmList = await getDMstreamIds(userId1);
+  for (dmId of dmList) {
+    const findDmMatch = await checkUsersInDMStream(dmId, userId1, userId2);
+    if (findDmMatch) {
+      return findDmMatch;
+    }
+  }
+  return null;
+}
+
 // helper function to find out the name of the other user in the DM
 const findOtherUserName = async (dmStreamId, userId) => {
   // get the message rows using the initialMessage id
@@ -88,3 +120,32 @@ exports.getDMs = async (userId) => {
 
   return (allDMs);
 };
+
+
+
+// create a new DM stream between the 2 people w/ the initialMessage id
+// and return the initialMessage Id
+exports.createDMstream = async (userId1, userId2, messageObj) => {
+  // generate a new unique DMStream Id
+  const streamId = msgs.generateUUID();
+
+  const usersObj = {user1: userId1, user2: userId2};
+
+  // create a new message row in the message table
+  const initialMessageId = await msgs.createMessage(messageObj);
+
+  // insert the new DMStream row in the dmstream table
+  const insert = 'INSERT INTO dmstream(id, users, initialMessage) VALUES ($1, $2, $3)';
+  const query = {
+    text: insert,
+    values: [streamId, usersObj, initialMessageId],
+  }
+  await pool.query(query);
+
+  // add DM stream Id to both users
+  await users.addDmStreamToUser(userId1, streamId);
+  await users.addDmStreamToUser(userId2, streamId);
+
+  // return the message id
+  return initialMessageId;
+}

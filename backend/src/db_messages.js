@@ -30,7 +30,7 @@ const pool = new Pool({
  * generate a random 36-char UUID of letters, digits and dashes
  * @return {string} 36-char UUID
  */
- function generateUUID() {
+ exports.generateUUID = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     const r = Math.random() * 16 | 0;
     const v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -108,7 +108,7 @@ exports.getAllMessagesAndReplies = async (initialMessageId) => {
 // the table; return the new UUID
 exports.createMessage = async (messageObj) => {
   // generate a UUID for the message
-  const newId = generateUUID();
+  const newId = this.generateUUID();
 
   // add an empty replies field to the message obj and change 'from' to UUID
   messageObj.from = await users.getUserId(messageObj.from);
@@ -125,8 +125,6 @@ exports.createMessage = async (messageObj) => {
   return newId;
 }
 
-
-
 // create a new message with a newly generated UUID and add the message to
 // the replies of the initial message
 exports.createReply = async (initialMessageId, messageObj) => {
@@ -135,17 +133,13 @@ exports.createReply = async (initialMessageId, messageObj) => {
   const updatedMessageData = await getMessage(initialMessageId);
   updatedMessageData.replies.push(newId);
 
-  console.log(newId);
-  console.log(updatedMessageData);
-
   // update the new message in the replies[] of the initial message
   const update = 'UPDATE messages SET messageData = $2 WHERE id = $1 RETURNING *';
   const query = {
     text: update,
     values: [initialMessageId, updatedMessageData],
   };
-  const {rows} = await pool.query(query);
-  console.log(rows[0]);
+  await pool.query(query);
 
   // return the UUID
   return newId;
