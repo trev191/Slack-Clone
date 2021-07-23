@@ -10,7 +10,7 @@ exports.getAllDMs = async (req, res) => {
   } else {
     res.status(404).send();
   }
-}
+};
 
 // create a new DM with user (if user exists and DM doesn't exist
 // between them yet); then send the first initial message
@@ -21,7 +21,6 @@ exports.createDM = async (req, res) => {
 
   // see if the given username is a real user
   const otherUserId = await users.getUserId(otherUserName);
-  
   // create new DM or send message to existing DM to valid other user
   if (otherUserId) {
     const messageObj = {};
@@ -48,4 +47,4 @@ exports.createDM = async (req, res) => {
   } else {
     res.status(404).send();
   }
-}
+};

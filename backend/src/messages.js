@@ -15,4 +15,4 @@ exports.createReply = async (req, res) => {
   newReply.id = await msgs.createReply(initialMessageId, newReply);
   newReply.from = userName;
   res.status(201).send(newReply);
-}
+};

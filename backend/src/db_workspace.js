@@ -16,7 +16,7 @@ const getWorkspaceIds = async (userId) => {
   const query = {
     text: select,
     values: [userId],
-  }
+  };
   const {rows} = await pool.query(query);
   return rows[0].userdata.workspaces;
 };
@@ -27,7 +27,7 @@ const getWorkspaceName = async (id) => {
   const query = {
     text: select,
     values: [id],
-  }
+  };
   const {rows} = await pool.query(query);
   return rows[0].workspacename;
 };
@@ -38,7 +38,7 @@ const getChannelIdsAndNames = async (userId, id) => {
   const query = {
     text: select,
     values: [id],
-  }
+  };
   const {rows} = await pool.query(query);
   const channelIds = rows[0].workspacedata.channels;
   const allChannels = [];

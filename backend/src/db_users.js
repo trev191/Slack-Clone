@@ -39,7 +39,7 @@ exports.getUser = async (id) => {
   };
   const {rows} = await pool.query(query);
   return rows[0].username;
-}
+};
 
 // return the uuid of a given user username
 exports.getUserId = async (userName) => {
@@ -53,7 +53,7 @@ exports.getUserId = async (userName) => {
     return null;
   }
   return rows[0].id;
-}
+};
 
 // verify if a user is a member in a given channel
 exports.userIsChannelMember = async (userId, channelId) => {
@@ -72,7 +72,7 @@ exports.userIsChannelMember = async (userId, channelId) => {
     }
   }
   return false;
-}
+};
 
 // function to get user data JSON blob
 const getUserData = async (id) => {
@@ -83,7 +83,7 @@ const getUserData = async (id) => {
   };
   const {rows} = await pool.query(query);
   return rows[0].userdata;
-}
+};
 
 // add DMstream ID to a single user
 exports.addDmStreamToUser = async (userId, dmStreamId) => {
@@ -95,7 +95,6 @@ exports.addDmStreamToUser = async (userId, dmStreamId) => {
   const query = {
     text: update,
     values: [userId, updatedUserData],
-  }
+  };
   await pool.query(query);
-
-}
+};

@@ -10,16 +10,17 @@ const pool = new Pool({
   password: process.env.POSTGRES_PASSWORD,
 });
 
-// helper function to retrieve all DM stream initial message ids in row of user table
+// helper function to retrieve all DM stream initial
+// message ids in row of user table
 const getDMstreamIds = async (userId) => {
   const selectDMs = 'SELECT userData FROM users WHERE id = $1';
   const query = {
     text: selectDMs,
     values: [userId],
-  }
+  };
   const {rows} = await pool.query(query);
   return rows[0].userdata.dmstream;
-}
+};
 
 // given a DMStream Id, check the users {} to see if they match
 const checkUsersInDMStream = async (dmId, userId1, userId2) => {
@@ -34,12 +35,12 @@ const checkUsersInDMStream = async (dmId, userId1, userId2) => {
 
   if (users.user1 === userId1 && users.user2 === userId2) {
     return initialMessage;
-  } else if (users.user1 === userId2 && users.user2 === userId1) { 
+  } else if (users.user1 === userId2 && users.user2 === userId1) {
     return initialMessage;
   } else {
     return false;
   }
-}
+};
 
 // function to check to see if a DM exists between the 2 users
 exports.checkDmExists = async (userId1, userId2) => {
@@ -51,7 +52,7 @@ exports.checkDmExists = async (userId1, userId2) => {
     }
   }
   return null;
-}
+};
 
 // helper function to find out the name of the other user in the DM
 const findOtherUserName = async (dmStreamId, userId) => {
@@ -67,26 +68,28 @@ const findOtherUserName = async (dmStreamId, userId) => {
   } else {
     return users.getUser(rows[0].users.user1);
   }
-}
+};
 
 // helper function to retrieve all messages within a DM stream
 const getMessagesFromDM = async (dmStreamId, userId) => {
   const messages = [];
 
   // get the initialMessage id from the dmStreamId
-  const selectInitialMessage = 'SELECT initialMessage FROM dmstream WHERE id = $1';
+  const select = 'SELECT initialMessage FROM dmstream WHERE id = $1';
   const initialMessageQuery = {
-    text: selectInitialMessage,
+    text: select,
     values: [dmStreamId],
   };
-  let {rows} = await pool.query(initialMessageQuery);
+  const {rows} = await pool.query(initialMessageQuery);
   const initialMessageId = rows[0].initialmessage;
 
   // get all messages and replies from dm and fill it into messages[]
   const messagesAndReplies = await
-    msgs.getAllMessagesAndReplies(initialMessageId);
+  msgs.getAllMessagesAndReplies(initialMessageId);
   for (index in messagesAndReplies) {
-    messages.push(messagesAndReplies[index]);
+    if (index < messagesAndReplies.length) {
+      messages.push(messagesAndReplies[index]);
+    }
   }
 
   // find out the name of the other user in the DM
@@ -98,7 +101,7 @@ const getMessagesFromDM = async (dmStreamId, userId) => {
   DMObj.messages = messages;
 
   return DMObj;
-}
+};
 
 // search up the dmstream array from the user table using the
 // current signed in user's id, then return an array of all dmstreams
@@ -112,16 +115,16 @@ exports.getDMs = async (userId) => {
   // using each dmStreamId, get all messages within the dm and add
   // them to the array of DMs
   for (index in dmStreamIds) {
-    const dmMessages = await getMessagesFromDM(dmStreamIds[index], userId);
-    allDMs.push(dmMessages);
+    if (index < dmStreamIds.length) {
+      const dmMessages = await getMessagesFromDM(dmStreamIds[index], userId);
+      allDMs.push(dmMessages);
+    }
   }
 
   allDMs.sort((a, b) => msgs.sortMessages(a, b));
 
   return (allDMs);
 };
-
-
 
 // create a new DM stream between the 2 people w/ the initialMessage id
 // and return the initialMessage Id
@@ -135,11 +138,12 @@ exports.createDMstream = async (userId1, userId2, messageObj) => {
   const initialMessageId = await msgs.createMessage(messageObj);
 
   // insert the new DMStream row in the dmstream table
-  const insert = 'INSERT INTO dmstream(id, users, initialMessage) VALUES ($1, $2, $3)';
+  const insert = 'INSERT INTO dmstream(id, users, initialMessage) ' +
+    'VALUES ($1, $2, $3)';
   const query = {
     text: insert,
     values: [streamId, usersObj, initialMessageId],
-  }
+  };
   await pool.query(query);
 
   // add DM stream Id to both users
@@ -148,4 +152,4 @@ exports.createDMstream = async (userId1, userId2, messageObj) => {
 
   // return the message id
   return initialMessageId;
-}
+};

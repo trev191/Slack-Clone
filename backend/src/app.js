@@ -24,7 +24,7 @@ const apidoc = yaml.load(fs.readFileSync(apiSpec, 'utf8'));
 app.use('/v0/api-docs', swaggerUi.serve, swaggerUi.setup(apidoc));
 
 // for handling a user trying to sign in
-app.post('/authenticate',  auth.authenticate);
+app.post('/authenticate', auth.authenticate);
 
 app.use(
     OpenApiValidator.middleware({
