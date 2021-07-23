@@ -6,7 +6,7 @@
  *    https://stackoverflow.com/questions/979256/sorting-an-array-of-objects-by-property-values
  *    https://flaviocopes.com/how-to-sort-array-of-objects-by-property-javascript/
  *    https://forum.freecodecamp.org/t/sort-on-iso-date/160518/10
- * 
+ *
  *  UUID Generator:
  *    https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid
  *
@@ -30,13 +30,13 @@ const pool = new Pool({
  * generate a random 36-char UUID of letters, digits and dashes
  * @return {string} 36-char UUID
  */
- function generateUUID() {
+exports.generateUUID = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     const r = Math.random() * 16 | 0;
     const v = c == 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
-}
+};
 
 // helper function to find and return a message specified by it's unique id
 const getMessage = async (id) => {
@@ -47,7 +47,7 @@ const getMessage = async (id) => {
   };
   const {rows} = await pool.query(query);
   return rows[0].messagedata;
-}
+};
 
 // sort messages by most recent first -- if messages were created on the
 // same date, sort it by their time difference
@@ -59,10 +59,10 @@ exports.sortMessages = (a, b) => {
   if (dateB === dateA) {
     const objA = new Date(a.messages[lengthA].time);
     const objB = new Date(b.messages[lengthB].time);
-    return (objB.getTime()) - (objA.getTime()); 
+    return (objB.getTime()) - (objA.getTime());
   }
   return (dateB) - (dateA);
-}
+};
 
 // helper function to retrieve all messages/replies within a DM/thread
 exports.getAllMessagesAndReplies = async (initialMessageId) => {
@@ -77,8 +77,7 @@ exports.getAllMessagesAndReplies = async (initialMessageId) => {
 
   // array of message objects in the DM/thread to return
   const messageObjArray = [];
-  
-  // push the initial message 
+  // push the initial message
   const messageObj = {};
   const fromUserId = allMessages[0].messagedata.from;
   const userName = await users.getUser(fromUserId);
@@ -102,13 +101,13 @@ exports.getAllMessagesAndReplies = async (initialMessageId) => {
   }
 
   return messageObjArray;
-}
+};
 
 // create a new message with a newly generated UUID and add the message to
 // the table; return the new UUID
 exports.createMessage = async (messageObj) => {
   // generate a UUID for the message
-  const newId = generateUUID();
+  const newId = this.generateUUID();
 
   // add an empty replies field to the message obj and change 'from' to UUID
   messageObj.from = await users.getUserId(messageObj.from);
@@ -123,30 +122,24 @@ exports.createMessage = async (messageObj) => {
   await pool.query(query);
   // return the UUID
   return newId;
-}
-
-
+};
 
 // create a new message with a newly generated UUID and add the message to
 // the replies of the initial message
 exports.createReply = async (initialMessageId, messageObj) => {
   // create a new message and get the new UUID of it
-  const newId = await this.createMessage(messageObj)
+  const newId = await this.createMessage(messageObj);
   const updatedMessageData = await getMessage(initialMessageId);
   updatedMessageData.replies.push(newId);
 
-  console.log(newId);
-  console.log(updatedMessageData);
-
   // update the new message in the replies[] of the initial message
-  const update = 'UPDATE messages SET messageData = $2 WHERE id = $1 RETURNING *';
+  const update = 'UPDATE messages SET messageData = $2 WHERE id = $1';
   const query = {
     text: update,
     values: [initialMessageId, updatedMessageData],
   };
-  const {rows} = await pool.query(query);
-  console.log(rows[0]);
+  await pool.query(query);
 
   // return the UUID
   return newId;
-}
+};

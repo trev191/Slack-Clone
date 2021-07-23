@@ -27,7 +27,7 @@ exports.getChannelName = async (id) => {
   };
   const {rows} = await pool.query(query);
   return rows[0].channelname;
-}
+};
 
 // helper function to retrieve all thread Ids from the channel table
 const getThreadIds = async (channelId) => {
@@ -35,14 +35,14 @@ const getThreadIds = async (channelId) => {
   const query = {
     text: select,
     values: [channelId],
-  }
+  };
   const {rows} = await pool.query(query);
   if (rows.length !== 0) {
     return rows[0].channeldata.threads;
   } else {
     return [];
   }
-}
+};
 
 // helper function to get the channelData from a channel
 const getChannelData = async (channelId) => {
@@ -50,14 +50,14 @@ const getChannelData = async (channelId) => {
   const query = {
     text: select,
     values: [channelId],
-  }
+  };
   const {rows} = await pool.query(query);
   if (rows.length !== 0) {
     return rows[0].channeldata;
   } else {
     return [];
   }
-}
+};
 
 // sort threads by the first message in each thread (this is different
 // from how regular DMs are sorted)
@@ -67,17 +67,16 @@ const sortThreads = (a, b) => {
   if (dateB === dateA) {
     const objA = new Date(a.messages[0].time);
     const objB = new Date(b.messages[0].time);
-    return (objB.getTime()) - (objA.getTime()); 
+    return (objB.getTime()) - (objA.getTime());
   }
   return (dateB) - (dateA);
-}
+};
 
 // given a channel Id, return all threads and their replies within
 // that channel
 exports.getThreadsAndReplies = async (channelId) => {
   const allThreadsAndReplies = [];
   const threadIds = await getThreadIds(channelId);
-  
   // using each threadId, get all messages within the thread and
   // add them to the array of threads and replies, along with the
   // name of the person that first sent the message
@@ -92,7 +91,7 @@ exports.getThreadsAndReplies = async (channelId) => {
   allThreadsAndReplies.sort((a, b) => sortThreads(a, b));
 
   return allThreadsAndReplies;
-}
+};
 
 // post a new thread to a channel given the channelId and the
 // newThread object to post; return the newly created message id
@@ -105,7 +104,7 @@ exports.createThread = async (channelId, newThread) => {
   const channelData = await getChannelData(channelId);
   channelData.threads.push(messageId);
 
-  // get channel row with channelId and update channel's threads array 
+  // get channel row with channelId and update channel's threads array
   const update = 'UPDATE channel SET channelData = $2 WHERE id = $1';
   const query = {
     text: update,
@@ -114,4 +113,4 @@ exports.createThread = async (channelId, newThread) => {
   await pool.query(query);
 
   return messageId;
-}
+};

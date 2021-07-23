@@ -24,7 +24,7 @@ const apidoc = yaml.load(fs.readFileSync(apiSpec, 'utf8'));
 app.use('/v0/api-docs', swaggerUi.serve, swaggerUi.setup(apidoc));
 
 // for handling a user trying to sign in
-app.post('/authenticate',  auth.authenticate);
+app.post('/authenticate', auth.authenticate);
 
 app.use(
     OpenApiValidator.middleware({
@@ -37,6 +37,7 @@ app.use(
 app.get('/v0/dummy', dummy.get);
 // Your routes go here
 app.get('/v0/dms', auth.check, dmstream.getAllDMs);
+app.post('/v0/dms/:userName', auth.check, dmstream.createDM);
 app.get('/v0/workspace', auth.check, workspace.getWorkspacesAndChannels);
 app.get('/v0/channel/:id', auth.check, channel.getThreadsAndReplies);
 app.post('/v0/channel/:id', auth.check, channel.createThread);

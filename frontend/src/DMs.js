@@ -54,18 +54,32 @@ import NavPage from './NavPage';
 // the channel id, and the threads/replies within the channel
 const fetchWorkspacesAndChannels =
   (setWorkspacesAndChannels, setCurrWorkspace, setCurrChannel) => {
-    const item = localStorage.getItem('user');
-    if (!item) {
-      return;
-    }
-    const user = JSON.parse(item);
-    const bearerToken = user ? user.accessToken : '';
-    fetch('/v0/workspace', {
-      method: 'get',
-      headers: new Headers({
-        'Authorization': `Bearer ${bearerToken}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      }),
+  const item = localStorage.getItem('user');
+  if (!item) {
+    return;
+  }
+  const user = JSON.parse(item);
+  const bearerToken = user ? user.accessToken : '';
+  fetch('/v0/workspace', {
+    method: 'get',
+    headers: new Headers({
+      'Authorization': `Bearer ${bearerToken}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        console.log('Logged Out');
+        throw response;
+      }
+      return response.json();
+    })
+    .then((json) => {
+      setWorkspacesAndChannels(json);
+      setCurrWorkspace(json[0].workspaceName);
+      if (json[0].channels[0] !== undefined) {
+        setCurrChannel(json[0].channels[0].channelName);
+      }
     })
       .then((response) => {
         if (!response.ok) {
@@ -88,9 +102,27 @@ const fetchWorkspacesAndChannels =
 // backend function to retrieve all threads and replies within a channel
 const fetchThreadsAndReplies =
   (workspaces, setThreadsAndReplies, newChannel) => {
-    const item = localStorage.getItem('user');
-    if (!item) {
-      return;
+  const item = localStorage.getItem('user');
+  if (!item || newChannel === 'null') {
+    return;
+  }
+  const user = JSON.parse(item);
+
+  // get the corresponding channel name based on the current channel (had to
+  // modify the map function to prevent .map from checking every single
+  // workspace and channel after a match has already been found)
+  //
+  // this is currently hardcoded to the 'Assignment 1' channel from the database
+  // so you'll need to change it after you properly implement the workspaces and
+  // channel names (to do so, just change 'Assignment 1' with currChannel)
+  let currChannelId = null;
+  workspaces.map(({channels}) => {
+    if (!currChannelId) {
+      const f = channels.find(({channelName}) =>
+        channelName === newChannel);
+      if (f) {
+        currChannelId = f.channelId;
+      }
     }
     const user = JSON.parse(item);
 
@@ -444,13 +476,15 @@ function DMs() {
 
   // Text Input Functions ---
   const handleMsgChange = (event) => {
+    // handler for a change in the username to send a message to
     setMsgInput(event.target.value);
   };
   const handleMsgChange2 = (event) => {
+    // handler for a change in the message to create a new dm
     setMsgInput2(event.target.value);
   };
   const msgFunction = () => () => {
-    postNewThread(setThreadsAndReplies);
+    createNewDM(setDms);
   };
   const handleThreadChange = (event) => {
     setThreadInput(event.target.value);
@@ -852,43 +886,25 @@ function DMs() {
     }
   };
 
-
-  // Sources Used for Creating a Post Request:
-  //  https://simonplend.com/how-to-use-fetch-to-post-form-data-as-json-to-your-api/
-  //  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
-  //  https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-  //
-  // create a new thread and add it to the current list of threads
-  const postNewThread = (setThreadsAndReplies) => {
+  // create a new DM with another user; if the DM already exists, simply send
+  // a message to them
+  const createNewDM = (setDms) => {
     const item = localStorage.getItem('user');
-    if (!item) {
+    if (!item || msgInput === '' || msgInput2 === '') {
       return;
     }
     const user = JSON.parse(item);
     const bearerToken = user ? user.accessToken : '';
-    const threadMessage = JSON.stringify({content: msgInput});
+    const newDM = JSON.stringify({content: msgInput2});
 
-    let currChannelId = null;
-    workspacesAndChannels.map(({channels}) => {
-      if (!currChannelId) {
-        const f = channels.find(({channelName}) =>
-          channelName === 'Assignment 1');
-        if (f) {
-          currChannelId = f.channelId;
-        }
-      }
-      // ignore this statement; lint requires maps receive a return value
-      return true;
-    });
-
-    fetch('/v0/channel/' + currChannelId, {
+    fetch('/v0/dms/' + msgInput, {
       method: 'post',
       headers: new Headers({
         'Authorization': `Bearer ${bearerToken}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       }),
-      body: threadMessage,
+      body: newDM,
     })
       .then((response) => {
         if (!response.ok) {
@@ -897,17 +913,20 @@ function DMs() {
         return response.json();
       })
       .then((json) => {
-        const currThreads = [...threadsAndReplies];
-
-        // create a new thread object and push the new message in there
-        const threadObj = {};
-        threadObj.otherUser = json.from;
-        threadObj.messages = [json];
-        currThreads.push(threadObj);
-
-        setThreadsAndReplies(currThreads);
+        console.log(json);
         setMsgInput('');
         setMsgInput2('');
+
+        for (const dm of dms) {
+          if (dm.otherUser === msgInput) {
+            delete json.replies;
+            dm.messages.push(json);
+            setDms(dms);
+            return;
+          }
+        }
+        dms.push(json);
+        setDms(dms);
       })
       .catch((error) => {
         console.log(error);

@@ -50,18 +50,32 @@ import {useHistory} from 'react-router-dom';
 // the channel id, and the threads/replies within the channel
 const fetchWorkspacesAndChannels =
   (setWorkspacesAndChannels, setCurrWorkspace, setCurrChannel) => {
-    const item = localStorage.getItem('user');
-    if (!item) {
-      return;
-    }
-    const user = JSON.parse(item);
-    const bearerToken = user ? user.accessToken : '';
-    fetch('/v0/workspace', {
-      method: 'get',
-      headers: new Headers({
-        'Authorization': `Bearer ${bearerToken}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      }),
+  const item = localStorage.getItem('user');
+  if (!item) {
+    return;
+  }
+  const user = JSON.parse(item);
+  const bearerToken = user ? user.accessToken : '';
+  fetch('/v0/workspace', {
+    method: 'get',
+    headers: new Headers({
+      'Authorization': `Bearer ${bearerToken}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        console.log('Logged Out');
+        throw response;
+      }
+      return response.json();
+    })
+    .then((json) => {
+      setWorkspacesAndChannels(json);
+      setCurrWorkspace(json[0].workspaceName);
+      if (json[0].channels[0] !== undefined) {
+        setCurrChannel(json[0].channels[0].channelName);
+      }
     })
       .then((response) => {
         if (!response.ok) {
@@ -84,9 +98,27 @@ const fetchWorkspacesAndChannels =
 // backend function to retrieve all threads and replies within a channel
 const fetchThreadsAndReplies =
   (workspaces, setThreadsAndReplies, newChannel) => {
-    const item = localStorage.getItem('user');
-    if (!item) {
-      return;
+  const item = localStorage.getItem('user');
+  if (!item || newChannel === 'null') {
+    return;
+  }
+  const user = JSON.parse(item);
+
+  // get the corresponding channel name based on the current channel (had to
+  // modify the map function to prevent .map from checking every single
+  // workspace and channel after a match has already been found)
+  //
+  // this is currently hardcoded to the 'Assignment 1' channel from the database
+  // so you'll need to change it after you properly implement the workspaces and
+  // channel names (to do so, just change 'Assignment 1' with currChannel)
+  let currChannelId = null;
+  workspaces.map(({channels}) => {
+    if (!currChannelId) {
+      const f = channels.find(({channelName}) =>
+        channelName === newChannel);
+      if (f) {
+        currChannelId = f.channelId;
+      }
     }
     const user = JSON.parse(item);
 

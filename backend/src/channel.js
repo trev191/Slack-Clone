@@ -9,7 +9,7 @@ exports.getThreadsAndReplies = async (req, res) => {
   } else {
     res.status(404).send();
   }
-}
+};
 
 exports.createThread = async (req, res) => {
   const userId = req.user.id;
@@ -25,4 +25,4 @@ exports.createThread = async (req, res) => {
   newThread.id = await channel.createThread(channelId, newThread);
   newThread.from = userName;
   res.status(201).send(newThread);
-}
+};
