@@ -495,7 +495,12 @@ function Home() {
         ' ' + emailDate.getDate();
     }
     if (dayAgo < emailDate) {
-      output = emailDate.getHours() + ':' + emailDate.getMinutes();
+      const hours = emailDate.getHours();
+      let mins = emailDate.getMinutes();
+      if (mins < 10) {
+        mins = '0' + mins;
+      }
+      output = hours + ':' + mins;
     }
     return output;
   }

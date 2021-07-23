@@ -374,8 +374,6 @@ function DMs() {
   const [isActive, toggleActive] = React.useState(true);
 
   // Text Input States ---
-  const [msgInput, setMsgInput] = React.useState('');
-  const [msgInput2, setMsgInput2] = React.useState('');
   const [threadInput, setThreadInput] = React.useState('');
 
   // Current location of User
@@ -443,15 +441,6 @@ function DMs() {
   };
 
   // Text Input Functions ---
-  const handleMsgChange = (event) => {
-    setMsgInput(event.target.value);
-  };
-  const handleMsgChange2 = (event) => {
-    setMsgInput2(event.target.value);
-  };
-  const msgFunction = () => () => {
-    postNewThread(setThreadsAndReplies);
-  };
   const handleThreadChange = (event) => {
     setThreadInput(event.target.value);
   };
@@ -479,10 +468,10 @@ function DMs() {
   }
 
   /**
-* @param {inputDate} inputDate
-* @return {str} str
-*/
-  function convertDate(inputDate) {
+ * @param {inputDate} inputDate
+ * @return {str} str
+ */
+   function convertDate(inputDate) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June',
       'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
     let output = null;
@@ -498,7 +487,12 @@ function DMs() {
         ' ' + emailDate.getDate();
     }
     if (dayAgo < emailDate) {
-      output = emailDate.getHours() + ':' + emailDate.getMinutes();
+      const hours = emailDate.getHours();
+      let mins = emailDate.getMinutes();
+      if (mins < 10) {
+        mins = '0' + mins;
+      }
+      output = hours + ':' + mins;
     }
     return output;
   }
@@ -840,68 +834,6 @@ function DMs() {
     }
   };
 
-
-  // Sources Used for Creating a Post Request:
-  //  https://simonplend.com/how-to-use-fetch-to-post-form-data-as-json-to-your-api/
-  //  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
-  //  https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-  //
-  // create a new thread and add it to the current list of threads
-  const postNewThread = (setThreadsAndReplies) => {
-    const item = localStorage.getItem('user');
-    if (!item) {
-      return;
-    }
-    const user = JSON.parse(item);
-    const bearerToken = user ? user.accessToken : '';
-    const threadMessage = JSON.stringify({content: msgInput});
-
-    let currChannelId = null;
-    workspacesAndChannels.map(({channels}) => {
-      if (!currChannelId) {
-        const f = channels.find(({channelName}) =>
-          channelName === 'Assignment 1');
-        if (f) {
-          currChannelId = f.channelId;
-        }
-      }
-      // ignore this statement; lint requires maps receive a return value
-      return true;
-    });
-
-    fetch('/v0/channel/' + currChannelId, {
-      method: 'post',
-      headers: new Headers({
-        'Authorization': `Bearer ${bearerToken}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      }),
-      body: threadMessage,
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw response;
-        }
-        return response.json();
-      })
-      .then((json) => {
-        const currThreads = [...threadsAndReplies];
-
-        // create a new thread object and push the new message in there
-        const threadObj = {};
-        threadObj.otherUser = json.from;
-        threadObj.messages = [json];
-        currThreads.push(threadObj);
-
-        setThreadsAndReplies(currThreads);
-        setMsgInput('');
-        setMsgInput2('');
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-
   // create a new thread and add it to the current list of threads
   const postReply = (setThreadsAndReplies, setDms) => {
     const item = localStorage.getItem('user');
@@ -1040,36 +972,6 @@ function DMs() {
               primary={!currMain ? 'Mentions' : currChannel}
             />
           </ListSubheader>
-          <TextField
-            label={'User to send to...'}
-            size="small"
-            variant="outlined"
-            multiline
-            value={msgInput}
-            className={classes.mainTextField2}
-            onChange={handleMsgChange}
-          />
-          <TextField
-            label={'Message to send...'}
-            size="small"
-            variant="outlined"
-            multiline
-            value={msgInput2}
-            className={classes.mainTextField}
-            onChange={handleMsgChange2}
-            InputProps={{
-              endAdornment:
-              <InputAdornment position="end">
-                <IconButton
-                  color={theme.palette.primary.dark}
-                  edge="end"
-                  // Sends msg to channel v
-                  onClick={msgFunction()}>
-                  <SendIcon />
-                </IconButton>
-              </InputAdornment>,
-            }}
-          />
         </main>
         {/* ThreadPanel */}
         <nav
