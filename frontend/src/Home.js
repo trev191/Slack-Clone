@@ -77,23 +77,12 @@ const fetchWorkspacesAndChannels =
         setCurrChannel(json[0].channels[0].channelName);
       }
     })
-      .then((response) => {
-        if (!response.ok) {
-          console.log('Logged Out');
-          throw response;
-        }
-        return response.json();
-      })
-      .then((json) => {
-        setWorkspacesAndChannels(json);
-        setCurrWorkspace(json[0].workspaceName);
-        setCurrChannel(json[0].channels[0].channelName);
-      })
-      .catch((error) => {
-        console.log(error);
-        setWorkspacesAndChannels([]);
-      });
-  };
+    .catch((error) => {
+      console.log(error);
+      setWorkspacesAndChannels([]);
+    });
+};
+
 
 // backend function to retrieve all threads and replies within a channel
 const fetchThreadsAndReplies =
@@ -107,10 +96,6 @@ const fetchThreadsAndReplies =
   // get the corresponding channel name based on the current channel (had to
   // modify the map function to prevent .map from checking every single
   // workspace and channel after a match has already been found)
-  //
-  // this is currently hardcoded to the 'Assignment 1' channel from the database
-  // so you'll need to change it after you properly implement the workspaces and
-  // channel names (to do so, just change 'Assignment 1' with currChannel)
   let currChannelId = null;
   workspaces.map(({channels}) => {
     if (!currChannelId) {
@@ -120,29 +105,8 @@ const fetchThreadsAndReplies =
         currChannelId = f.channelId;
       }
     }
-    const user = JSON.parse(item);
-
-    // get the corresponding channel name based on the current channel (had to
-    // modify the map function to prevent .map from checking every single
-    // workspace and channel after a match has already been found)
-    //
-    // this is currently hardcoded to the 'Assignment 1'
-    // channel from the database
-    // so you'll need to change it after you properly
-    // implement the workspaces and
-    // channel names (to do so, just change 'Assignment 1' with currChannel)
-    let currChannelId = null;
-    workspaces.map(({channels}) => {
-      if (!currChannelId) {
-        const f = channels.find(({channelName}) =>
-          channelName === newChannel);
-        if (f) {
-          currChannelId = f.channelId;
-        }
-      }
-      // ignore this statement; lint requires maps receive a return value
-      return true;
-    });
+    return true;
+  });
 
     const bearerToken = user ? user.accessToken : '';
     fetch('/v0/channel/' + currChannelId, {
@@ -573,7 +537,8 @@ function Home() {
         <ListItemText
           primary={convo.otherUser +
             '  /  ' + convertDate(convo.messages[convo.messages.length-1].time)}
-          secondary={convo.messages[convo.messages.length-1].content}
+          secondary={isDm? convo.messages[convo.messages.length-1].content :
+            convo.messages[0].content}
         />
       </ListItem>
     </div>
