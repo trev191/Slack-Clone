@@ -328,7 +328,7 @@ function Search() {
  * @param {inputDate} inputDate
  * @return {str} str
  */
-  function convertDate(inputDate) {
+   function convertDate(inputDate) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June',
       'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
     let output = null;
@@ -344,7 +344,12 @@ function Search() {
         ' ' + emailDate.getDate();
     }
     if (dayAgo < emailDate) {
-      output = emailDate.getHours() + ':' + emailDate.getMinutes();
+      const hours = emailDate.getHours();
+      let mins = emailDate.getMinutes();
+      if (mins < 10) {
+        mins = '0' + mins;
+      }
+      output = hours + ':' + mins;
     }
     return output;
   }
