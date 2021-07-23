@@ -537,7 +537,8 @@ function Home() {
         <ListItemText
           primary={convo.otherUser +
             '  /  ' + convertDate(convo.messages[convo.messages.length-1].time)}
-          secondary={convo.messages[convo.messages.length-1].content}
+          secondary={isDm? convo.messages[convo.messages.length-1].content :
+            convo.messages[0].content}
         />
       </ListItem>
     </div>

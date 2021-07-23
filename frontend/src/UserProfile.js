@@ -137,7 +137,7 @@ function UserProfile() {
                   color="secondary"
                   invisible={isActive? false : true}
                 >
-                  <Avatar>X</Avatar>
+                  <Avatar>{user.userName[0]}</Avatar>
                 </Badge>
               </ListItemIcon>
               <ListItemText
