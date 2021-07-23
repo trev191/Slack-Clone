@@ -50,89 +50,36 @@ import {useHistory} from 'react-router-dom';
 // the channel id, and the threads/replies within the channel
 const fetchWorkspacesAndChannels =
   (setWorkspacesAndChannels, setCurrWorkspace, setCurrChannel) => {
-  const item = localStorage.getItem('user');
-  if (!item) {
-    return;
-  }
-  const user = JSON.parse(item);
-  const bearerToken = user ? user.accessToken : '';
-  fetch('/v0/workspace', {
-    method: 'get',
-    headers: new Headers({
-      'Authorization': `Bearer ${bearerToken}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    }),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        console.log('Logged Out');
-        throw response;
-      }
-      return response.json();
-    })
-    .then((json) => {
-      setWorkspacesAndChannels(json);
-      setCurrWorkspace(json[0].workspaceName);
-      setCurrChannel(json[0].channels[0].channelName);
-    })
-    .catch((error) => {
-      console.log(error);
-      setWorkspacesAndChannels([]);
-    });
-};
-
-// backend function to retrieve all threads and replies within a channel
-const fetchThreadsAndReplies =
-  (workspaces, setThreadsAndReplies, newChannel) => {
-  const item = localStorage.getItem('user');
-  if (!item) {
-    return;
-  }
-  const user = JSON.parse(item);
-
-  // get the corresponding channel name based on the current channel (had to
-  // modify the map function to prevent .map from checking every single
-  // workspace and channel after a match has already been found)
-  //
-  // this is currently hardcoded to the 'Assignment 1' channel from the database
-  // so you'll need to change it after you properly implement the workspaces and
-  // channel names (to do so, just change 'Assignment 1' with currChannel)
-  let currChannelId = null;
-  workspaces.map(({channels}) => {
-    if (!currChannelId) {
-      const f = channels.find(({channelName}) =>
-        channelName === newChannel);
-      if (f) {
-        currChannelId = f.channelId;
-      }
+    const item = localStorage.getItem('user');
+    if (!item) {
+      return;
     }
-    // ignore this statement; lint requires maps receive a return value
-    return true;
-  });
-
-  const bearerToken = user ? user.accessToken : '';
-  fetch('/v0/channel/' + currChannelId, {
-    method: 'get',
-    headers: new Headers({
-      'Authorization': `Bearer ${bearerToken}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    }),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw response;
-      }
-      return response.json();
+    const user = JSON.parse(item);
+    const bearerToken = user ? user.accessToken : '';
+    fetch('/v0/workspace', {
+      method: 'get',
+      headers: new Headers({
+        'Authorization': `Bearer ${bearerToken}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }),
     })
-    .then((json) => {
-      console.log(json);
-      setThreadsAndReplies(json.reverse());
-    })
-    .catch((error) => {
-      console.log(error);
-      setThreadsAndReplies([]);
-    });
-};
+      .then((response) => {
+        if (!response.ok) {
+          console.log('Logged Out');
+          throw response;
+        }
+        return response.json();
+      })
+      .then((json) => {
+        setWorkspacesAndChannels(json);
+        setCurrWorkspace(json[0].workspaceName);
+        setCurrChannel(json[0].channels[0].channelName);
+      })
+      .catch((error) => {
+        console.log(error);
+        setWorkspacesAndChannels([]);
+      });
+  };
 
 const fetchDMs = (setDms) => {
   const item = localStorage.getItem('user');
@@ -156,7 +103,6 @@ const fetchDMs = (setDms) => {
       return response.json();
     })
     .then((json) => {
-      console.log(json);
       setDms(json);
     })
     .catch((error) => {
@@ -311,10 +257,6 @@ function Search() {
   // User Green Dot Status
   const [isActive, toggleActive] = React.useState(true);
 
-  // Text Input States ---
-  const [searchInput, setSearchInput] = React.useState('');
-  const [threadInput, setThreadInput] = React.useState('');
-
   // Current location of User
   const [currWorkspace, setCurrWorkspace] = React.useState('null');
   const [currChannel, setCurrChannel] = React.useState('null');
@@ -323,13 +265,9 @@ function Search() {
   // Workspaces and Channels Backend ---
   const [workspacesAndChannels, setWorkspacesAndChannels] =
     React.useState([]);
-  const [threadsAndReplies, setThreadsAndReplies] =
-    React.useState([]);
 
   // DMs Backend ---
   const [dms, setDms] = React.useState([]);
-
-  const [currMain, setMain] = React.useState(false);
 
   const toggleThread = (open) => (event) => {
     if (event.type === 'keydown' &&
@@ -367,36 +305,14 @@ function Search() {
 
   // Change Workspace and Channel ---
   const changeWorkspace = (newWorkspace) => () => {
-    console.log('Changed Workspace ' + newWorkspace);
     setCurrWorkspace(newWorkspace);
     {if (mobileWorkspacesOpen) {
       openMobileWorkspacesMenu();
     }};
   };
   const changeChannel = (newChannel) => () => {
-    console.log('Changed Channel to ' + newChannel);
     setCurrChannel(newChannel);
     setMobileChannelsOpen(false);
-    fetchThreadsAndReplies(workspacesAndChannels,
-      setThreadsAndReplies, newChannel);
-    // Below gets called before change. Ignore!
-    console.log('threads and replies', threadsAndReplies);
-  };
-
-  // Text Input Functions ---
-  const handleSearchChange = (event) => {
-    console.log(event.target.value);
-    setSearchInput(event.target.value);
-  };
-  const searchFunction = () => () => {
-    console.log('SEARCHING: ' + searchInput);
-  };
-
-  const handleThreadChange = (event) => {
-    setThreadInput(event.target.value);
-  };
-  const threadFunction = () => () => {
-    console.log('Sending msg to Thread: ' + threadInput);
   };
 
   /**
@@ -404,7 +320,6 @@ function Search() {
  * @param {bool} bool
  */
   function threadHandler(messages, bool) {
-    console.log(messages);
     setThread(messages);
     openThread(bool);
   }
@@ -413,7 +328,7 @@ function Search() {
  * @param {inputDate} inputDate
  * @return {str} str
  */
-   function convertDate(inputDate) {
+  function convertDate(inputDate) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June',
       'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
     let output = null;
@@ -477,21 +392,8 @@ function Search() {
     </div>
   );
 
-  const mainMessageTable = (
-    <List
-      onClick = {() => setMain(true)}
-      className = {classes.mainTableSize}
-    >
-      {threadsAndReplies.map(
-        (convo) =>
-          mainMessage(convo),
-      )}
-    </List>
-  );
-
   const DMDisplay = (
     <List
-      onClick = {() => setMain(false)}
       className = {classes.mainTableSize}
     >
       {dms.map(
@@ -503,7 +405,7 @@ function Search() {
 
   const threadMessageTable = (
     <List
-    className = {classes.mainTableSize}
+      className = {classes.mainTableSize}
     >
       {currThread ?
         currThread.map((message)=> threadMessage(message)) :
@@ -620,11 +522,11 @@ function Search() {
   /**
    * @return {array} JSX
   */
-   function returnChannelsArray() {
+  function returnChannelsArray() {
     let arr = [];
     workspacesAndChannels.map(
       (workspace) => {
-        if (workspace.workspaceName == currWorkspace) {
+        if (workspace.workspaceName === currWorkspace) {
           arr = workspace.channels;
         }
       },
@@ -692,13 +594,13 @@ function Search() {
       </div>
       <Divider />
       <ListSubheader>
-      <ListItemText
-            primary={'Channels'}
-            onClick={
-              () => {
-                history.push('/home');
-              }}
-          />
+        <ListItemText
+          primary={'Channels'}
+          onClick={
+            () => {
+              history.push('/home');
+            }}
+        />
       </ListSubheader>
       <Divider />
       {channelsTable}
@@ -741,14 +643,12 @@ function Search() {
           size="small"
           variant="outlined"
           className={classes.search}
-          onChange={handleSearchChange}
           InputProps={{
             endAdornment:
             <InputAdornment position="end">
               <IconButton
                 color={theme.palette.primary.dark}
                 edge="end"
-                onClick={searchFunction()}
               >
                 <SearchIcon />
               </IconButton>
@@ -786,17 +686,11 @@ function Search() {
   };
 
   React.useEffect(() => {
-  checkLoggedIn();
+    checkLoggedIn();
     fetchWorkspacesAndChannels(setWorkspacesAndChannels,
       setCurrWorkspace, setCurrChannel);
     fetchDMs(setDms);
   }, []);
-  React.useEffect(() => {
-    console.log('Front Populated with ' + currChannel);
-    // I need the below to instantiate the threads...
-    fetchThreadsAndReplies(workspacesAndChannels,
-      setThreadsAndReplies, currChannel);
-  }, [currChannel]);
 
   return (
     <div className={classes.root}>
@@ -853,8 +747,6 @@ function Search() {
               primary='Search'
             />
           </ListSubheader>
-          {/* {currMain ? mainMessageTable : DMDisplay} */}
-          {console.log(currMain + '' + mainMessageTable + '' + DMDisplay)}
         </main>
         {/* ThreadPanel */}
         <nav>
@@ -892,15 +784,12 @@ function Search() {
                 variant="outlined"
                 multiline
                 className={classes.threadTextField}
-                onChange={handleThreadChange}
                 InputProps={{
                   endAdornment:
                   <InputAdornment position="end">
                     <IconButton
                       color="inherit"
-                      edge="end"
-                      // Sends msg to thread v
-                      onClick={threadFunction()}>
+                      edge="end">
                       <SendIcon />
                     </IconButton>
                   </InputAdornment>,

@@ -54,89 +54,90 @@ import NavPage from './NavPage';
 // the channel id, and the threads/replies within the channel
 const fetchWorkspacesAndChannels =
   (setWorkspacesAndChannels, setCurrWorkspace, setCurrChannel) => {
-  const item = localStorage.getItem('user');
-  if (!item) {
-    return;
-  }
-  const user = JSON.parse(item);
-  const bearerToken = user ? user.accessToken : '';
-  fetch('/v0/workspace', {
-    method: 'get',
-    headers: new Headers({
-      'Authorization': `Bearer ${bearerToken}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    }),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        console.log('Logged Out');
-        throw response;
-      }
-      return response.json();
+    const item = localStorage.getItem('user');
+    if (!item) {
+      return;
+    }
+    const user = JSON.parse(item);
+    const bearerToken = user ? user.accessToken : '';
+    fetch('/v0/workspace', {
+      method: 'get',
+      headers: new Headers({
+        'Authorization': `Bearer ${bearerToken}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }),
     })
-    .then((json) => {
-      setWorkspacesAndChannels(json);
-      setCurrWorkspace(json[0].workspaceName);
-      setCurrChannel(json[0].channels[0].channelName);
-    })
-    .catch((error) => {
-      console.log(error);
-      setWorkspacesAndChannels([]);
-    });
-};
+      .then((response) => {
+        if (!response.ok) {
+          console.log('Logged Out');
+          throw response;
+        }
+        return response.json();
+      })
+      .then((json) => {
+        setWorkspacesAndChannels(json);
+        setCurrWorkspace(json[0].workspaceName);
+        setCurrChannel(json[0].channels[0].channelName);
+      })
+      .catch((error) => {
+        console.log(error);
+        setWorkspacesAndChannels([]);
+      });
+  };
 
 // backend function to retrieve all threads and replies within a channel
 const fetchThreadsAndReplies =
   (workspaces, setThreadsAndReplies, newChannel) => {
-  const item = localStorage.getItem('user');
-  if (!item) {
-    return;
-  }
-  const user = JSON.parse(item);
-
-  // get the corresponding channel name based on the current channel (had to
-  // modify the map function to prevent .map from checking every single
-  // workspace and channel after a match has already been found)
-  //
-  // this is currently hardcoded to the 'Assignment 1' channel from the database
-  // so you'll need to change it after you properly implement the workspaces and
-  // channel names (to do so, just change 'Assignment 1' with currChannel)
-  let currChannelId = null;
-  workspaces.map(({channels}) => {
-    if (!currChannelId) {
-      const f = channels.find(({channelName}) =>
-        channelName === newChannel);
-      if (f) {
-        currChannelId = f.channelId;
-      }
+    const item = localStorage.getItem('user');
+    if (!item) {
+      return;
     }
-    // ignore this statement; lint requires maps receive a return value
-    return true;
-  });
+    const user = JSON.parse(item);
 
-  const bearerToken = user ? user.accessToken : '';
-  fetch('/v0/channel/' + currChannelId, {
-    method: 'get',
-    headers: new Headers({
-      'Authorization': `Bearer ${bearerToken}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    }),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw response;
+    // get the corresponding channel name based on the current channel (had to
+    // modify the map function to prevent .map from checking every single
+    // workspace and channel after a match has already been found)
+    //
+    // this is currently hardcoded to the 'Assignment 1'
+    // channel from the database
+    // so you'll need to change it after you properly
+    // implement the workspaces and
+    // channel names (to do so, just change 'Assignment 1' with currChannel)
+    let currChannelId = null;
+    workspaces.map(({channels}) => {
+      if (!currChannelId) {
+        const f = channels.find(({channelName}) =>
+          channelName === newChannel);
+        if (f) {
+          currChannelId = f.channelId;
+        }
       }
-      return response.json();
-    })
-    .then((json) => {
-      console.log(json);
-      setThreadsAndReplies(json.reverse());
-    })
-    .catch((error) => {
-      console.log(error);
-      setThreadsAndReplies([]);
+      // ignore this statement; lint requires maps receive a return value
+      return true;
     });
-};
+
+    const bearerToken = user ? user.accessToken : '';
+    fetch('/v0/channel/' + currChannelId, {
+      method: 'get',
+      headers: new Headers({
+        'Authorization': `Bearer ${bearerToken}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw response;
+        }
+        return response.json();
+      })
+      .then((json) => {
+        setThreadsAndReplies(json.reverse());
+      })
+      .catch((error) => {
+        console.log(error);
+        setThreadsAndReplies([]);
+      });
+  };
 
 
 const fetchDMs = (setDms) => {
@@ -161,7 +162,6 @@ const fetchDMs = (setDms) => {
       return response.json();
     })
     .then((json) => {
-      console.log(json);
       setDms(json);
     })
     .catch((error) => {
@@ -252,9 +252,9 @@ const useStyles = makeStyles((theme) => ({
   mainTableSize: { // Size of the message table
     flexGrow: 1,
     maxHeight: '750px',
-    // backgroundColor: 'lightgrey',
     overflow: 'auto',
     [theme.breakpoints.up('sm')]: {
+      // maxHeight: '60%',
       maxHeight: '800px',
     },
   },
@@ -374,7 +374,6 @@ function DMs() {
   const [isActive, toggleActive] = React.useState(true);
 
   // Text Input States ---
-  const [searchInput, setSearchInput] = React.useState('');
   const [msgInput, setMsgInput] = React.useState('');
   const [msgInput2, setMsgInput2] = React.useState('');
   const [threadInput, setThreadInput] = React.useState('');
@@ -431,29 +430,19 @@ function DMs() {
 
   // Change Workspace and Channel ---
   const changeWorkspace = (newWorkspace) => () => {
-    console.log('Changed Workspace ' + newWorkspace);
     setCurrWorkspace(newWorkspace);
     {if (mobileWorkspacesOpen) {
       openMobileWorkspacesMenu();
     }};
   };
   const changeChannel = (newChannel) => () => {
-    console.log('Changed Channel to ' + newChannel);
     setCurrChannel(newChannel);
     setMobileChannelsOpen(false);
     fetchThreadsAndReplies(workspacesAndChannels,
       setThreadsAndReplies, newChannel);
-    // Below gets called before change. Ignore!
-    console.log('threads and replies', threadsAndReplies);
   };
 
   // Text Input Functions ---
-  const handleSearchChange = (event) => {
-    setSearchInput(event.target.value);
-  };
-  const searchFunction = () => () => {
-    console.log('Searching: ' + searchInput);
-  };
   const handleMsgChange = (event) => {
     setMsgInput(event.target.value);
   };
@@ -461,28 +450,21 @@ function DMs() {
     setMsgInput2(event.target.value);
   };
   const msgFunction = () => () => {
-    console.log('To: ' + msgInput);
-    console.log('Msg: ' + msgInput2);
     postNewThread(setThreadsAndReplies);
   };
   const handleThreadChange = (event) => {
     setThreadInput(event.target.value);
   };
   const threadFunction = () => () => {
-    console.log('Sending msg to Thread: ' + threadInput);
     postReply(setThreadsAndReplies, setDms);
   };
-
-  // const doNothing = () => () =>{
-  //   console.log('Temp Function Call');
-  // };
 
   /**
  * @param {messages} messages
  * @param {bool} bool
  * @param {bool} isDm var to denote whether message we opened is thread or dm
  */
-   function threadHandler(messages, bool, isDm) {
+  function threadHandler(messages, bool, isDm) {
     setCurrMessageId(messages[0].id);
     // setMobileChannelsOpen(false);
     if (isDm) {
@@ -500,7 +482,7 @@ function DMs() {
  * @param {inputDate} inputDate
  * @return {str} str
  */
-   function convertDate(inputDate) {
+  function convertDate(inputDate) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June',
       'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
     let output = null;
@@ -590,7 +572,7 @@ function DMs() {
 
   const threadMessageTable = (
     <List
-    className = {classes.mainTableSize}
+      className = {classes.mainTableSize}
     >
       {currThread ?
         currThread.map((message)=> threadMessage(message)) :
@@ -706,11 +688,11 @@ function DMs() {
   /**
    * @return {array} JSX
   */
-   function returnChannelsArray() {
+  function returnChannelsArray() {
     let arr = [];
     workspacesAndChannels.map(
       (workspace) => {
-        if (workspace.workspaceName == currWorkspace) {
+        if (workspace.workspaceName === currWorkspace) {
           arr = workspace.channels;
         }
       },
@@ -779,12 +761,12 @@ function DMs() {
       <Divider />
       <ListSubheader>
         <ListItemText
-            primary={'Channels'}
-            onClick={
-              () => {
-                history.push('/home');
-              }}
-          />
+          primary={'Channels'}
+          onClick={
+            () => {
+              history.push('/home');
+            }}
+        />
       </ListSubheader>
       <Divider />
       {channelsTable}
@@ -827,14 +809,12 @@ function DMs() {
           size="small"
           variant="outlined"
           className={classes.search}
-          onChange={handleSearchChange}
           InputProps={{
             endAdornment:
             <InputAdornment position="end">
               <IconButton
                 color={theme.palette.primary.dark}
                 edge="end"
-                onClick={searchFunction()}
               >
                 <SearchIcon />
               </IconButton>
@@ -911,14 +891,12 @@ function DMs() {
       body: threadMessage,
     })
       .then((response) => {
-        console.log(response);
         if (!response.ok) {
           throw response;
         }
         return response.json();
       })
       .then((json) => {
-        console.log(json);
         const currThreads = [...threadsAndReplies];
 
         // create a new thread object and push the new message in there
@@ -961,7 +939,6 @@ function DMs() {
         return response.json();
       })
       .then((json) => {
-        console.log(json);
         // based on whether we were replying to a dm or thread, add the new msg
         if (dmOpened) {
           // find the correct dm box in dms and add the new message
@@ -998,9 +975,23 @@ function DMs() {
       setCurrWorkspace, setCurrChannel);
     fetchDMs(setDms);
   }, []);
-  // console.log('workspacesAndChannels', workspacesAndChannels);
+
+  // Find first channel of new WS
   React.useEffect(() => {
-    console.log('Front Populated with ' + currChannel);
+    workspacesAndChannels.map((workspace)=>{
+      if (workspace.workspaceName === currWorkspace) {
+        changeChannel(undefined);
+        if (! workspace.channels[0]) {
+          setCurrChannel(null);
+        } else {
+          setCurrChannel(workspace.channels[0].channelName);
+        }
+      };
+    });
+    // setCurrChannel(currChannel);
+  }, [currWorkspace]);
+
+  React.useEffect(() => {
     // I need the below to instantiate the threads...
     fetchThreadsAndReplies(workspacesAndChannels,
       setThreadsAndReplies, currChannel);

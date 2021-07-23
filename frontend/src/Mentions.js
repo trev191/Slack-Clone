@@ -1,3 +1,9 @@
+/**
+ * Sources Used:
+ *    The fetchDMs() function is merely a modified version of fetchBooks()
+ *    from the authenticated books example.
+ */
+
 import React from 'react';
 import {useHistory} from 'react-router-dom';
 
@@ -42,96 +48,97 @@ import NavPage from './NavPage';
 /** Table: https://material-ui.com/components/tables/#table */
 /** Drawers: https://material-ui.com/components/drawers/#drawer */
 
-
 // backend function to retrieve an array of workspace objects;
 // each workspace object consists of the workspace name and an array
 // of channel objects; each channel object consists of the channel name,
 // the channel id, and the threads/replies within the channel
 const fetchWorkspacesAndChannels =
   (setWorkspacesAndChannels, setCurrWorkspace, setCurrChannel) => {
-  const item = localStorage.getItem('user');
-  if (!item) {
-    return;
-  }
-  const user = JSON.parse(item);
-  const bearerToken = user ? user.accessToken : '';
-  fetch('/v0/workspace', {
-    method: 'get',
-    headers: new Headers({
-      'Authorization': `Bearer ${bearerToken}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    }),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        console.log('Logged Out');
-        throw response;
-      }
-      return response.json();
+    const item = localStorage.getItem('user');
+    if (!item) {
+      return;
+    }
+    const user = JSON.parse(item);
+    const bearerToken = user ? user.accessToken : '';
+    fetch('/v0/workspace', {
+      method: 'get',
+      headers: new Headers({
+        'Authorization': `Bearer ${bearerToken}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }),
     })
-    .then((json) => {
-      setWorkspacesAndChannels(json);
-      setCurrWorkspace(json[0].workspaceName);
-      setCurrChannel(json[0].channels[0].channelName);
-    })
-    .catch((error) => {
-      console.log(error);
-      setWorkspacesAndChannels([]);
-    });
-};
+      .then((response) => {
+        if (!response.ok) {
+          console.log('Logged Out');
+          throw response;
+        }
+        return response.json();
+      })
+      .then((json) => {
+        setWorkspacesAndChannels(json);
+        setCurrWorkspace(json[0].workspaceName);
+        setCurrChannel(json[0].channels[0].channelName);
+      })
+      .catch((error) => {
+        console.log(error);
+        setWorkspacesAndChannels([]);
+      });
+  };
 
 // backend function to retrieve all threads and replies within a channel
 const fetchThreadsAndReplies =
   (workspaces, setThreadsAndReplies, newChannel) => {
-  const item = localStorage.getItem('user');
-  if (!item) {
-    return;
-  }
-  const user = JSON.parse(item);
-
-  // get the corresponding channel name based on the current channel (had to
-  // modify the map function to prevent .map from checking every single
-  // workspace and channel after a match has already been found)
-  //
-  // this is currently hardcoded to the 'Assignment 1' channel from the database
-  // so you'll need to change it after you properly implement the workspaces and
-  // channel names (to do so, just change 'Assignment 1' with currChannel)
-  let currChannelId = null;
-  workspaces.map(({channels}) => {
-    if (!currChannelId) {
-      const f = channels.find(({channelName}) =>
-        channelName === newChannel);
-      if (f) {
-        currChannelId = f.channelId;
-      }
+    const item = localStorage.getItem('user');
+    if (!item) {
+      return;
     }
-    // ignore this statement; lint requires maps receive a return value
-    return true;
-  });
+    const user = JSON.parse(item);
 
-  const bearerToken = user ? user.accessToken : '';
-  fetch('/v0/channel/' + currChannelId, {
-    method: 'get',
-    headers: new Headers({
-      'Authorization': `Bearer ${bearerToken}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    }),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw response;
+    // get the corresponding channel name based on the current channel (had to
+    // modify the map function to prevent .map from checking every single
+    // workspace and channel after a match has already been found)
+    //
+    // this is currently hardcoded to the 'Assignment 1'
+    // channel from the database
+    // so you'll need to change it after you properly
+    // implement the workspaces and
+    // channel names (to do so, just change 'Assignment 1' with currChannel)
+    let currChannelId = null;
+    workspaces.map(({channels}) => {
+      if (!currChannelId) {
+        const f = channels.find(({channelName}) =>
+          channelName === newChannel);
+        if (f) {
+          currChannelId = f.channelId;
+        }
       }
-      return response.json();
-    })
-    .then((json) => {
-      console.log(json);
-      setThreadsAndReplies(json.reverse());
-    })
-    .catch((error) => {
-      console.log(error);
-      setThreadsAndReplies([]);
+      // ignore this statement; lint requires maps receive a return value
+      return true;
     });
-};
+
+    const bearerToken = user ? user.accessToken : '';
+    fetch('/v0/channel/' + currChannelId, {
+      method: 'get',
+      headers: new Headers({
+        'Authorization': `Bearer ${bearerToken}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw response;
+        }
+        return response.json();
+      })
+      .then((json) => {
+        setThreadsAndReplies(json.reverse());
+      })
+      .catch((error) => {
+        console.log(error);
+        setThreadsAndReplies([]);
+      });
+  };
+
 
 const fetchDMs = (setDms) => {
   const item = localStorage.getItem('user');
@@ -155,7 +162,6 @@ const fetchDMs = (setDms) => {
       return response.json();
     })
     .then((json) => {
-      console.log(json);
       setDms(json);
     })
     .catch((error) => {
@@ -222,6 +228,12 @@ const useStyles = makeStyles((theme) => ({
       width: drawerWidth,
     },
   },
+  workspaceDrawerSize: { // Size of the drawer objects
+    width: '70%',
+    [theme.breakpoints.up('sm')]: {
+      width: drawerWidth,
+    },
+  },
   mobileDrawerSize: { // Size of the drawer objects
     width: '100%',
     [theme.breakpoints.up('sm')]: {
@@ -240,9 +252,9 @@ const useStyles = makeStyles((theme) => ({
   mainTableSize: { // Size of the message table
     flexGrow: 1,
     maxHeight: '750px',
-    // backgroundColor: 'lightgrey',
     overflow: 'auto',
     [theme.breakpoints.up('sm')]: {
+      // maxHeight: '60%',
       maxHeight: '800px',
     },
   },
@@ -270,6 +282,38 @@ const useStyles = makeStyles((theme) => ({
     marginRight: 'auto',
     [theme.breakpoints.up('sm')]: {
       display: 'none',
+    },
+  },
+  mainTextField: {
+    position: 'fixed',
+    backgroundColor: 'white',
+    [theme.breakpoints.up('xs')]: {
+      bottom: '10px',
+      width: `98%`,
+    },
+    [theme.breakpoints.down('xs')]: {
+      bottom: '70px',
+      width: `97%`,
+    },
+    [theme.breakpoints.up('md')]: {
+      bottom: '10px',
+      width: `calc(99% - ${drawerWidth}px)`,
+    },
+  },
+  mainTextField2: {
+    position: 'fixed',
+    backgroundColor: 'white',
+    [theme.breakpoints.up('xs')]: {
+      bottom: '50px',
+      width: `98%`,
+    },
+    [theme.breakpoints.down('xs')]: {
+      bottom: '110px',
+      width: `97%`,
+    },
+    [theme.breakpoints.up('md')]: {
+      bottom: '50px',
+      width: `calc(99% - ${drawerWidth}px)`,
     },
   },
   threadTextField: {
@@ -300,10 +344,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 /**
- * Main function!
- * @return {object} JSX
- */
-function Mentions() {
+* Main function!
+* @return {object} JSX
+*/
+function DMs() {
   const classes = useStyles();
   const user = JSON.parse(localStorage.getItem('user'));
   const history = useHistory();
@@ -320,16 +364,24 @@ function Mentions() {
 
   const [threadOpened, openThread] = React.useState(false);
 
+  // First message of Current Thread/DM Open:
+  const [currMessageId, setCurrMessageId] = React.useState('');
+
+  // Which type of message is currently opened (thread or DM)
+  const [dmOpened, toggleDmOpened] = React.useState(false);
+
   // User Green Dot Status
   const [isActive, toggleActive] = React.useState(true);
 
   // Text Input States ---
-  const [searchInput, setSearchInput] = React.useState('');
+  const [msgInput, setMsgInput] = React.useState('');
+  const [msgInput2, setMsgInput2] = React.useState('');
   const [threadInput, setThreadInput] = React.useState('');
 
   // Current location of User
   const [currWorkspace, setCurrWorkspace] = React.useState('null');
   const [currChannel, setCurrChannel] = React.useState('null');
+  const [currDm, setCurrDm] = React.useState(false);
   const [currThread, setThread] = React.useState(null);
 
   // Workspaces and Channels Backend ---
@@ -378,55 +430,59 @@ function Mentions() {
 
   // Change Workspace and Channel ---
   const changeWorkspace = (newWorkspace) => () => {
-    console.log('Changed Workspace ' + newWorkspace);
     setCurrWorkspace(newWorkspace);
     {if (mobileWorkspacesOpen) {
       openMobileWorkspacesMenu();
     }};
   };
   const changeChannel = (newChannel) => () => {
-    console.log('Changed Channel to ' + newChannel);
     setCurrChannel(newChannel);
     setMobileChannelsOpen(false);
     fetchThreadsAndReplies(workspacesAndChannels,
       setThreadsAndReplies, newChannel);
-    // Below gets called before change. Ignore!
-    console.log('threads and replies', threadsAndReplies);
   };
 
   // Text Input Functions ---
-  const handleSearchChange = (event) => {
-    setSearchInput(event.target.value);
+  const handleMsgChange = (event) => {
+    setMsgInput(event.target.value);
   };
-  const searchFunction = () => () => {
-    console.log('Searching: ' + searchInput);
+  const handleMsgChange2 = (event) => {
+    setMsgInput2(event.target.value);
+  };
+  const msgFunction = () => () => {
+    postNewThread(setThreadsAndReplies);
   };
   const handleThreadChange = (event) => {
     setThreadInput(event.target.value);
   };
   const threadFunction = () => () => {
-    console.log('Sending msg to Thread: ' + threadInput);
+    postReply(setThreadsAndReplies, setDms);
   };
 
-  // const doNothing = () => () =>{
-  //   console.log('Temp Function Call');
-  // };
-
   /**
- * @param {messages} messages
- * @param {bool} bool
- */
-  function threadHandler(messages, bool) {
-    console.log(messages);
+* @param {messages} messages
+* @param {bool} bool
+* @param {bool} isDm var to denote whether message we opened is thread or dm
+*/
+  function threadHandler(messages, bool, isDm) {
+    setCurrMessageId(messages[0].id);
+    // setMobileChannelsOpen(false);
+    if (isDm) {
+      setCurrDm(true);
+      toggleDmOpened(true);
+    } else {
+      setCurrDm(false);
+      toggleDmOpened(false);
+    }
     setThread(messages);
     openThread(bool);
   }
 
   /**
- * @param {inputDate} inputDate
- * @return {str} str
- */
-   function convertDate(inputDate) {
+* @param {inputDate} inputDate
+* @return {str} str
+*/
+  function convertDate(inputDate) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June',
       'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
     let output = null;
@@ -463,12 +519,12 @@ function Mentions() {
     </div>
   );
 
-  const mainMessage = (convo) => (
+  const mainMessage = (convo, isDm) => (
     <div>
       <ListItem
         key={'ID'}
         button
-        onClick={() => threadHandler(convo.messages, true)}
+        onClick={() => threadHandler(convo.messages, true, isDm)}
       >
         <ListItemAvatar>
           <Badge
@@ -477,29 +533,17 @@ function Mentions() {
             invisible={false}
           >
             <Avatar>
-              {convo.messages[convo.messages.length-1].from.charAt(0)}
+              {convo.otherUser[0]}
             </Avatar>
           </Badge>
         </ListItemAvatar>
         <ListItemText
-          primary={convo.messages[convo.messages.length-1].from + '  -  ' +
-          convertDate(convo.messages[convo.messages.length-1].time)}
+          primary={convo.otherUser +
+            '  /  ' + convertDate(convo.messages[convo.messages.length-1].time)}
           secondary={convo.messages[convo.messages.length-1].content}
         />
       </ListItem>
     </div>
-  );
-
-  const mainMessageTable = (
-    <List
-      onClick = {() => setMain(true)}
-      className = {classes.mainTableSize}
-    >
-      {threadsAndReplies.map(
-        (convo) =>
-          mainMessage(convo),
-      )}
-    </List>
   );
 
   const DMDisplay = (
@@ -509,7 +553,7 @@ function Mentions() {
     >
       {dms.map(
         (convo) =>
-          mainMessage(convo),
+          mainMessage(convo, true),
       )}
     </List>
   );
@@ -630,13 +674,13 @@ function Mentions() {
   );
 
   /**
-   * @return {array} JSX
+  * @return {array} JSX
   */
-   function returnChannelsArray() {
+  function returnChannelsArray() {
     let arr = [];
     workspacesAndChannels.map(
       (workspace) => {
-        if (workspace.workspaceName == currWorkspace) {
+        if (workspace.workspaceName === currWorkspace) {
           arr = workspace.channels;
         }
       },
@@ -704,13 +748,13 @@ function Mentions() {
       </div>
       <Divider />
       <ListSubheader>
-      <ListItemText
-            primary={'Channels'}
-            onClick={
-              () => {
-                history.push('/home');
-              }}
-          />
+        <ListItemText
+          primary={'Channels'}
+          onClick={
+            () => {
+              history.push('/home');
+            }}
+        />
       </ListSubheader>
       <Divider />
       {channelsTable}
@@ -753,14 +797,12 @@ function Mentions() {
           size="small"
           variant="outlined"
           className={classes.search}
-          onChange={handleSearchChange}
           InputProps={{
             endAdornment:
             <InputAdornment position="end">
               <IconButton
                 color={theme.palette.primary.dark}
                 edge="end"
-                onClick={searchFunction()}
               >
                 <SearchIcon />
               </IconButton>
@@ -798,14 +840,146 @@ function Mentions() {
     }
   };
 
+
+  // Sources Used for Creating a Post Request:
+  //  https://simonplend.com/how-to-use-fetch-to-post-form-data-as-json-to-your-api/
+  //  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
+  //  https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+  //
+  // create a new thread and add it to the current list of threads
+  const postNewThread = (setThreadsAndReplies) => {
+    const item = localStorage.getItem('user');
+    if (!item) {
+      return;
+    }
+    const user = JSON.parse(item);
+    const bearerToken = user ? user.accessToken : '';
+    const threadMessage = JSON.stringify({content: msgInput});
+
+    let currChannelId = null;
+    workspacesAndChannels.map(({channels}) => {
+      if (!currChannelId) {
+        const f = channels.find(({channelName}) =>
+          channelName === 'Assignment 1');
+        if (f) {
+          currChannelId = f.channelId;
+        }
+      }
+      // ignore this statement; lint requires maps receive a return value
+      return true;
+    });
+
+    fetch('/v0/channel/' + currChannelId, {
+      method: 'post',
+      headers: new Headers({
+        'Authorization': `Bearer ${bearerToken}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      }),
+      body: threadMessage,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw response;
+        }
+        return response.json();
+      })
+      .then((json) => {
+        const currThreads = [...threadsAndReplies];
+
+        // create a new thread object and push the new message in there
+        const threadObj = {};
+        threadObj.otherUser = json.from;
+        threadObj.messages = [json];
+        currThreads.push(threadObj);
+
+        setThreadsAndReplies(currThreads);
+        setMsgInput('');
+        setMsgInput2('');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  // create a new thread and add it to the current list of threads
+  const postReply = (setThreadsAndReplies, setDms) => {
+    const item = localStorage.getItem('user');
+    if (!item) {
+      return;
+    }
+    const user = JSON.parse(item);
+    const bearerToken = user ? user.accessToken : '';
+    const reply = JSON.stringify({content: threadInput});
+    fetch('/v0/reply/' + currMessageId, {
+      method: 'post',
+      headers: new Headers({
+        'Authorization': `Bearer ${bearerToken}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      }),
+      body: reply,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw response;
+        }
+        return response.json();
+      })
+      .then((json) => {
+        // based on whether we were replying to a dm or thread, add the new msg
+        if (dmOpened) {
+          // find the correct dm box in dms and add the new message
+          for (const index in dms) {
+            if (dms[index].messages[0].id === currMessageId) {
+              delete json.replies;
+              dms[index].messages.push(json);
+              setDms(dms);
+              break;
+            }
+          }
+        } else {
+          // we are viewing a thread, so add the new message to the threads arr
+          for (const index in threadsAndReplies) {
+            if (threadsAndReplies[index].messages[0].id === currMessageId) {
+              delete json.replies;
+              threadsAndReplies[index].messages.push(json);
+              setThreadsAndReplies(threadsAndReplies);
+              break;
+            }
+          }
+        }
+        // clear input in text field
+        setThreadInput('');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   React.useEffect(() => {
     checkLoggedIn();
     fetchWorkspacesAndChannels(setWorkspacesAndChannels,
-        setCurrWorkspace, setCurrChannel);
+      setCurrWorkspace, setCurrChannel);
     fetchDMs(setDms);
   }, []);
+
+  // Find first channel of new WS
   React.useEffect(() => {
-    console.log('Front Populated with ' + currChannel);
+    workspacesAndChannels.map((workspace)=>{
+      if (workspace.workspaceName === currWorkspace) {
+        changeChannel(undefined);
+        if (! workspace.channels[0]) {
+          setCurrChannel(null);
+        } else {
+          setCurrChannel(workspace.channels[0].channelName);
+        }
+      };
+    });
+      // setCurrChannel(currChannel);
+  }, [currWorkspace]);
+
+  React.useEffect(() => {
     // I need the below to instantiate the threads...
     fetchThreadsAndReplies(workspacesAndChannels,
       setThreadsAndReplies, currChannel);
@@ -836,7 +1010,7 @@ function Mentions() {
           {/* Mobile Workspace Panel */}
           <Hidden smDown implementation="css">
             <Drawer
-              classes={{paper: classes.drawerSize}}
+              classes={{paper: classes.workspaceDrawerSize}}
               variant="temporary"
               open={mobileWorkspacesOpen}
               onClose={openMobileWorkspacesMenu}
@@ -863,11 +1037,39 @@ function Mentions() {
           <div className={classes.toolbar} />
           <ListSubheader>
             <ListItemText
-              primary='Mentions'
+              primary={!currMain ? 'Mentions' : currChannel}
             />
           </ListSubheader>
-          {currMain ? mainMessageTable : DMDisplay}
-          {console.log(currMain + '' + mainMessageTable + '' + DMDisplay)}
+          <TextField
+            label={'User to send to...'}
+            size="small"
+            variant="outlined"
+            multiline
+            value={msgInput}
+            className={classes.mainTextField2}
+            onChange={handleMsgChange}
+          />
+          <TextField
+            label={'Message to send...'}
+            size="small"
+            variant="outlined"
+            multiline
+            value={msgInput2}
+            className={classes.mainTextField}
+            onChange={handleMsgChange2}
+            InputProps={{
+              endAdornment:
+              <InputAdornment position="end">
+                <IconButton
+                  color={theme.palette.primary.dark}
+                  edge="end"
+                  // Sends msg to channel v
+                  onClick={msgFunction()}>
+                  <SendIcon />
+                </IconButton>
+              </InputAdornment>,
+            }}
+          />
         </main>
         {/* ThreadPanel */}
         <nav
@@ -896,7 +1098,7 @@ function Mentions() {
                     <ArrowBackIcon />
                   </IconButton>
                   <Typography variant="h6" noWrap className={classes.title}>
-                    Thread : {currChannel}
+                    {currDm ? 'Mentions' : currChannel}
                   </Typography>
                 </Toolbar>
               </AppBar>
@@ -910,6 +1112,7 @@ function Mentions() {
                 variant="outlined"
                 multiline
                 className={classes.threadTextField}
+                value={threadInput}
                 onChange={handleThreadChange}
                 InputProps={{
                   endAdornment:
@@ -933,4 +1136,4 @@ function Mentions() {
   );
 }
 
-export default Mentions;
+export default DMs;
