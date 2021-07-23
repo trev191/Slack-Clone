@@ -502,7 +502,9 @@ function Search() {
   );
 
   const threadMessageTable = (
-    <List>
+    <List
+    className = {classes.mainTableSize}
+    >
       {currThread ?
         currThread.map((message)=> threadMessage(message)) :
         ''}
@@ -690,7 +692,13 @@ function Search() {
       </div>
       <Divider />
       <ListSubheader>
-        <ListItemText primary={'Channels'} />
+      <ListItemText
+            primary={'Channels'}
+            onClick={
+              () => {
+                history.push('/home');
+              }}
+          />
       </ListSubheader>
       <Divider />
       {channelsTable}
@@ -845,7 +853,8 @@ function Search() {
               primary='Search'
             />
           </ListSubheader>
-          {currMain ? mainMessageTable : DMDisplay}
+          {/* {currMain ? mainMessageTable : DMDisplay} */}
+          {console.log(currMain + '' + mainMessageTable + '' + DMDisplay)}
         </main>
         {/* ThreadPanel */}
         <nav>
